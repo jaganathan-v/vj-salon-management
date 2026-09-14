@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — VIJAYAN SALON</title>
+  <link rel="stylesheet" href="assets/css/design-system.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="barber-pole"></div>
+  <div class="loading-shop-name">VIJAYAN SALON</div>
+  <div class="loading-tagline">Personal Settings</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<div class="vj-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">V</div>
+      <div>
+        <div class="sidebar-logo-text">VIJAYAN SALON</div>
+        <div class="sidebar-logo-sub">User Preferences</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Navigation</div>
+      <a href="index.html" class="sidebar-item">
+        <span class="sidebar-icon">🏠</span><span class="sidebar-label" data-i18n="nav.home">Home</span>
+      </a>
+      <a href="client.html" class="sidebar-item">
+        <span class="sidebar-icon">👤</span><span class="sidebar-label" data-i18n="nav.client">Client</span>
+      </a>
+      <a href="stylist.html" class="sidebar-item">
+        <span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="nav.stylist">Stylist</span>
+      </a>
+      <a href="admin.html" class="sidebar-item">
+        <span class="sidebar-icon">👑</span><span class="sidebar-label" data-i18n="nav.admin">Admin</span>
+      </a>
+      <div class="sidebar-section-label">Preferences</div>
+      <a href="settings.html" class="sidebar-item active">
+        <span class="sidebar-icon">⚙</span><span class="sidebar-label" data-i18n="nav.settings">Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer" style="font-size:0.75rem;color:var(--cream-muted);text-align:center;">
+      Isolated to your browser
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="nav.settings">Personal Preferences & Settings</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock-display">00:00:00</div>
+      </div>
+    </header>
+
+    <div class="page-content" style="max-width:880px;">
+
+      <div class="page-header">
+        <h2 class="page-title" data-i18n="settings.title">Customize Your Experience</h2>
+        <div class="page-subtitle">Changes made here apply only to your current browser and will not affect any other users or salon staff.</div>
+      </div>
+
+      <!-- SECTION 1: THEME -->
+      <div class="vj-card" style="margin-bottom:24px;">
+        <div class="card-title" style="margin-bottom:8px;" data-i18n="settings.theme">Color Theme</div>
+        <p style="color:var(--cream-muted);font-size:0.88rem;margin-bottom:20px;">Choose a visual color palette that matches your aesthetic preference.</p>
+
+        <div class="theme-grid">
+          <div class="theme-card active" id="theme-card-dark" onclick="selectTheme('dark')">
+            <div class="theme-preview theme-preview-dark"></div>
+            <div class="theme-name" data-i18n="settings.dark">Ink & Charcoal (Dark)</div>
+            <div class="theme-desc">Deep midnight navy with burnt amber accents</div>
+          </div>
+          <div class="theme-card" id="theme-card-light" onclick="selectTheme('light')">
+            <div class="theme-preview theme-preview-light"></div>
+            <div class="theme-name" data-i18n="settings.light">Clean Ivory (Light)</div>
+            <div class="theme-desc">Crisp white and warm parchment paper tones</div>
+          </div>
+          <div class="theme-card" id="theme-card-sepia" onclick="selectTheme('sepia')">
+            <div class="theme-preview theme-preview-sepia"></div>
+            <div class="theme-name" data-i18n="settings.sepia">Warm Sepia (Vintage)</div>
+            <div class="theme-desc">Rich caramel and coffee lounge aesthetics</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: LANGUAGE -->
+      <div class="vj-card" style="margin-bottom:24px;">
+        <div class="card-title" style="margin-bottom:8px;" data-i18n="settings.language">Language (மொழி / भाषा)</div>
+        <p style="color:var(--cream-muted);font-size:0.88rem;margin-bottom:20px;">Select your preferred language. All portal labels and service names will adapt automatically.</p>
+
+        <div class="lang-grid">
+          <div class="lang-card active" id="lang-card-en" onclick="selectLanguage('en')">
+            <span class="lang-flag">🇬🇧</span>
+            <div class="lang-name">English</div>
+            <div style="color:var(--cream-muted);font-size:0.8rem;margin-top:4px;">Default Language</div>
+          </div>
+          <div class="lang-card" id="lang-card-ta" onclick="selectLanguage('ta')">
+            <span class="lang-flag">🇮🇳</span>
+            <div class="lang-name">தமிழ்</div>
+            <div style="color:var(--cream-muted);font-size:0.8rem;margin-top:4px;">சேலம் தமிழ்</div>
+          </div>
+          <div class="lang-card" id="lang-card-hi" onclick="selectLanguage('hi')">
+            <span class="lang-flag">🇮🇳</span>
+            <div class="lang-name">हिंदी</div>
+            <div style="color:var(--cream-muted);font-size:0.8rem;margin-top:4px;">भारतीय हिंदी</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: FONT SIZE -->
+      <div class="vj-card" style="margin-bottom:24px;">
+        <div class="card-title" style="margin-bottom:8px;" data-i18n="settings.fontSize">Text Size</div>
+        <p style="color:var(--cream-muted);font-size:0.88rem;margin-bottom:20px;">Adjust font size for optimal reading comfort.</p>
+
+        <div class="font-pills">
+          <button class="font-pill" id="fp-small" onclick="selectFontSize('small')">Small (14px)</button>
+          <button class="font-pill active" id="fp-medium" onclick="selectFontSize('medium')">Standard (15px)</button>
+          <button class="font-pill" id="fp-large" onclick="selectFontSize('large')">Large (17px)</button>
+        </div>
+      </div>
+
+      <!-- SECTION 4: ABOUT SHOP -->
+      <div class="vj-card" style="margin-bottom:24px;">
+        <div class="card-title" style="margin-bottom:12px;" data-i18n="settings.about">About VIJAYAN SALON</div>
+        <p style="color:var(--cream-dim);line-height:1.7;">
+          <strong>VIJAYAN SALON</strong> is a premier haircut, styling, and personal grooming salon situated at Ponnammapet, Salem. Serving Salem since 2010 with master barbers, genuine grooming products, and personalized care.
+        </p>
+        <div class="divider"></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;color:var(--cream-muted);font-size:0.85rem;">
+          <div>📍 No.2 pillayar kovil street, Ponnammapet, Salem-636001</div>
+          <div>📞 6374402014</div>
+          <div>💳 UPI: 6374402014@okbizaxis</div>
+          <div>✨ System Version: 1.0.0 (Production)</div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: RESET -->
+      <div class="vj-card" style="border-color:rgba(216,74,106,0.3);background:rgba(216,74,106,0.03);">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+          <div>
+            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--danger);" data-i18n="settings.reset">Reset Local Preferences</div>
+            <p style="color:var(--cream-muted);font-size:0.85rem;margin-top:2px;">Clears all theme, language, and session tokens stored on this machine.</p>
+          </div>
+          <button class="btn btn-danger" onclick="resetAllPreferences()">Reset All Settings</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock-display').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // Load preferences
+  function loadPreferences() {
+    const currentTheme = localStorage.getItem('vj_theme') || 'dark';
+    const currentLang = localStorage.getItem('vj_lang') || 'en';
+    const currentFont = localStorage.getItem('vj_fontsize') || 'medium';
+
+    // Theme active state
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+    const tc = document.getElementById('theme-card-' + currentTheme);
+    if (tc) tc.classList.add('active');
+
+    // Lang active state
+    document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('active'));
+    const lc = document.getElementById('lang-card-' + currentLang);
+    if (lc) lc.classList.add('active');
+
+    // Font active state
+    document.querySelectorAll('.font-pill').forEach(p => p.classList.remove('active'));
+    const fc = document.getElementById('fp-' + currentFont);
+    if (fc) fc.classList.add('active');
+
+    applyPreferences(currentTheme, currentFont);
+  }
+
+  function selectTheme(theme) {
+    localStorage.setItem('vj_theme', theme);
+    document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('theme-card-' + theme).classList.add('active');
+    document.documentElement.setAttribute('data-theme', theme);
+    showToast(`Theme changed to ${theme.toUpperCase()}`, 'success', 'Theme Updated');
+  }
+
+  function selectLanguage(langCode) {
+    localStorage.setItem('vj_lang', langCode);
+    document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('active'));
+    document.getElementById('lang-card-' + langCode).classList.add('active');
+    showToast('Language preference saved! Reloading...', 'info');
+    setTimeout(() => window.location.reload(), 1000);
+  }
+
+  function selectFontSize(size) {
+    localStorage.setItem('vj_fontsize', size);
+    document.querySelectorAll('.font-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('fp-' + size).classList.add('active');
+    const pxMap = { small:'14px', medium:'15px', large:'17px' };
+    document.documentElement.style.fontSize = pxMap[size] || '15px';
+    showToast(`Font size set to ${size}`, 'info');
+  }
+
+  function applyPreferences(theme, fontSize) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const pxMap = { small:'14px', medium:'15px', large:'17px' };
+    document.documentElement.style.fontSize = pxMap[fontSize] || '15px';
+  }
+
+  function resetAllPreferences() {
+    if (!confirm('Are you sure you want to reset all local settings on this device?')) return;
+    ['vj_theme','vj_lang','vj_fontsize','vj_token','vj_user_name','vj_stylist_id','vj_role'].forEach(k => localStorage.removeItem(k));
+    showToast('All local preferences cleared', 'info');
+    setTimeout(() => window.location.reload(), 1200);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 800);
+    loadPreferences();
+  });
+</script>
+</body>
+</html>

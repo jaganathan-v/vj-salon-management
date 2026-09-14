@@ -1,0 +1,68 @@
+/* pages.css — page-specific layout overrides */
+
+/* Frontpage shop info map */
+.map-frame { width:100%; height:260px; border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; }
+
+/* Contact card */
+.contact-card { display:flex; flex-direction:column; gap:14px; }
+.contact-row  { display:flex; align-items:center; gap:14px; }
+.contact-icon { font-size:1.3rem; width:36px; text-align:center; flex-shrink:0; }
+.contact-val  { color:var(--cream); font-size:0.98rem; }
+.contact-val a{ color:var(--amber-mid); }
+.contact-val a:hover { color:var(--amber-bright); }
+
+/* Footer */
+.vj-footer { border-top:1px solid var(--border-dim); padding:40px 28px 24px; text-align:center; }
+.footer-logo   { font-family:var(--font-display); font-size:1.8rem; color:var(--cream); letter-spacing:0.08em; }
+.footer-tagline{ color:var(--cream-muted); font-size:0.88rem; margin-top:6px; }
+.footer-copy   { color:var(--cream-muted); font-size:0.78rem; margin-top:20px; }
+
+/* Client page section tabs */
+.client-tabs { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:28px; background:var(--bg-surface); padding:6px; border-radius:var(--radius-lg); width:fit-content; }
+.client-tab  { padding:9px 18px; border-radius:var(--radius-md); cursor:pointer; font-size:0.88rem; font-weight:500; color:var(--cream-dim); transition:var(--transition); border:none; background:transparent; }
+.client-tab:hover  { color:var(--cream); }
+.client-tab.active { background:var(--bg-card); color:var(--amber-bright); box-shadow:var(--shadow-sm); }
+.client-section { display:none; }
+.client-section.active { display:block; animation:fadeIn 0.3s ease; }
+
+/* Booking running total bar */
+.running-total { background:rgba(217,114,45,0.12); border:1px solid var(--amber-mid); border-radius:var(--radius-md); padding:14px 20px; display:flex; justify-content:space-between; align-items:center; margin-top:16px; }
+.running-total-label{ color:var(--cream-dim); font-size:0.9rem; }
+.running-total-val  { font-family:var(--font-display); font-size:1.5rem; color:var(--amber-bright); font-weight:700; }
+
+/* Admin quick-action buttons */
+.quick-actions { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+
+/* Stylist performance summary in dashboard */
+.perf-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border-dim); }
+.perf-name{ color:var(--cream); font-weight:600; min-width:100px; }
+.perf-bar { flex:1; }
+
+/* Low stock alert banner */
+.stock-alert { background:rgba(216,74,106,0.1); border:1px solid var(--danger); border-radius:var(--radius-md); padding:12px 18px; display:flex; align-items:center; gap:10px; margin-bottom:16px; color:var(--danger); font-size:0.9rem; }
+
+/* Admin upload area */
+.upload-area { border:2px dashed var(--border); border-radius:var(--radius-md); padding:32px; text-align:center; cursor:pointer; transition:var(--transition); }
+.upload-area:hover { border-color:var(--amber-mid); background:var(--amber-glow); }
+.upload-area .upload-icon { font-size:2.5rem; margin-bottom:10px; color:var(--cream-muted); }
+.upload-area .upload-text { color:var(--cream-dim); font-size:0.9rem; }
+
+/* Ad preview grid */
+.ad-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; }
+.ad-preview-card { background:var(--bg-card); border:1px solid var(--border-dim); border-radius:var(--radius-md); overflow:hidden; transition:var(--transition); }
+.ad-preview-card:hover { border-color:var(--border); }
+.ad-thumb { width:100%; height:120px; object-fit:cover; background:var(--bg-surface); display:flex; align-items:center; justify-content:center; font-size:3rem; }
+.ad-thumb-meta { padding:12px; }
+.ad-thumb-title { color:var(--cream); font-size:0.88rem; font-weight:600; }
+.ad-thumb-actions { display:flex; gap:8px; margin-top:8px; }
+
+/* Pagination */
+.pagination { display:flex; gap:8px; align-items:center; margin-top:20px; }
+.page-btn { width:36px; height:36px; border-radius:var(--radius-sm); border:1px solid var(--border); background:transparent; color:var(--cream-dim); cursor:pointer; transition:var(--transition); font-size:0.88rem; display:flex; align-items:center; justify-content:center; }
+.page-btn:hover  { border-color:var(--amber-mid); color:var(--cream); }
+.page-btn.active { background:var(--amber-gradient); color:var(--bg-void); border-color:transparent; font-weight:700; }
+.page-btn:disabled { opacity:0.3; cursor:not-allowed; }
+
+/* Password strength indicator */
+.pwd-strength { height:4px; border-radius:2px; background:var(--bg-surface); margin-top:6px; overflow:hidden; }
+.pwd-strength-bar { height:100%; border-radius:2px; transition:width 0.3s, background 0.3s; }
