@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal — VIJAYAN SALON</title>
+  <link rel="stylesheet" href="assets/css/design-system.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="barber-pole"></div>
+  <div class="loading-shop-name">VIJAYAN SALON</div>
+  <div class="loading-tagline">Admin Control Center</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card fade-in">
+    <div class="login-logo">
+      <div class="login-logo-icon">👑</div>
+      <h2 class="login-title" data-i18n="admin.login">Admin Login</h2>
+      <div class="login-subtitle">VIJAYAN SALON Master Control</div>
+    </div>
+    <div id="login-error" class="login-error">Invalid Admin Code or Password</div>
+    <form id="admin-login-form" onsubmit="event.preventDefault(); handleLogin();">
+      <div class="form-group">
+        <label class="form-label">Admin ID / Code</label>
+        <input type="text" id="login-code" class="form-input" placeholder="VJADMIN" value="VJADMIN" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-pwd" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-amber btn-full btn-lg" style="margin-top:10px;">
+        <span>👑</span> <span>Sign In as Admin</span>
+      </button>
+      <div class="login-hint">
+        Default Credentials: <strong>VJADMIN</strong> / <strong>vj@admin2024</strong>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- APP WRAPPER -->
+<div id="app-wrapper" class="vj-layout" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">👑</div>
+      <div>
+        <div class="sidebar-logo-text">VIJAYAN SALON</div>
+        <div class="sidebar-logo-sub">Master Admin</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Analytics & Overview</div>
+      <a class="sidebar-item active" onclick="showPanel('dashboard')">
+        <span class="sidebar-icon">📊</span><span class="sidebar-label" data-i18n="admin.dashboard">Dashboard</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('analytics')">
+        <span class="sidebar-icon">📈</span><span class="sidebar-label" data-i18n="admin.analytics">Data Analytics</span>
+      </a>
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-item" onclick="showPanel('bookings')">
+        <span class="sidebar-icon">📋</span><span class="sidebar-label" data-i18n="admin.bookings">Bookings</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('feedback')">
+        <span class="sidebar-icon">⭐</span><span class="sidebar-label" data-i18n="admin.feedback">Client Feedback</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('services')">
+        <span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="admin.services">Services & Prices</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('stylists')">
+        <span class="sidebar-icon">👨‍🦱</span><span class="sidebar-label" data-i18n="admin.stylists">Stylists / Staff</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('offers')">
+        <span class="sidebar-icon">🏷</span><span class="sidebar-label" data-i18n="admin.offers">Offers & Discounts</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('inventory')">
+        <span class="sidebar-icon">📦</span><span class="sidebar-label" data-i18n="admin.inventory">Inventory</span>
+      </a>
+      <div class="sidebar-section-label">Media & Content</div>
+      <a class="sidebar-item" onclick="showPanel('ads')">
+        <span class="sidebar-icon">🎬</span><span class="sidebar-label" data-i18n="admin.advertisements">Ads & Photos</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('payment-qr')">
+        <span class="sidebar-icon">💳</span><span class="sidebar-label" data-i18n="admin.paymentQr">Payment QR Code</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('events')">
+        <span class="sidebar-icon">📅</span><span class="sidebar-label" data-i18n="admin.events">Daily Events</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('achievements')">
+        <span class="sidebar-icon">🏆</span><span class="sidebar-label" data-i18n="admin.achievements">Achievements</span>
+      </a>
+      <div class="sidebar-section-label">Configuration</div>
+      <a class="sidebar-item" onclick="showPanel('settings')">
+        <span class="sidebar-icon">🏪</span><span class="sidebar-label" data-i18n="admin.shopSettings">Shop & Admin Pwd</span>
+      </a>
+      <a href="index.html" class="sidebar-item" target="_blank">
+        <span class="sidebar-icon">🌐</span><span class="sidebar-label">View Frontpage ↗</span>
+      </a>
+      <a href="client.html" class="sidebar-item" target="_blank">
+        <span class="sidebar-icon">👤</span><span class="sidebar-label">View Client Portal ↗</span>
+      </a>
+      <a href="stylist.html" class="sidebar-item" target="_blank">
+        <span class="sidebar-icon">✂</span><span class="sidebar-label">View Stylist Portal ↗</span>
+      </a>
+      <a class="sidebar-item" onclick="handleLogout()">
+        <span class="sidebar-icon">🚪</span><span class="sidebar-label">Sign Out</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">VIJAYAN SALON — Admin Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock-display">00:00:00</div>
+        <select class="topbar-lang" id="lang-select" onchange="changeLang(this.value)">
+          <option value="en">🇬🇧 EN</option>
+          <option value="ta">🇮🇳 தமிழ்</option>
+          <option value="hi">🇮🇳 हिंदी</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="handleLogout()">🚪 Logout</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- ================= PANEL 1: DASHBOARD ================= -->
+      <div id="panel-dashboard" class="admin-panel active">
+        <div class="page-header">
+          <h2 class="page-title">Executive Dashboard</h2>
+          <div class="page-subtitle">Real-time revenue, client throughput, and quick management controls</div>
+        </div>
+
+        <div class="stat-cards-grid" style="margin-bottom:24px;">
+          <div class="stat-card" onclick="showPanel('analytics')">
+            <span class="stat-icon">💵</span>
+            <span class="stat-value" id="stat-daily-rev">₹4,200</span>
+            <span class="stat-label">Today's Revenue</span>
+            <div class="stat-change up">↑ 14% vs yesterday</div>
+          </div>
+          <div class="stat-card" onclick="showPanel('analytics')">
+            <span class="stat-icon">📅</span>
+            <span class="stat-value" id="stat-monthly-rev">₹1,18,500</span>
+            <span class="stat-label">This Month Revenue</span>
+            <div class="stat-change up">↑ 8% vs last month</div>
+          </div>
+          <div class="stat-card" onclick="showPanel('bookings')">
+            <span class="stat-icon">👥</span>
+            <span class="stat-value" id="stat-total-clients">24</span>
+            <span class="stat-label">Appointments Today</span>
+          </div>
+          <div class="stat-card" onclick="showPanel('feedback')">
+            <span class="stat-icon">⭐</span>
+            <span class="stat-value" id="stat-avg-rating">4.8★</span>
+            <span class="stat-label">Customer Satisfaction</span>
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="quick-actions">
+          <button class="btn btn-amber btn-sm" onclick="openAddServiceModal()">+ Add New Service</button>
+          <button class="btn btn-teal btn-sm" onclick="openAddStylistModal()">+ Add Stylist Account</button>
+          <button class="btn btn-outline btn-sm" onclick="showPanel('payment-qr')">Update Payment QR</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportBookingsCSV()">📥 Export Bookings CSV</button>
+        </div>
+
+        <div class="two-col">
+          <div class="vj-card">
+            <div class="card-header">
+              <div class="card-title">Live Appointments</div>
+              <button class="btn btn-ghost btn-sm" onclick="showPanel('bookings')">Manage →</button>
+            </div>
+            <div id="dash-live-bookings"></div>
+          </div>
+          <div class="vj-card">
+            <div class="card-header">
+              <div class="card-title">Stylist Performance Today</div>
+              <button class="btn btn-ghost btn-sm" onclick="showPanel('stylists')">Staff Details →</button>
+            </div>
+            <div id="dash-stylist-perf"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 2: ANALYTICS ================= -->
+      <div id="panel-analytics" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="admin.analytics">Data Analytics & Financial Reports</h2>
+          <div class="page-subtitle">Visual performance trends across Daily, Weekly, Monthly, and Yearly cycles</div>
+        </div>
+
+        <div class="period-tabs">
+          <button class="period-tab active" id="ptab-daily" onclick="switchPeriod('daily')">Daily Basis</button>
+          <button class="period-tab" id="ptab-weekly" onclick="switchPeriod('weekly')">Weekly Basis</button>
+          <button class="period-tab" id="ptab-monthly" onclick="switchPeriod('monthly')">Monthly Basis</button>
+          <button class="period-tab" id="ptab-yearly" onclick="switchPeriod('yearly')">Yearly Basis</button>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-wrap">
+            <div class="chart-label">💰 Revenue Trend (<span id="chart-period-label">Daily</span>)</div>
+            <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">✂ Most Popular Services Breakdown</div>
+            <div class="chart-container"><canvas id="servicesChart"></canvas></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">👨‍🦱 Work Done by Each Stylist (Services Count)</div>
+            <div class="chart-container"><canvas id="stylistChart"></canvas></div>
+          </div>
+          <div class="chart-wrap">
+            <div class="chart-label">⭐ Customer Rating Trends (1-5★)</div>
+            <div class="chart-container"><canvas id="ratingsChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 3: BOOKINGS ================= -->
+      <div id="panel-bookings" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.bookings">Booking Management</h2>
+            <div class="page-subtitle">Full list of client bookings with status updates and deletion controls</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="exportBookingsCSV()">📥 Export to CSV</button>
+        </div>
+
+        <div class="vj-card">
+          <div class="table-wrap">
+            <table class="vj-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Client</th>
+                  <th>Contact</th>
+                  <th>Services</th>
+                  <th>Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-bookings-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 4: FEEDBACK ================= -->
+      <div id="panel-feedback" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="admin.feedback">Client Feedback & Ratings</h2>
+          <div class="page-subtitle">5-dimension rating breakdown: Service, Cleanliness, Staff, Timing, and Overall</div>
+        </div>
+
+        <div class="two-col" style="margin-bottom:24px;">
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:16px;">Average Rating Scores</div>
+            <div class="rating-summary">
+              <div class="rating-summary-row"><span class="rating-summary-label">Service Quality:</span><div class="progress-wrap" style="flex:1;"><div class="progress-bar" style="width:96%;"></div></div><span class="rating-summary-val">4.8★</span></div>
+              <div class="rating-summary-row"><span class="rating-summary-label">Shop Cleanliness:</span><div class="progress-wrap" style="flex:1;"><div class="progress-bar" style="width:94%;"></div></div><span class="rating-summary-val">4.7★</span></div>
+              <div class="rating-summary-row"><span class="rating-summary-label">Staff Behaviour:</span><div class="progress-wrap" style="flex:1;"><div class="progress-bar" style="width:98%;"></div></div><span class="rating-summary-val">4.9★</span></div>
+              <div class="rating-summary-row"><span class="rating-summary-label">Time Punctuality:</span><div class="progress-wrap" style="flex:1;"><div class="progress-bar" style="width:92%;"></div></div><span class="rating-summary-val">4.6★</span></div>
+              <div class="rating-summary-row"><span class="rating-summary-label">Overall Experience:</span><div class="progress-wrap" style="flex:1;"><div class="progress-bar" style="width:96%;"></div></div><span class="rating-summary-val">4.8★</span></div>
+            </div>
+          </div>
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:12px;">Feedback Summary</div>
+            <p style="color:var(--cream-dim);">Clients appreciate punctual service and clean haircut equipment. Overall ratings consistently stay above 4.7 stars.</p>
+          </div>
+        </div>
+
+        <div class="vj-card">
+          <div class="table-wrap">
+            <table class="vj-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Shop</th>
+                  <th>Staff</th>
+                  <th>Timing</th>
+                  <th>Overall</th>
+                  <th>Comments</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-feedback-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 5: SERVICES ================= -->
+      <div id="panel-services" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.services">Services & Pricing Manager</h2>
+            <div class="page-subtitle">Add, edit, change prices, and apply discount percentages to shop services</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddServiceModal()">+ Add New Service</button>
+        </div>
+
+        <div id="admin-services-list"></div>
+      </div>
+
+      <!-- ================= PANEL 6: STYLISTS ================= -->
+      <div id="panel-stylists" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.stylists">Stylist Accounts & Staff Management</h2>
+            <div class="page-subtitle">Create worker logins, reset passwords, and monitor live stylist availability</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddStylistModal()">+ Add Stylist Account</button>
+        </div>
+
+        <div class="vj-card">
+          <div class="table-wrap">
+            <table class="vj-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Stylist Name</th>
+                  <th>Current Status</th>
+                  <th>Account Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-stylists-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 7: OFFERS ================= -->
+      <div id="panel-offers" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.offers">Offers & Promotional Discounts</h2>
+            <div class="page-subtitle">Configure discount percentages and promotional deals shown on frontpage</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddOfferModal()">+ Add Offer</button>
+        </div>
+
+        <div id="admin-offers-list"></div>
+      </div>
+
+      <!-- ================= PANEL 8: INVENTORY ================= -->
+      <div id="panel-inventory" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.inventory">Shop Inventory Control</h2>
+            <div class="page-subtitle">Full stock overview with item deletion and threshold management</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddInvModalAdmin()">+ Add Item</button>
+        </div>
+
+        <div id="admin-inventory-list"></div>
+      </div>
+
+      <!-- ================= PANEL 9: ADVERTISEMENTS ================= -->
+      <div id="panel-ads" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="admin.advertisements">Advertisement Videos & Photos</h2>
+          <div class="page-subtitle">Upload shop photos, videos, and promotional banners for the frontpage carousel</div>
+        </div>
+
+        <div class="vj-card" style="margin-bottom:24px;">
+          <div class="card-title" style="margin-bottom:16px;">Upload New Advertisement Media</div>
+          <form id="form-upload-ad" onsubmit="event.preventDefault(); handleUploadAd();">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Ad Title</label>
+                <input type="text" id="ad-title" class="form-input" placeholder="e.g. Festival Special Grooming Offer" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Media Type</label>
+                <select id="ad-type" class="form-select">
+                  <option value="IMAGE">Image (.jpg, .png)</option>
+                  <option value="VIDEO">Video (.mp4)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Select File</label>
+              <input type="file" id="ad-file" class="form-input" accept="image/*,video/*" required>
+            </div>
+            <button type="submit" class="btn btn-amber">📤 Upload Advertisement</button>
+          </form>
+        </div>
+
+        <div class="vj-card">
+          <div class="card-title" style="margin-bottom:16px;">Current Advertisements on Frontpage</div>
+          <div class="ad-grid" id="admin-ads-grid"></div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 10: PAYMENT QR ================= -->
+      <div id="panel-payment-qr" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="admin.paymentQr">Payment QR Code & UPI Configuration</h2>
+          <div class="page-subtitle">Update the official QR code image and UPI ID shown in the client payment portal</div>
+        </div>
+
+        <div class="two-col">
+          <div class="vj-card" style="text-align:center;">
+            <div class="card-title" style="margin-bottom:16px;">Current Client Payment QR</div>
+            <div class="qr-image-wrap" style="width:200px;height:200px;">
+              <img id="admin-qr-preview" class="qr-image" src="assets/uploads/qr/payment_qr.jpg"
+                onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect width=\'200\' height=\'200\' fill=\'%23fff\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-size=\'30\'%3E📱 QR%3C/text%3E%3C/svg%3E';"
+                alt="Payment QR">
+            </div>
+            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-top:12px;" id="admin-qr-name">VIJAYAN SALOON</div>
+            <div style="color:var(--amber-bright);font-family:var(--font-display);margin-top:4px;" id="admin-qr-upi">6374402014@okbizaxis</div>
+          </div>
+
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:16px;">Update QR & UPI Details</div>
+            <form id="form-update-qr" onsubmit="event.preventDefault(); handleUpdatePaymentQR();">
+              <div class="form-group">
+                <label class="form-label">UPI ID</label>
+                <input type="text" id="qr-upi-input" class="form-input" value="6374402014@okbizaxis" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Display Name on Google Pay / UPI</label>
+                <input type="text" id="qr-name-input" class="form-input" value="VIJAYAN SALOON" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Upload New QR Code Image (Optional)</label>
+                <input type="file" id="qr-file-input" class="form-input" accept="image/*" onchange="previewNewQR(this)">
+              </div>
+              <button type="submit" class="btn btn-amber btn-full">Save Payment Details ✓</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 11: EVENTS ================= -->
+      <div id="panel-events" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.events">Daily Events & Holiday Notices</h2>
+            <div class="page-subtitle">Notices displayed at the top of the frontpage for clients</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddEventModal()">+ Add Event Notice</button>
+        </div>
+        <div id="admin-events-list"></div>
+      </div>
+
+      <!-- ================= PANEL 12: ACHIEVEMENTS ================= -->
+      <div id="panel-achievements" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="admin.achievements">Shop Achievements & Awards</h2>
+            <div class="page-subtitle">Milestones displayed in the frontpage timeline</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddAchievementModal()">+ Add Achievement</button>
+        </div>
+        <div id="admin-achievements-list"></div>
+      </div>
+
+      <!-- ================= PANEL 13: SETTINGS & PASSWORD ================= -->
+      <div id="panel-settings" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="admin.shopSettings">Shop Information & Security</h2>
+          <div class="page-subtitle">Update basic shop details and change your admin access password (saved to database)</div>
+        </div>
+
+        <div class="two-col">
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:16px;">Shop Profile Details</div>
+            <form id="form-shop-settings" onsubmit="event.preventDefault(); handleSaveShopSettings();">
+              <div class="form-group">
+                <label class="form-label">Shop Name</label>
+                <input type="text" id="set-shop-name" class="form-input" value="VIJAYAN SALON" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tagline</label>
+                <input type="text" id="set-tagline" class="form-input" value="Excellence in Every Cut">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Full Address</label>
+                <textarea id="set-address" class="form-textarea" required>No.2 pillayar kovil street, Ponnammapet, Salem - 636001 (near Mariyamman kovil)</textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Contact Phone</label>
+                  <input type="text" id="set-phone" class="form-input" value="6374402014" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Established Year</label>
+                  <input type="number" id="set-since" class="form-input" value="2010" required>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-amber">Save Shop Settings ✓</button>
+            </form>
+          </div>
+
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:16px;">Change Admin Password</div>
+            <p style="color:var(--cream-muted);font-size:0.85rem;margin-bottom:16px;">Update your password stored in the PostgreSQL database.</p>
+            <form id="form-change-pwd" onsubmit="event.preventDefault(); handleChangeAdminPassword();">
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" id="pwd-curr" class="form-input" placeholder="Current password" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" id="pwd-new" class="form-input" placeholder="New password (min 6 characters)" minlength="6" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="pwd-confirm" class="form-input" placeholder="Confirm new password" required>
+              </div>
+              <button type="submit" class="btn btn-danger btn-full">Update Password in Database 🔒</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- MODAL: ADD / EDIT SERVICE -->
+<div id="modal-service" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-svc-title">+ Add Service</div>
+      <button class="modal-close" onclick="closeModal('modal-service')">✕</button>
+    </div>
+    <form id="form-service" onsubmit="event.preventDefault(); handleSaveService();">
+      <input type="hidden" id="svc-id">
+      <div class="form-group">
+        <label class="form-label">Service Name (English)</label>
+        <input type="text" id="svc-name-en" class="form-input" placeholder="e.g. Haircut, Beard Trim" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tamil Name (தமிழ்)</label>
+          <input type="text" id="svc-name-ta" class="form-input" placeholder="e.g. முடி வெட்டு">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hindi Name (हिंदी)</label>
+          <input type="text" id="svc-name-hi" class="form-input" placeholder="e.g. बाल कटाई">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Price (₹)</label>
+          <input type="number" id="svc-price" class="form-input" placeholder="80" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Offer / Discount (%)</label>
+          <input type="number" id="svc-offer" class="form-input" value="0" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select id="svc-cat" class="form-select" required>
+          <option value="HAIR">HAIR (Haircut, Colour, Spa)</option>
+          <option value="BEARD">BEARD (Beard Trim, Shave)</option>
+          <option value="SKIN">SKIN (Facial, Threading, Massage)</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-service')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Save Service</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: ADD STYLIST -->
+<div id="modal-stylist" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Stylist Worker</div>
+      <button class="modal-close" onclick="closeModal('modal-stylist')">✕</button>
+    </div>
+    <form id="form-add-stylist" onsubmit="event.preventDefault(); handleSaveStylist();">
+      <div class="form-group">
+        <label class="form-label">Stylist Name</label>
+        <input type="text" id="st-name" class="form-input" placeholder="e.g. Ramesh, Karthik" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Stylist Code (Unique Login ID)</label>
+          <input type="text" id="st-code" class="form-input" placeholder="e.g. VJS003" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Initial Password</label>
+          <input type="password" id="st-pwd" class="form-input" placeholder="••••••••" required>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-stylist')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Create Stylist Account</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: ADD OFFER -->
+<div id="modal-offer" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Promotional Offer</div>
+      <button class="modal-close" onclick="closeModal('modal-offer')">✕</button>
+    </div>
+    <form id="form-offer" onsubmit="event.preventDefault(); handleSaveOffer();">
+      <div class="form-group">
+        <label class="form-label">Offer Title (English)</label>
+        <input type="text" id="off-title-en" class="form-input" placeholder="e.g. Summer Special" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Discount (%)</label>
+          <input type="number" id="off-disc" class="form-input" value="15" min="1" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valid Until</label>
+          <input type="date" id="off-until" class="form-input" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea id="off-desc" class="form-textarea" placeholder="Details of this offer..."></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-offer')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Publish Offer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+  let revenueChartInstance = null;
+  let servicesChartInstance = null;
+  let stylistChartInstance = null;
+  let ratingsChartInstance = null;
+
+  let allAdminBookings = [];
+  let allAdminServices = [];
+  let allAdminStylists = [];
+  let allAdminOffers = [];
+  let allAdminFeedback = [];
+  let allAdminInventory = [];
+
+  const lang = localStorage.getItem('vj_lang') || 'en';
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  document.getElementById('lang-select').value = lang;
+  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock-display').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // Auth Handling
+  async function handleLogin() {
+    const code = document.getElementById('login-code').value.trim();
+    const pwd = document.getElementById('login-pwd').value;
+    const res = await API.loginAdmin(code, pwd);
+    if (res && res.token) {
+      Auth.saveAdminSession(res.token);
+      document.getElementById('login-error').style.display = 'none';
+      initAdminApp();
+      showToast('Welcome to Master Admin!', 'success', 'Admin Logged In 👑');
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function handleLogout() {
+    Auth.clear();
+    document.getElementById('app-wrapper').style.display = 'none';
+    document.getElementById('login-overlay').style.display = 'flex';
+    showToast('Signed out of Admin', 'info');
+  }
+
+  function checkSession() {
+    if (Auth.isLoggedIn() && Auth.getRole() === 'admin') {
+      initAdminApp();
+    } else {
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('app-wrapper').style.display = 'none';
+    }
+  }
+
+  function initAdminApp() {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-wrapper').style.display = 'flex';
+    loadAllAdminData();
+    initCharts('daily');
+  }
+
+  function showPanel(panelName) {
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    const p = document.getElementById('panel-' + panelName);
+    if (p) p.classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (panelName === 'analytics') {
+      setTimeout(() => initCharts('daily'), 100);
+    }
+  }
+
+  // Load all data
+  async function loadAllAdminData() {
+    const [bookings, services, stylists, offers, feedback, inventory] = await Promise.all([
+      API.getAllBookings(), API.getServices(), API.getStylistsStatus(),
+      API.getOffers(), API.getAllFeedback(), API.getInventory()
+    ]);
+    allAdminBookings = bookings;
+    allAdminServices = services;
+    allAdminStylists = stylists;
+    allAdminOffers = offers;
+    allAdminFeedback = feedback;
+    allAdminInventory = inventory;
+
+    renderAdminBookings();
+    renderAdminServices();
+    renderAdminStylists();
+    renderAdminOffers();
+    renderAdminFeedback();
+    renderAdminInventory();
+    renderDashOverview();
+  }
+
+  // Dashboard Live View
+  function renderDashOverview() {
+    const el = document.getElementById('dash-live-bookings');
+    el.innerHTML = allAdminBookings.slice(0, 5).map(b => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border-dim);">
+        <div>
+          <div style="font-weight:600;color:var(--cream);">${b.clientName} (${b.contact})</div>
+          <div style="font-size:0.8rem;color:var(--cream-muted);">${b.serviceNames || 'Haircut'} • 🕒 ${b.bookingTime}</div>
+        </div>
+        <span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span>
+      </div>`).join('');
+
+    const perfEl = document.getElementById('dash-stylist-perf');
+    perfEl.innerHTML = allAdminStylists.map(s => `
+      <div class="perf-row">
+        <span class="perf-name">${s.name}</span>
+        <div class="perf-bar"><div class="progress-wrap"><div class="progress-bar" style="width:${s.status==='FREE'?100:60}%;"></div></div></div>
+        <span class="badge ${s.status==='FREE'?'badge-free':'badge-busy'}">${s.status}</span>
+      </div>`).join('');
+  }
+
+  // --- CHARTS (Chart.js) ---
+  const chartDatasets = {
+    daily: {
+      labels: ['9 AM','11 AM','1 PM','3 PM','5 PM','7 PM'],
+      revenue: [450, 920, 600, 1100, 1400, 850],
+      stylists: { Vijayan: 12, Kumar: 9 }
+    },
+    weekly: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      revenue: [3800, 4200, 3900, 5100, 6800, 9400, 8100],
+      stylists: { Vijayan: 65, Kumar: 52 }
+    },
+    monthly: {
+      labels: ['Week 1','Week 2','Week 3','Week 4'],
+      revenue: [28000, 31500, 29800, 34200],
+      stylists: { Vijayan: 280, Kumar: 230 }
+    },
+    yearly: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      revenue: [95000, 110000, 105000, 118000, 125000, 112000, 130000, 118500, 0, 0, 0, 0],
+      stylists: { Vijayan: 2800, Kumar: 2400 }
+    }
+  };
+
+  function switchPeriod(p) {
+    document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('ptab-' + p).classList.add('active');
+    document.getElementById('chart-period-label').textContent = p.toUpperCase();
+    initCharts(p);
+  }
+
+  function initCharts(period) {
+    const data = chartDatasets[period] || chartDatasets.daily;
+
+    // 1. Revenue Chart
+    const ctxRev = document.getElementById('revenueChart');
+    if (ctxRev) {
+      if (revenueChartInstance) revenueChartInstance.destroy();
+      revenueChartInstance = new Chart(ctxRev, {
+        type: 'bar',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: data.revenue,
+            backgroundColor: 'rgba(217, 114, 45, 0.75)',
+            borderColor: '#D9722D',
+            borderWidth: 1.5,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#F0E8D5' } } },
+          scales: {
+            x: { ticks: { color: '#A89C88' }, grid: { color: 'rgba(217,114,45,0.06)' } },
+            y: { ticks: { color: '#A89C88' }, grid: { color: 'rgba(217,114,45,0.06)' } }
+          }
+        }
+      });
+    }
+
+    // 2. Services Donut
+    const ctxSvc = document.getElementById('servicesChart');
+    if (ctxSvc) {
+      if (servicesChartInstance) servicesChartInstance.destroy();
+      servicesChartInstance = new Chart(ctxSvc, {
+        type: 'doughnut',
+        data: {
+          labels: ['Haircut','Beard Trim','Hair Colour','Facial','Shave','Head Massage'],
+          datasets: [{
+            data: [42, 28, 14, 8, 12, 6],
+            backgroundColor: ['#D9722D','#34AAAA','#F08040','#48B87A','#FFB870','#7A3A10'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#F0E8D5' } } }
+        }
+      });
+    }
+
+    // 3. Stylist Workdone
+    const ctxSty = document.getElementById('stylistChart');
+    if (ctxSty) {
+      if (stylistChartInstance) stylistChartInstance.destroy();
+      stylistChartInstance = new Chart(ctxSty, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(data.stylists),
+          datasets: [{
+            label: 'Services Done',
+            data: Object.values(data.stylists),
+            backgroundColor: ['#D9722D','#34AAAA'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#A89C88' }, grid: { color: 'rgba(217,114,45,0.06)' } },
+            y: { ticks: { color: '#F0E8D5' }, grid: { color: 'rgba(217,114,45,0.06)' } }
+          }
+        }
+      });
+    }
+
+    // 4. Ratings Line
+    const ctxRat = document.getElementById('ratingsChart');
+    if (ctxRat) {
+      if (ratingsChartInstance) ratingsChartInstance.destroy();
+      ratingsChartInstance = new Chart(ctxRat, {
+        type: 'line',
+        data: {
+          labels: data.labels,
+          datasets: [{
+            label: 'Average Rating (★)',
+            data: [4.6, 4.8, 4.7, 4.9, 4.8, 4.9, 4.8].slice(0, data.labels.length),
+            borderColor: '#FFB870',
+            backgroundColor: 'rgba(255, 184, 112, 0.1)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#F0E8D5' } } },
+          scales: {
+            x: { ticks: { color: '#A89C88' }, grid: { color: 'rgba(217,114,45,0.06)' } },
+            y: { min: 3.5, max: 5, ticks: { color: '#A89C88' }, grid: { color: 'rgba(217,114,45,0.06)' } }
+          }
+        }
+      });
+    }
+  }
+
+  // --- CRUD: BOOKINGS ---
+  function renderAdminBookings() {
+    const tbody = document.getElementById('admin-bookings-body');
+    tbody.innerHTML = allAdminBookings.map(b => `
+      <tr>
+        <td>#${b.id}</td>
+        <td><strong>${b.clientName}</strong></td>
+        <td><a href="tel:${b.contact}" style="color:var(--amber-bright);">${b.contact}</a></td>
+        <td>${b.serviceNames || 'Haircut'}</td>
+        <td>${b.bookingDate} at ${b.bookingTime}</td>
+        <td><span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span></td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            ${b.status !== 'CONFIRMED' ? `<button class="btn btn-success btn-sm" onclick="setAdminBookingStatus(${b.id},'CONFIRMED')">Confirm</button>` : ''}
+            ${b.status !== 'COMPLETED' ? `<button class="btn btn-teal btn-sm" onclick="setAdminBookingStatus(${b.id},'COMPLETED')">Complete</button>` : ''}
+            <button class="btn btn-danger btn-sm" onclick="deleteAdminBooking(${b.id})">Delete</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  async function setAdminBookingStatus(id, st) {
+    await API.updateBookingStatus(id, st);
+    const b = allAdminBookings.find(x => x.id === id);
+    if (b) b.status = st;
+    renderAdminBookings();
+    renderDashOverview();
+    showToast(`Booking #${id} marked as ${st}`, 'success');
+  }
+
+  async function deleteAdminBooking(id) {
+    if (!confirm(`Delete booking #${id}?`)) return;
+    await API.deleteBooking(id);
+    allAdminBookings = allAdminBookings.filter(b => b.id !== id);
+    renderAdminBookings();
+    renderDashOverview();
+    showToast('Booking deleted', 'info');
+  }
+
+  function exportBookingsCSV() {
+    exportCSV(allAdminBookings, `VIJAYAN_SALON_Bookings_${new Date().toISOString().split('T')[0]}.csv`);
+  }
+
+  // --- CRUD: SERVICES ---
+  function renderAdminServices() {
+    const el = document.getElementById('admin-services-list');
+    el.innerHTML = allAdminServices.map(s => `
+      <div class="crud-item">
+        <div class="crud-item-info">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <strong style="color:var(--cream);font-size:1.05rem;">${s.nameEn}</strong>
+            ${s.nameTa ? `<span style="color:var(--cream-muted);font-size:0.85rem;">(${s.nameTa})</span>` : ''}
+            <span class="badge badge-amber">${s.category}</span>
+            ${s.offerPct > 0 ? `<span class="badge badge-teal">${s.offerPct}% OFF</span>` : ''}
+          </div>
+          <div style="font-family:var(--font-display);color:var(--amber-bright);font-size:1.1rem;margin-top:4px;">₹${s.price}</div>
+        </div>
+        <div class="crud-item-actions">
+          <button class="btn btn-outline btn-sm" onclick="editService(${s.id})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteService(${s.id})">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function openAddServiceModal() {
+    document.getElementById('modal-svc-title').textContent = '+ Add Service';
+    document.getElementById('svc-id').value = '';
+    document.getElementById('svc-name-en').value = '';
+    document.getElementById('svc-name-ta').value = '';
+    document.getElementById('svc-name-hi').value = '';
+    document.getElementById('svc-price').value = '100';
+    document.getElementById('svc-offer').value = '0';
+    openModal('modal-service');
+  }
+
+  function editService(id) {
+    const s = allAdminServices.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('modal-svc-title').textContent = 'Edit Service';
+    document.getElementById('svc-id').value = s.id;
+    document.getElementById('svc-name-en').value = s.nameEn;
+    document.getElementById('svc-name-ta').value = s.nameTa || '';
+    document.getElementById('svc-name-hi').value = s.nameHi || '';
+    document.getElementById('svc-price').value = s.price;
+    document.getElementById('svc-offer').value = s.offerPct || 0;
+    document.getElementById('svc-cat').value = s.category || 'HAIR';
+    openModal('modal-service');
+  }
+
+  async function handleSaveService() {
+    const id = document.getElementById('svc-id').value;
+    const data = {
+      nameEn: document.getElementById('svc-name-en').value.trim(),
+      nameTa: document.getElementById('svc-name-ta').value.trim(),
+      nameHi: document.getElementById('svc-name-hi').value.trim(),
+      price: parseFloat(document.getElementById('svc-price').value),
+      offerPct: parseInt(document.getElementById('svc-offer').value || '0'),
+      category: document.getElementById('svc-cat').value
+    };
+
+    if (id) {
+      await API.crud('services').update(id, data);
+      const idx = allAdminServices.findIndex(s => s.id === parseInt(id));
+      if (idx !== -1) allAdminServices[idx] = { id: parseInt(id), ...data };
+      showToast('Service updated', 'success');
+    } else {
+      const created = await API.crud('services').create(data);
+      allAdminServices.push(created);
+      showToast('Service added to shop', 'success');
+    }
+    closeModal('modal-service');
+    renderAdminServices();
+  }
+
+  async function deleteService(id) {
+    if (!confirm('Are you sure you want to delete this service?')) return;
+    await API.crud('services').delete(id);
+    allAdminServices = allAdminServices.filter(s => s.id !== id);
+    renderAdminServices();
+    showToast('Service deleted', 'info');
+  }
+
+  // --- CRUD: STYLISTS ---
+  function renderAdminStylists() {
+    const tbody = document.getElementById('admin-stylists-body');
+    tbody.innerHTML = allAdminStylists.map(s => `
+      <tr>
+        <td><code>${s.stylistCode || 'VJS00' + s.id}</code></td>
+        <td><strong>${s.name}</strong></td>
+        <td><span class="badge ${s.status === 'FREE' ? 'badge-free' : s.status === 'BUSY' ? 'badge-busy' : 'badge-break'}">${s.status}</span></td>
+        <td><span class="badge badge-open">Active</span></td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-outline btn-sm" onclick="promptResetStylistPassword(${s.id},'${s.name}')">Reset Password</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteStylist(${s.id})">Deactivate</button>
+          </div>
+        </td>
+      </tr>`).join('');
+  }
+
+  function openAddStylistModal() {
+    document.getElementById('st-name').value = '';
+    document.getElementById('st-code').value = 'VJS00' + (allAdminStylists.length + 1);
+    document.getElementById('st-pwd').value = 'stylist' + (allAdminStylists.length + 1);
+    openModal('modal-stylist');
+  }
+
+  async function handleSaveStylist() {
+    const name = document.getElementById('st-name').value.trim();
+    const stylistCode = document.getElementById('st-code').value.trim();
+    const password = document.getElementById('st-pwd').value;
+    const created = await API.crud('stylists').create({ name, stylistCode, password, status: 'FREE' });
+    allAdminStylists.push(created);
+    renderAdminStylists();
+    closeModal('modal-stylist');
+    showToast(`Stylist ${name} (${stylistCode}) created!`, 'success');
+  }
+
+  async function promptResetStylistPassword(id, name) {
+    const newPwd = prompt(`Enter new password for ${name}:`);
+    if (!newPwd) return;
+    await API.resetStylistPassword(id, newPwd);
+    showToast(`Password updated for ${name}`, 'success');
+  }
+
+  async function deleteStylist(id) {
+    if (!confirm('Deactivate this stylist account?')) return;
+    await API.crud('stylists').delete(id);
+    allAdminStylists = allAdminStylists.filter(s => s.id !== id);
+    renderAdminStylists();
+    showToast('Stylist deactivated', 'info');
+  }
+
+  // --- CRUD: OFFERS ---
+  function renderAdminOffers() {
+    const el = document.getElementById('admin-offers-list');
+    el.innerHTML = allAdminOffers.map(o => `
+      <div class="crud-item">
+        <div class="crud-item-info">
+          <strong style="color:var(--cream);font-size:1.05rem;">${o.titleEn}</strong>
+          <span class="badge badge-teal" style="margin-left:8px;">${o.discountPct}% Discount</span>
+          <div style="color:var(--cream-dim);font-size:0.85rem;margin-top:4px;">${o.description || ''} • Valid till: ${o.validUntil || '2026-12-31'}</div>
+        </div>
+        <div class="crud-item-actions">
+          <button class="btn btn-danger btn-sm" onclick="deleteOffer(${o.id})">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function openAddOfferModal() {
+    document.getElementById('off-title-en').value = '';
+    document.getElementById('off-disc').value = '15';
+    document.getElementById('off-until').value = '2026-12-31';
+    document.getElementById('off-desc').value = '';
+    openModal('modal-offer');
+  }
+
+  async function handleSaveOffer() {
+    const data = {
+      titleEn: document.getElementById('off-title-en').value.trim(),
+      discountPct: parseInt(document.getElementById('off-disc').value),
+      validUntil: document.getElementById('off-until').value,
+      description: document.getElementById('off-desc').value.trim()
+    };
+    const created = await API.crud('offers').create(data);
+    allAdminOffers.push(created);
+    renderAdminOffers();
+    closeModal('modal-offer');
+    showToast('Offer published to frontpage!', 'success');
+  }
+
+  async function deleteOffer(id) {
+    if (!confirm('Delete this offer?')) return;
+    await API.crud('offers').delete(id);
+    allAdminOffers = allAdminOffers.filter(o => o.id !== id);
+    renderAdminOffers();
+    showToast('Offer removed', 'info');
+  }
+
+  // --- CRUD: FEEDBACK ---
+  function renderAdminFeedback() {
+    const tbody = document.getElementById('admin-feedback-body');
+    tbody.innerHTML = allAdminFeedback.map(f => `
+      <tr>
+        <td><strong>${f.clientName || 'Anonymous'}</strong></td>
+        <td>${f.serviceRating}★</td>
+        <td>${f.shopRating}★</td>
+        <td>${f.workerRating}★</td>
+        <td>${f.timingRating}★</td>
+        <td style="color:var(--amber-bright);font-weight:700;">${f.overallRating}★</td>
+        <td style="max-width:200px;">${f.comments || '—'}</td>
+        <td style="color:var(--cream-muted);font-size:0.8rem;">${f.createdAt || 'Recent'}</td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteFeedbackItem(${f.id})">Delete</button></td>
+      </tr>`).join('');
+  }
+
+  async function deleteFeedbackItem(id) {
+    if (!confirm('Delete this feedback entry?')) return;
+    await API.deleteFeedback(id);
+    allAdminFeedback = allAdminFeedback.filter(f => f.id !== id);
+    renderAdminFeedback();
+    showToast('Feedback deleted', 'info');
+  }
+
+  // --- CRUD: INVENTORY (Admin) ---
+  function renderAdminInventory() {
+    const el = document.getElementById('admin-inventory-list');
+    el.innerHTML = allAdminInventory.map(item => `
+      <div class="inventory-item">
+        <div>
+          <div class="inv-name">${item.itemName}</div>
+          <div class="inv-cat">${item.category} • Low alert at ${item.lowThreshold} ${item.unit}</div>
+        </div>
+        <div class="inv-controls">
+          <span class="inv-count ${item.currentCount <= item.lowThreshold ? 'low' : ''}">${item.currentCount} ${item.unit}</span>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdminInv(${item.id})">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  async function deleteAdminInv(id) {
+    if (!confirm('Delete inventory item?')) return;
+    await API.deleteInventory(id);
+    allAdminInventory = allAdminInventory.filter(i => i.id !== id);
+    renderAdminInventory();
+    showToast('Item deleted', 'info');
+  }
+
+  function openAddInvModalAdmin() {
+    const name = prompt('Enter Item Name:');
+    if (!name) return;
+    const cat = prompt('Enter Category (Razor, Shampoo, Cream, Colour):', 'Shampoo') || 'General';
+    const count = parseInt(prompt('Current Count:', '10') || '10');
+    API.addInventory({ itemName: name, category: cat, currentCount: count, unit: 'pcs', lowThreshold: 3 })
+      .then(item => { allAdminInventory.push(item); renderAdminInventory(); showToast('Item added', 'success'); });
+  }
+
+  // --- ADVERTISEMENTS ---
+  async function handleUploadAd() {
+    const file = document.getElementById('ad-file').files[0];
+    const title = document.getElementById('ad-title').value;
+    const type = document.getElementById('ad-type').value;
+    if (!file) { showToast('Please select a file to upload', 'error'); return; }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title);
+    formData.append('type', type);
+
+    await API.uploadAdvertisement(formData);
+    showToast('Advertisement media uploaded!', 'success');
+  }
+
+  // --- PAYMENT QR UPDATE ---
+  function previewNewQR(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { document.getElementById('admin-qr-preview').src = e.target.result; };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  async function handleUpdatePaymentQR() {
+    const upiId = document.getElementById('qr-upi-input').value.trim();
+    const displayName = document.getElementById('qr-name-input').value.trim();
+    const fileInput = document.getElementById('qr-file-input');
+
+    const formData = new FormData();
+    formData.append('upiId', upiId);
+    formData.append('displayName', displayName);
+    if (fileInput.files[0]) {
+      formData.append('file', fileInput.files[0]);
+    }
+
+    await API.uploadPaymentQr(formData);
+    document.getElementById('admin-qr-upi').textContent = upiId;
+    document.getElementById('admin-qr-name').textContent = displayName;
+    showToast('Payment QR & UPI details updated!', 'success', 'Saved ✓');
+  }
+
+  // --- SHOP SETTINGS & ADMIN PASSWORD ---
+  async function handleSaveShopSettings() {
+    const data = {
+      shopName: document.getElementById('set-shop-name').value.trim(),
+      tagline: document.getElementById('set-tagline').value.trim(),
+      address: document.getElementById('set-address').value.trim(),
+      phone: document.getElementById('set-phone').value.trim(),
+      sinceYear: parseInt(document.getElementById('set-since').value)
+    };
+    await API.updateShopSettings(data);
+    showToast('Shop details saved to database!', 'success', 'Updated ✓');
+  }
+
+  async function handleChangeAdminPassword() {
+    const curr = document.getElementById('pwd-curr').value;
+    const next = document.getElementById('pwd-new').value;
+    const conf = document.getElementById('pwd-confirm').value;
+
+    if (next !== conf) { showToast('New passwords do not match!', 'error'); return; }
+    if (next.length < 6) { showToast('Password must be at least 6 characters', 'error'); return; }
+
+    const res = await API.changeAdminPassword(curr, next);
+    document.getElementById('pwd-curr').value = '';
+    document.getElementById('pwd-new').value = '';
+    document.getElementById('pwd-confirm').value = '';
+    showToast('Admin password successfully updated in PostgreSQL database!', 'success', 'Password Changed 🔒');
+  }
+
+  // --- INIT ---
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 900);
+    checkSession();
+  });
+</script>
+</body>
+</html>

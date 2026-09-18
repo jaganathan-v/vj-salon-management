@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Appointment — VIJAYAN SALON</title>
+  <link rel="stylesheet" href="assets/css/design-system.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="barber-pole"></div>
+  <div class="loading-shop-name">VIJAYAN SALON</div>
+  <div class="loading-tagline">Client Portal</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<div class="vj-layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">V</div>
+      <div><div class="sidebar-logo-text">VIJAYAN SALON</div><div class="sidebar-logo-sub">Client Portal</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🏠</span><span class="sidebar-label" data-i18n="nav.home">Home</span></a>
+      <a href="client.html" class="sidebar-item active"><span class="sidebar-icon">👤</span><span class="sidebar-label" data-i18n="nav.client">Client</span></a>
+      <a href="stylist.html" class="sidebar-item"><span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="nav.stylist">Stylist</span></a>
+      <a href="admin.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-label" data-i18n="nav.admin">Admin</span></a>
+      <a href="settings.html" class="sidebar-item"><span class="sidebar-icon">⚙</span><span class="sidebar-label" data-i18n="nav.settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" data-i18n="nav.client">Client Portal</div>
+        <span id="shop-badge" class="badge badge-closed">● Closed</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock-display">00:00</div>
+        <select class="topbar-lang" id="lang-select" onchange="changeLang(this.value)">
+          <option value="en">🇬🇧 EN</option>
+          <option value="ta">🇮🇳 தமிழ்</option>
+          <option value="hi">🇮🇳 हिंदी</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- CLIENT TABS -->
+      <div class="client-tabs">
+        <button class="client-tab active" onclick="showSection('status')">🏪 Shop Status</button>
+        <button class="client-tab" onclick="showSection('booking')">✂ <span data-i18n="booking.title">Book Appointment</span></button>
+        <button class="client-tab" onclick="showSection('feedback')">⭐ <span data-i18n="feedback.title">Feedback</span></button>
+        <button class="client-tab" onclick="showSection('payment')">💳 <span data-i18n="payment.title">Payment</span></button>
+      </div>
+
+      <!-- ====== SECTION: STATUS ====== -->
+      <div id="section-status" class="client-section active">
+        <div class="two-col" style="margin-bottom:24px;">
+          <div class="vj-card shop-status-big">
+            <span class="status-icon" id="status-icon-big">🔴</span>
+            <div class="status-text" id="status-text-big" data-i18n="shop.closed">Closed</div>
+            <p style="color:var(--cream-muted);margin-top:8px;" id="status-since">—</p>
+            <a href="#" onclick="showSection('booking');return false;" class="btn btn-amber btn-full" style="margin-top:20px;">✂ Book Now</a>
+          </div>
+          <div class="vj-card">
+            <div class="card-title" data-i18n="home.stylists">Stylist Availability</div>
+            <div id="stylist-avail-grid" style="margin-top:16px;display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+
+        <div class="vj-card">
+          <div class="card-title" data-i18n="home.services">Services & Prices</div>
+          <div id="client-services-list" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- ====== SECTION: BOOKING ====== -->
+      <div id="section-booking" class="client-section">
+        <div class="vj-card">
+          <div class="card-title" data-i18n="booking.title">Book Your Appointment</div>
+
+          <!-- WIZARD STEPS -->
+          <div class="wizard-steps">
+            <div class="step-wrapper">
+              <div class="step-circle active" id="sc1">1</div>
+              <div class="step-label" data-i18n="booking.step1">Services</div>
+            </div>
+            <div class="step-line" id="sl1"></div>
+            <div class="step-wrapper">
+              <div class="step-circle" id="sc2">2</div>
+              <div class="step-label" data-i18n="booking.step2">Details</div>
+            </div>
+            <div class="step-line" id="sl2"></div>
+            <div class="step-wrapper">
+              <div class="step-circle" id="sc3">3</div>
+              <div class="step-label" data-i18n="booking.step3">Confirm</div>
+            </div>
+          </div>
+
+          <!-- STEP 1: SERVICES -->
+          <div id="step-services" class="wizard-panel active" style="padding:0 8px;">
+            <p style="color:var(--cream-muted);margin-bottom:16px;" data-i18n="booking.selectServices">Select one or more services:</p>
+            <div id="booking-services-list"></div>
+            <div class="running-total">
+              <span class="running-total-label" data-i18n="booking.totalAmount">Total Amount</span>
+              <span class="running-total-val" id="running-total">₹0</span>
+            </div>
+            <div style="text-align:right;margin-top:20px;">
+              <button class="btn btn-amber" onclick="gotoStep(2)" data-i18n="common.next">Next →</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: DETAILS -->
+          <div id="step-details" class="wizard-panel" style="padding:0 8px;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" data-i18n="booking.name">Your Name</label>
+                <input class="form-input" id="b-name" type="text" data-i18n-placeholder="booking.namePH" placeholder="Enter your name" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="booking.contact">Phone Number</label>
+                <input class="form-input" id="b-contact" type="tel" placeholder="10-digit mobile number" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" data-i18n="booking.date">Preferred Date</label>
+                <input class="form-input" id="b-date" type="date" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="booking.time">Preferred Time</label>
+                <select class="form-select" id="b-time">
+                  <option value="09:00">9:00 AM</option><option value="09:30">9:30 AM</option>
+                  <option value="10:00">10:00 AM</option><option value="10:30">10:30 AM</option>
+                  <option value="11:00">11:00 AM</option><option value="11:30">11:30 AM</option>
+                  <option value="12:00">12:00 PM</option><option value="12:30">12:30 PM</option>
+                  <option value="13:00">1:00 PM</option><option value="13:30">1:30 PM</option>
+                  <option value="14:00">2:00 PM</option><option value="14:30">2:30 PM</option>
+                  <option value="15:00">3:00 PM</option><option value="15:30">3:30 PM</option>
+                  <option value="16:00">4:00 PM</option><option value="16:30">4:30 PM</option>
+                  <option value="17:00">5:00 PM</option><option value="17:30">5:30 PM</option>
+                  <option value="18:00">6:00 PM</option><option value="18:30">6:30 PM</option>
+                  <option value="19:00">7:00 PM</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="booking.notes">Notes (optional)</label>
+              <textarea class="form-textarea" id="b-notes" placeholder="Any special requests..."></textarea>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px;">
+              <button class="btn btn-ghost" onclick="gotoStep(1)" data-i18n="common.back">← Back</button>
+              <button class="btn btn-amber" onclick="submitBooking()" data-i18n="booking.submit">Confirm Booking ✓</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: CONFIRMED -->
+          <div id="step-confirm" class="wizard-panel" style="padding:0 8px;text-align:center;">
+            <div class="booking-confirm-icon">✓</div>
+            <h3 style="color:var(--success);margin-bottom:8px;" data-i18n="booking.confirmed">Booking Confirmed!</h3>
+            <p style="color:var(--cream-muted);" data-i18n="booking.stylistNotified">Your stylist has been notified.</p>
+            <div class="vj-card-amber" style="margin:20px auto;max-width:400px;text-align:left;">
+              <div style="color:var(--cream-muted);font-size:0.78rem;margin-bottom:4px;" data-i18n="booking.ref">Booking Reference</div>
+              <div class="booking-ref" id="booking-ref-no">VJ-XXXXXX</div>
+              <div id="booking-summary" style="margin-top:12px;color:var(--cream-dim);font-size:0.88rem;"></div>
+            </div>
+            <button class="btn btn-outline" onclick="resetBooking()" data-i18n="booking.another">Book Another</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== SECTION: FEEDBACK ====== -->
+      <div id="section-feedback" class="client-section">
+        <div class="vj-card" style="max-width:620px;">
+          <div class="card-title" data-i18n="feedback.title">Share Your Experience</div>
+          <p style="color:var(--cream-muted);margin-bottom:24px;" data-i18n="feedback.subtitle">Your feedback helps us serve you better.</p>
+
+          <div id="feedback-success" style="display:none;text-align:center;padding:32px;">
+            <div style="font-size:3rem;margin-bottom:12px;">🙏</div>
+            <h3 style="color:var(--success);" data-i18n="feedback.thankyou">Thank You!</h3>
+            <p style="color:var(--cream-muted);margin-top:8px;" data-i18n="feedback.submitted">Your feedback has been submitted.</p>
+          </div>
+
+          <div id="feedback-form">
+            <div class="form-group">
+              <label class="form-label" data-i18n="booking.name">Your Name</label>
+              <input class="form-input" id="fb-name" type="text" placeholder="Your name">
+            </div>
+
+            <div style="margin-bottom:20px;">
+              <label class="form-label" data-i18n="feedback.service">Service Quality</label>
+              <div class="star-rating" id="sr-service">
+                <input type="radio" name="sr-service" id="s5-1" value="5"><label for="s5-1">★</label>
+                <input type="radio" name="sr-service" id="s4-1" value="4"><label for="s4-1">★</label>
+                <input type="radio" name="sr-service" id="s3-1" value="3"><label for="s3-1">★</label>
+                <input type="radio" name="sr-service" id="s2-1" value="2"><label for="s2-1">★</label>
+                <input type="radio" name="sr-service" id="s1-1" value="1"><label for="s1-1">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <label class="form-label" data-i18n="feedback.shop">Shop Cleanliness</label>
+              <div class="star-rating" id="sr-shop">
+                <input type="radio" name="sr-shop" id="s5-2" value="5"><label for="s5-2">★</label>
+                <input type="radio" name="sr-shop" id="s4-2" value="4"><label for="s4-2">★</label>
+                <input type="radio" name="sr-shop" id="s3-2" value="3"><label for="s3-2">★</label>
+                <input type="radio" name="sr-shop" id="s2-2" value="2"><label for="s2-2">★</label>
+                <input type="radio" name="sr-shop" id="s1-2" value="1"><label for="s1-2">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <label class="form-label" data-i18n="feedback.worker">Staff Behaviour</label>
+              <div class="star-rating" id="sr-worker">
+                <input type="radio" name="sr-worker" id="s5-3" value="5"><label for="s5-3">★</label>
+                <input type="radio" name="sr-worker" id="s4-3" value="4"><label for="s4-3">★</label>
+                <input type="radio" name="sr-worker" id="s3-3" value="3"><label for="s3-3">★</label>
+                <input type="radio" name="sr-worker" id="s2-3" value="2"><label for="s2-3">★</label>
+                <input type="radio" name="sr-worker" id="s1-3" value="1"><label for="s1-3">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <label class="form-label" data-i18n="feedback.timing">Time Punctuality</label>
+              <div class="star-rating" id="sr-timing">
+                <input type="radio" name="sr-timing" id="s5-4" value="5"><label for="s5-4">★</label>
+                <input type="radio" name="sr-timing" id="s4-4" value="4"><label for="s4-4">★</label>
+                <input type="radio" name="sr-timing" id="s3-4" value="3"><label for="s3-4">★</label>
+                <input type="radio" name="sr-timing" id="s2-4" value="2"><label for="s2-4">★</label>
+                <input type="radio" name="sr-timing" id="s1-4" value="1"><label for="s1-4">★</label>
+              </div>
+            </div>
+            <div style="margin-bottom:20px;">
+              <label class="form-label" data-i18n="feedback.overall">Overall Experience</label>
+              <div class="star-rating" id="sr-overall">
+                <input type="radio" name="sr-overall" id="s5-5" value="5"><label for="s5-5">★</label>
+                <input type="radio" name="sr-overall" id="s4-5" value="4"><label for="s4-5">★</label>
+                <input type="radio" name="sr-overall" id="s3-5" value="3"><label for="s3-5">★</label>
+                <input type="radio" name="sr-overall" id="s2-5" value="2"><label for="s2-5">★</label>
+                <input type="radio" name="sr-overall" id="s1-5" value="1"><label for="s1-5">★</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="feedback.comments">Comments</label>
+              <textarea class="form-textarea" id="fb-comments" placeholder="Tell us about your experience..."></textarea>
+            </div>
+            <button class="btn btn-amber btn-full" onclick="submitFeedback()" data-i18n="feedback.submit">Submit Feedback ★</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== SECTION: PAYMENT ====== -->
+      <div id="section-payment" class="client-section">
+        <div class="vj-card" style="max-width:500px;">
+          <div class="card-title" data-i18n="payment.title">Online Payment</div>
+          <p style="color:var(--cream-muted);margin-bottom:24px;" data-i18n="payment.scan">Scan the QR code or pay directly via UPI ID</p>
+
+          <div class="qr-container">
+            <div class="qr-image-wrap">
+              <img class="qr-image" id="qr-img" src="assets/uploads/qr/payment_qr.jpg"
+                onerror="this.style.display='none';document.getElementById('qr-fallback').style.display='flex';"
+                alt="Payment QR Code">
+              <div id="qr-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:3rem;background:#fff;">📱</div>
+            </div>
+            <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:6px;" id="qr-name">VIJAYAN SALOON</div>
+            <div style="color:var(--cream-muted);font-size:0.85rem;margin-bottom:16px;" data-i18n="payment.scan">Scan & Pay via Google Pay / PhonePe / BHIM UPI</div>
+
+            <div class="upi-box" onclick="copyUPI()" title="Click to copy">
+              <span style="font-size:1.2rem;">📋</span>
+              <span id="upi-id-text">6374402014@okbizaxis</span>
+            </div>
+            <div style="color:var(--cream-muted);font-size:0.78rem;margin-top:8px;" data-i18n="payment.copy">Click to copy UPI ID</div>
+
+            <div class="payment-apps">
+              <div class="pay-app-badge">🟢 Google Pay</div>
+              <div class="pay-app-badge">🟣 PhonePe</div>
+              <div class="pay-app-badge">🔵 Paytm</div>
+              <div class="pay-app-badge">🇮🇳 BHIM UPI</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+  const lang = localStorage.getItem('vj_lang') || 'en';
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  document.getElementById('lang-select').value = lang;
+  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+
+  // Clock
+  function updateClock() {
+    const n = new Date();
+    const t = n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('clock-display').textContent = t;
+  }
+  setInterval(updateClock, 1000); updateClock();
+
+  // Section tabs
+  function showSection(name) {
+    document.querySelectorAll('.client-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.client-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Service name by lang
+  function svcName(s) { return ({ en:s.nameEn, ta:s.nameTa, hi:s.nameHi })[lang] || s.nameEn; }
+
+  // Booking state
+  let selectedServiceIds = new Set();
+  let allServices = [];
+
+  function renderBookingServices(services) {
+    const el = document.getElementById('booking-services-list');
+    el.innerHTML = services.map(s => `
+      <div class="service-card" id="bsvc-${s.id}" onclick="toggleService(${s.id},${s.price})">
+        <div><div class="service-name">${svcName(s)}</div><div class="service-category">${s.category}</div></div>
+        <span class="service-price">₹${s.price}${s.offerPct>0 ? `<span class="service-offer">${s.offerPct}% OFF</span>` : ''}</span>
+      </div>`).join('');
+  }
+
+  function renderClientServices(services) {
+    const el = document.getElementById('client-services-list');
+    const cats = { HAIR:'💇 Hair', BEARD:'🧔 Beard & Shave', SKIN:'💆 Skin' };
+    const grouped = {};
+    services.forEach(s => { if (!grouped[s.category]) grouped[s.category]=[]; grouped[s.category].push(s); });
+    el.innerHTML = Object.entries(grouped).map(([cat,list]) => `
+      <div class="category-label"><span class="label-text">${cats[cat]||cat}</span></div>
+      ${list.map(s => `<div class="service-card" style="cursor:default;"><div><div class="service-name">${svcName(s)}</div></div><div class="service-price">₹${s.price}${s.offerPct>0?`<span class="service-offer">${s.offerPct}%OFF</span>`:''}</div></div>`).join('')}
+    `).join('');
+  }
+
+  function toggleService(id, price) {
+    const card = document.getElementById('bsvc-' + id);
+    if (selectedServiceIds.has(id)) { selectedServiceIds.delete(id); card.classList.remove('selected'); }
+    else { selectedServiceIds.add(id); card.classList.add('selected'); }
+    updateTotal();
+  }
+
+  function updateTotal() {
+    let total = 0;
+    selectedServiceIds.forEach(id => {
+      const svc = allServices.find(s => s.id === id);
+      if (svc) total += svc.price * (1 - svc.offerPct/100);
+    });
+    document.getElementById('running-total').textContent = '₹' + Math.round(total);
+  }
+
+  // Wizard
+  function gotoStep(step) {
+    if (step === 2 && selectedServiceIds.size === 0) {
+      showToast('Please select at least one service.', 'error'); return;
+    }
+    document.querySelectorAll('.wizard-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(step === 1 ? 'step-services' : step === 2 ? 'step-details' : 'step-confirm').classList.add('active');
+    [1,2,3].forEach(i => {
+      const c = document.getElementById('sc'+i), l = document.getElementById('sl'+i);
+      c.className = 'step-circle' + (i < step ? ' done' : i === step ? ' active' : '');
+      if (l) l.className = 'step-line' + (i < step ? ' done' : '');
+    });
+  }
+
+  async function submitBooking() {
+    const name = document.getElementById('b-name').value.trim();
+    const contact = document.getElementById('b-contact').value.trim();
+    const date = document.getElementById('b-date').value;
+    const time = document.getElementById('b-time').value;
+    if (!name || !contact || !date) { showToast('Please fill all required fields.', 'error'); return; }
+    if (!/^\d{10}$/.test(contact)) { showToast('Enter a valid 10-digit phone number.', 'error'); return; }
+
+    const serviceNames = [...selectedServiceIds].map(id => svcName(allServices.find(s=>s.id===id))).join(', ');
+    const ref = 'VJ-' + Date.now().toString(36).toUpperCase().slice(-6);
+    const total = document.getElementById('running-total').textContent;
+
+    await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value });
+
+    document.getElementById('booking-ref-no').textContent = ref;
+    document.getElementById('booking-summary').innerHTML = `
+      <strong>${name}</strong> · ${contact}<br>
+      ${serviceNames}<br>
+      ${date} at ${time}<br>
+      <span style="color:var(--amber-bright);">Total: ${total}</span>`;
+    gotoStep(3);
+    showToast('Booking confirmed! Stylist notified.', 'success', 'Confirmed ✓');
+  }
+
+  function resetBooking() {
+    selectedServiceIds.clear();
+    document.querySelectorAll('.service-card.selected').forEach(c => c.classList.remove('selected'));
+    updateTotal();
+    ['b-name','b-contact','b-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('b-date').value = '';
+    gotoStep(1);
+  }
+
+  // Feedback
+  function getStarVal(name) {
+    const checked = document.querySelector(`input[name="${name}"]:checked`);
+    return checked ? parseInt(checked.value) : 0;
+  }
+
+  async function submitFeedback() {
+    const data = {
+      clientName: document.getElementById('fb-name').value || 'Anonymous',
+      serviceRating: getStarVal('sr-service'),
+      shopRating:    getStarVal('sr-shop'),
+      workerRating:  getStarVal('sr-worker'),
+      timingRating:  getStarVal('sr-timing'),
+      overallRating: getStarVal('sr-overall'),
+      comments: document.getElementById('fb-comments').value
+    };
+    await API.submitFeedback(data);
+    document.getElementById('feedback-form').style.display = 'none';
+    document.getElementById('feedback-success').style.display = 'block';
+    showToast('Thank you for your feedback!', 'success');
+  }
+
+  // Payment QR
+  async function loadPaymentQr() {
+    const qr = await API.getPaymentQr();
+    document.getElementById('upi-id-text').textContent = qr.upiId;
+    if (qr.qrImagePath) document.getElementById('qr-img').src = qr.qrImagePath;
+    if (qr.displayName) document.getElementById('qr-name').textContent = qr.displayName;
+  }
+
+  function copyUPI() {
+    const upi = document.getElementById('upi-id-text').textContent;
+    navigator.clipboard.writeText(upi).then(() => showToast('UPI ID copied!', 'success', 'Copied ✓'));
+  }
+
+  // Shop status
+  function renderShopStatus(status) {
+    const badge = document.getElementById('shop-badge');
+    const icon  = document.getElementById('status-icon-big');
+    const text  = document.getElementById('status-text-big');
+    if (status.isOpen) {
+      badge.className = 'badge badge-open'; badge.textContent = '● Open';
+      icon.textContent = '🟢'; text.textContent = 'Shop is Open';
+    } else {
+      badge.className = 'badge badge-closed'; badge.textContent = '● Closed';
+      icon.textContent = '🔴'; text.textContent = 'Currently Closed';
+    }
+  }
+
+  // Stylists
+  function renderStylistAvail(stylists) {
+    const el = document.getElementById('stylist-avail-grid');
+    const map = { FREE:'badge-free', BUSY:'badge-busy', FOOD_BREAK:'badge-break' };
+    const lbl = { FREE:'Free', BUSY:'With Client', FOOD_BREAK:'Food Break' };
+    el.innerHTML = stylists.map(s => `
+      <div class="stylist-avail-card">
+        <div class="stylist-avail-avatar">${s.name[0]}</div>
+        <div><div class="stylist-avail-name">${s.name}</div>
+          <span class="badge ${map[s.status]||'badge-amber'}" style="margin-top:6px;display:inline-flex;">${lbl[s.status]||s.status}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  async function loadAll() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('b-date').min = today;
+    document.getElementById('b-date').value = today;
+
+    const [status, services, stylists] = await Promise.all([
+      API.getShopStatus(), API.getServices(), API.getStylistsStatus()
+    ]);
+    allServices = services;
+    renderShopStatus(status);
+    renderBookingServices(services);
+    renderClientServices(services);
+    renderStylistAvail(stylists);
+    loadPaymentQr();
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 1000);
+    loadAll();
+    // Handle direct link to booking section
+    if (location.hash === '#booking') showSection('booking');
+  });
+
+  function showToast(msg, type = 'info', title = '') {
+    const icons = { success:'✓', error:'✕', info:'◆', warning:'⚠' };
+    const container = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast toast-' + type;
+    t.innerHTML = `<span class="toast-icon">${icons[type]||'◆'}</span><div class="toast-body"><div class="toast-title">${title||msg}</div>${title?`<div class="toast-msg">${msg}</div>`:''}</div><button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>`;
+    container.appendChild(t);
+    setTimeout(() => { t.style.animation='toastOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 4000);
+  }
+</script>
+</body>
+</html>

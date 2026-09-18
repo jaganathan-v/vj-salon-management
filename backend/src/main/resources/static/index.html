@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIJAYAN SALON — Premium Hair & Grooming | Salem</title>
+  <meta name="description" content="VIJAYAN SALON — Excellence in Every Cut. Premium hair & grooming services at Ponnammapet, Salem. Book your appointment online.">
+  <link rel="stylesheet" href="assets/css/design-system.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="barber-pole"></div>
+  <div class="loading-shop-name">VIJAYAN SALON</div>
+  <div class="loading-tagline">Excellence in Every Cut</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- LAYOUT -->
+<div class="vj-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">V</div>
+      <div>
+        <div class="sidebar-logo-text">VIJAYAN SALON</div>
+        <div class="sidebar-logo-sub">Salem • Since 2010</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Navigation</div>
+      <a href="index.html" class="sidebar-item active">
+        <span class="sidebar-icon">🏠</span><span class="sidebar-label" data-i18n="nav.home">Home</span>
+      </a>
+      <a href="client.html" class="sidebar-item">
+        <span class="sidebar-icon">👤</span><span class="sidebar-label" data-i18n="nav.client">Client</span>
+      </a>
+      <a href="stylist.html" class="sidebar-item">
+        <span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="nav.stylist">Stylist</span>
+      </a>
+      <a href="admin.html" class="sidebar-item">
+        <span class="sidebar-icon">👑</span><span class="sidebar-label" data-i18n="nav.admin">Admin</span>
+      </a>
+      <div class="sidebar-section-label">More</div>
+      <a href="settings.html" class="sidebar-item">
+        <span class="sidebar-icon">⚙</span><span class="sidebar-label" data-i18n="nav.settings">Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer" style="font-size:0.75rem;color:var(--cream-muted);text-align:center;">
+      © 2025 VIJAYAN SALON
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title">VIJAYAN SALON</div>
+        <span id="shop-status-badge" class="badge badge-closed">● Closed</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock-display">00:00:00</div>
+        <select class="topbar-lang" id="lang-select" onchange="changeLang(this.value)">
+          <option value="en">🇬🇧 EN</option>
+          <option value="ta">🇮🇳 தமிழ்</option>
+          <option value="hi">🇮🇳 हिंदी</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="page-content" style="padding:0;">
+
+      <!-- TODAY'S EVENT BANNER -->
+      <div id="event-banner" class="notif-banner" style="display:none;margin:20px 28px 0;border-radius:var(--radius-md);">
+        <div class="notif-dot"></div>
+        <div>
+          <div style="font-weight:600;color:var(--cream);" id="event-title">Special Event Today</div>
+          <div style="font-size:0.82rem;color:var(--cream-muted);" id="event-desc"></div>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <section class="hero">
+        <div class="orb-amber hero-orb"></div>
+        <div class="orb-teal   hero-orb"></div>
+        <div class="hero-content slide-in-up">
+          <div class="hero-badge">◆ Excellence Since 2010 ◆</div>
+          <h1 class="hero-title">Where Every <em class="accent">Cut</em><br>Tells a Story</h1>
+          <p class="hero-subtitle" data-i18n="hero.subtitle">Premium hair & grooming services at the heart of Ponnammapet, Salem. Walk in or book your slot — we're ready for you.</p>
+          <div class="hero-actions">
+            <a href="client.html#booking" class="btn btn-amber btn-lg">✂ Book Appointment</a>
+            <a href="client.html" class="btn btn-outline btn-lg" data-i18n="hero.explore">Explore Services</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat"><span class="hero-stat-val" id="years-stat">15+</span><span class="hero-stat-label">Years</span></div>
+            <div class="hero-stat"><span class="hero-stat-val">8+</span><span class="hero-stat-label" data-i18n="hero.statServices">Services</span></div>
+            <div class="hero-stat"><span class="hero-stat-val">500+</span><span class="hero-stat-label" data-i18n="hero.statClients">Happy Clients</span></div>
+            <div class="hero-stat"><span class="hero-stat-val">4.8★</span><span class="hero-stat-label" data-i18n="hero.statRating">Google Rating</span></div>
+          </div>
+        </div>
+        <div class="scroll-indicator"><div class="scroll-line"></div><span>Scroll</span></div>
+      </section>
+
+      <!-- MARQUEE -->
+      <div class="marquee-section">
+        <div class="marquee-track" id="marquee-track">
+          <span class="marquee-item">✂ Haircut</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🧔 Beard Trim</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">💈 Shave</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🎨 Hair Colour</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">💆 Facial</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🤲 Head Massage</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">👦 Kids Haircut</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🧵 Threading</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">✂ Haircut</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🧔 Beard Trim</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">💈 Shave</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🎨 Hair Colour</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">💆 Facial</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🤲 Head Massage</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">👦 Kids Haircut</span><span class="marquee-sep">·</span>
+          <span class="marquee-item">🧵 Threading</span><span class="marquee-sep">·</span>
+        </div>
+      </div>
+
+      <div style="padding:0 28px;">
+
+      <!-- ADVERTISEMENT CAROUSEL -->
+      <section style="margin:40px 0;">
+        <div class="section-label" style="margin-bottom:16px;" data-i18n="home.gallery">Gallery & Announcements</div>
+        <div class="ad-carousel" id="ad-carousel">
+          <div class="ad-slide active" style="background:linear-gradient(135deg,#0F0F1C,#1E1E32);display:flex;align-items:center;justify-content:center;">
+            <div style="text-align:center;padding:40px;">
+              <div style="font-size:4rem;margin-bottom:16px;">✂</div>
+              <div style="font-family:var(--font-display);font-size:2rem;color:var(--cream);">Premium Grooming Experience</div>
+              <div style="color:var(--cream-dim);margin-top:8px;">Visit us at Ponnammapet, Salem</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- OFFERS -->
+      <section style="margin:48px 0;" id="offers-section">
+        <div class="section-header">
+          <div>
+            <div class="section-label" data-i18n="home.offers">Current Offers</div>
+            <h2 style="margin-top:4px;" data-i18n="home.offersTitle">Special Deals for You</h2>
+          </div>
+        </div>
+        <div class="auto-grid" id="offers-grid">
+          <div class="offer-card fade-in">
+            <div class="offer-badge">20% OFF</div>
+            <div class="offer-title">Festival Special</div>
+            <div class="offer-desc">20% off all hair services this season. Valid till December 2026.</div>
+            <div class="offer-valid">Valid until: Dec 31, 2026</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STYLISTS STATUS -->
+      <section style="margin:48px 0;">
+        <div class="section-header">
+          <div>
+            <div class="section-label" data-i18n="home.stylists">Our Team</div>
+            <h2 style="margin-top:4px;" data-i18n="home.stylistsTitle">Stylist Availability</h2>
+          </div>
+        </div>
+        <div class="auto-grid" id="stylist-status-grid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- SERVICES LIST -->
+      <section style="margin:48px 0;">
+        <div class="section-header">
+          <div>
+            <div class="section-label" data-i18n="home.services">What We Offer</div>
+            <h2 style="margin-top:4px;" data-i18n="home.servicesTitle">Our Services & Prices</h2>
+          </div>
+        </div>
+        <div id="services-list"><!-- Populated by JS --></div>
+      </section>
+
+      <!-- ACHIEVEMENTS -->
+      <section style="margin:48px 0;">
+        <div class="section-header">
+          <div>
+            <div class="section-label" data-i18n="home.achievements">Our Story</div>
+            <h2 style="margin-top:4px;" data-i18n="home.achievementsTitle">Achievements & Milestones</h2>
+          </div>
+        </div>
+        <div id="achievements-list"><!-- Populated by JS --></div>
+      </section>
+
+      <!-- SHOP INFO -->
+      <section style="margin:48px 0;">
+        <div class="section-header">
+          <div>
+            <div class="section-label" data-i18n="home.findUs">Find Us</div>
+            <h2 style="margin-top:4px;" data-i18n="home.location">Location & Contact</h2>
+          </div>
+        </div>
+        <div class="two-col">
+          <div>
+            <iframe class="map-frame"
+              src="https://maps.google.com/maps?q=Ponnammapet+Salem+636001&output=embed"
+              frameborder="0" allowfullscreen loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+          <div class="vj-card">
+            <div class="card-title" style="margin-bottom:20px;" data-i18n="shop.contact">Contact Information</div>
+            <div class="contact-card">
+              <div class="contact-row">
+                <span class="contact-icon">🏪</span>
+                <div><div class="info-label" data-i18n="shop.name">Shop Name</div><div class="contact-val">VIJAYAN SALON</div></div>
+              </div>
+              <div class="contact-row">
+                <span class="contact-icon">📍</span>
+                <div><div class="info-label" data-i18n="shop.address">Address</div><div class="contact-val">No.2 pillayar kovil street, Ponnammapet, Salem - 636001<br><span style="color:var(--cream-muted);font-size:0.82rem;">(near Mariyamman kovil)</span></div></div>
+              </div>
+              <div class="contact-row">
+                <span class="contact-icon">📞</span>
+                <div><div class="info-label" data-i18n="shop.phone">Phone</div><div class="contact-val"><a href="tel:+916374402014">+91 6374402014</a></div></div>
+              </div>
+              <div class="contact-row">
+                <span class="contact-icon">🕒</span>
+                <div><div class="info-label" data-i18n="shop.hours">Hours</div><div class="contact-val">Mon–Sat: 9:00 AM – 8:00 PM<br>Sunday: 9:00 AM – 2:00 PM</div></div>
+              </div>
+              <div class="contact-row">
+                <span class="contact-icon">📅</span>
+                <div><div class="info-label" data-i18n="shop.since">Est.</div><div class="contact-val">Since 2010</div></div>
+              </div>
+            </div>
+            <div style="margin-top:20px;display:flex;gap:12px;">
+              <a href="client.html" class="btn btn-amber btn-full" data-i18n="hero.book">Book Appointment</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div><!-- /padding wrapper -->
+
+      <!-- FOOTER -->
+      <footer class="vj-footer">
+        <div class="footer-logo">VIJAYAN SALON</div>
+        <div class="footer-tagline">Excellence in Every Cut — Ponnammapet, Salem</div>
+        <div class="footer-copy">© <span id="footer-year">2025</span> VIJAYAN SALON. All rights reserved. | Since 2010</div>
+      </footer>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /vj-layout -->
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+  const lang = localStorage.getItem('vj_lang') || 'en';
+
+  // ---- CLOCK ----
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    const el = document.getElementById('clock-display');
+    el.innerHTML = `<span class="flip-digit">${h[0]}</span><span class="flip-digit">${h[1]}</span><span class="flip-separator">:</span><span class="flip-digit">${m[0]}</span><span class="flip-digit">${m[1]}</span><span class="flip-separator">:</span><span class="flip-digit">${s[0]}</span><span class="flip-digit">${s[1]}</span>`;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // ---- YEAR ----
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+  document.getElementById('years-stat').textContent = (new Date().getFullYear() - 2010) + '+';
+
+  // ---- LANG ----
+  document.getElementById('lang-select').value = lang;
+  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+
+  // ---- THEME ----
+  const theme = localStorage.getItem('vj_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+
+  // ---- SERVICE NAME ----
+  function svcName(s) {
+    const map = { en: s.nameEn, ta: s.nameTa, hi: s.nameHi };
+    return (map[lang] || s.nameEn) || s.nameEn;
+  }
+
+  // ---- RENDER SERVICES ----
+  function renderServices(services) {
+    const el = document.getElementById('services-list');
+    const cats = { HAIR:'💇 Hair Services', BEARD:'🧔 Beard & Shave', SKIN:'💆 Skin & Beauty' };
+    const grouped = {};
+    services.forEach(s => { if (!grouped[s.category]) grouped[s.category] = []; grouped[s.category].push(s); });
+    el.innerHTML = Object.entries(grouped).map(([cat, list]) => `
+      <div class="category-label"><span class="label-text">${cats[cat] || cat}</span></div>
+      ${list.map(s => `
+        <div class="service-card">
+          <div><div class="service-name">${svcName(s)}</div><div class="service-category">${s.category}</div></div>
+          <div style="text-align:right;">
+            <span class="service-price">₹${s.price}</span>
+            ${s.offerPct > 0 ? `<span class="service-offer">${s.offerPct}% OFF</span>` : ''}
+          </div>
+        </div>`).join('')}
+    `).join('');
+  }
+
+  // ---- RENDER STYLISTS ----
+  function renderStylists(stylists) {
+    const el = document.getElementById('stylist-status-grid');
+    const statusMap = { FREE:'badge-free', BUSY:'badge-busy', FOOD_BREAK:'badge-break' };
+    const labelMap  = { FREE:'Free', BUSY:'With Client', FOOD_BREAK:'Food Break' };
+    el.innerHTML = stylists.map(s => `
+      <div class="stylist-avail-card">
+        <div class="stylist-avail-avatar">${s.name[0]}</div>
+        <div>
+          <div class="stylist-avail-name">${s.name}</div>
+          <span class="badge ${statusMap[s.status] || 'badge-amber'}" style="margin-top:6px;display:inline-flex;">${labelMap[s.status] || s.status}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  // ---- RENDER ACHIEVEMENTS ----
+  function renderAchievements(list) {
+    const el = document.getElementById('achievements-list');
+    const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
+    el.innerHTML = list.map(a => `
+      <div class="achievement-card fade-in">
+        <div class="achievement-icon">${a.icon}</div>
+        <div>
+          <div class="achievement-year">${a.year}</div>
+          <div class="achievement-title">${a[nameKey] || a.titleEn}</div>
+          <div class="achievement-desc">${a.description}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // ---- RENDER OFFERS ----
+  function renderOffers(offers) {
+    if (!offers.length) return;
+    const el = document.getElementById('offers-grid');
+    const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
+    el.innerHTML = offers.map(o => `
+      <div class="offer-card fade-in">
+        <div class="offer-badge">${o.discountPct}% OFF</div>
+        <div class="offer-title">${o[nameKey] || o.titleEn}</div>
+        <div class="offer-desc">${o.description || ''}</div>
+        <div class="offer-valid">Valid until: ${o.validUntil || ''}</div>
+      </div>`).join('');
+  }
+
+  // ---- SHOP STATUS ----
+  function updateShopBadge(isOpen) {
+    const b = document.getElementById('shop-status-badge');
+    if (isOpen) { b.className = 'badge badge-open'; b.textContent = '● Open'; }
+    else         { b.className = 'badge badge-closed'; b.textContent = '● Closed'; }
+  }
+
+  // ---- EVENTS ----
+  function showEvents(events) {
+    if (!events.length) return;
+    const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
+    const e = events[0];
+    document.getElementById('event-title').textContent = e[nameKey] || e.titleEn;
+    document.getElementById('event-desc').textContent  = e.description || '';
+    document.getElementById('event-banner').style.display = 'flex';
+  }
+
+  // ---- LOAD ALL ----
+  async function loadAll() {
+    const [shopStatus, services, stylists, achievements, offers, events] = await Promise.all([
+      API.getShopStatus(), API.getServices(), API.getStylistsStatus(),
+      API.getAchievements(), API.getOffers(), API.getTodayEvents()
+    ]);
+    updateShopBadge(shopStatus.isOpen);
+    renderServices(services);
+    renderStylists(stylists);
+    renderAchievements(achievements);
+    renderOffers(offers);
+    showEvents(events);
+  }
+
+  // ---- INIT ----
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 1200);
+    loadAll();
+
+    // Intersection Observer for fade-in
+    const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold:0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+  });
+</script>
+</body>
+</html>

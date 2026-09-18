@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stylist Portal — VIJAYAN SALON</title>
+  <link rel="stylesheet" href="assets/css/design-system.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div class="barber-pole"></div>
+  <div class="loading-shop-name">VIJAYAN SALON</div>
+  <div class="loading-tagline">Stylist Portal</div>
+  <div class="loading-dots"><span></span><span></span><span></span></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card fade-in">
+    <div class="login-logo">
+      <div class="login-logo-icon">V</div>
+      <h2 class="login-title" data-i18n="stylist.login">Stylist Login</h2>
+      <div class="login-subtitle">VIJAYAN SALON Staff Portal</div>
+    </div>
+    <div id="login-error" class="login-error" data-i18n="stylist.invalidCreds">Invalid Stylist ID or Password</div>
+    <form id="stylist-login-form" onsubmit="event.preventDefault(); handleLogin();">
+      <div class="form-group">
+        <label class="form-label" data-i18n="stylist.code">Stylist Code</label>
+        <input type="text" id="login-code" class="form-input" placeholder="e.g. VJS001" required autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="stylist.password">Password</label>
+        <input type="password" id="login-pwd" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-amber btn-full btn-lg" style="margin-top:10px;">
+        <span>✂</span> <span data-i18n="stylist.signin">Sign In to Dashboard</span>
+      </button>
+      <div class="login-hint">
+        Demo Login: <strong>VJS001</strong> / <strong>stylist1</strong> or <strong>VJS002</strong> / <strong>stylist2</strong>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- APP WRAPPER -->
+<div id="app-wrapper" class="vj-layout" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">V</div>
+      <div>
+        <div class="sidebar-logo-text">VIJAYAN SALON</div>
+        <div class="sidebar-logo-sub" id="sidebar-stylist-name">Stylist Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Main</div>
+      <a class="sidebar-item active" onclick="showPanel('dashboard')">
+        <span class="sidebar-icon">📊</span><span class="sidebar-label" data-i18n="stylist.dashboard">Dashboard</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('shop-status')">
+        <span class="sidebar-icon">🔓</span><span class="sidebar-label" data-i18n="stylist.shopStatus">Shop Open / Close</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('my-status')">
+        <span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="stylist.myStatus">My Status</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('bookings')">
+        <span class="sidebar-icon">📋</span><span class="sidebar-label" data-i18n="stylist.bookings">Bookings</span>
+        <span class="sidebar-badge" id="badge-bookings-count">0</span>
+      </a>
+      <div class="sidebar-section-label">Operations</div>
+      <a class="sidebar-item" onclick="showPanel('service-log')">
+        <span class="sidebar-icon">📝</span><span class="sidebar-label" data-i18n="stylist.serviceLog">Daily Work Log</span>
+      </a>
+      <a class="sidebar-item" onclick="showPanel('inventory')">
+        <span class="sidebar-icon">📦</span><span class="sidebar-label" data-i18n="stylist.inventory">Inventory / Stock</span>
+      </a>
+      <div class="sidebar-section-label">System</div>
+      <a href="settings.html" class="sidebar-item">
+        <span class="sidebar-icon">⚙</span><span class="sidebar-label" data-i18n="nav.settings">Settings</span>
+      </a>
+      <a class="sidebar-item" onclick="handleLogout()">
+        <span class="sidebar-icon">🚪</span><span class="sidebar-label" data-i18n="stylist.logout">Sign Out</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="topbar-title" id="topbar-welcome">Stylist Portal</div>
+        <span id="topbar-shop-badge" class="badge badge-closed">● Closed</span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-clock" id="clock-display">00:00:00</div>
+        <select class="topbar-lang" id="lang-select" onchange="changeLang(this.value)">
+          <option value="en">🇬🇧 EN</option>
+          <option value="ta">🇮🇳 தமிழ்</option>
+          <option value="hi">🇮🇳 हिंदी</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="handleLogout()" title="Sign Out">🚪 Logout</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- ================= PANEL 1: DASHBOARD ================= -->
+      <div id="panel-dashboard" class="admin-panel active">
+        <div class="page-header">
+          <h2 class="page-title" id="dash-greeting">Welcome, Stylist</h2>
+          <div class="page-subtitle">Here is your daily activity overview</div>
+        </div>
+
+        <div class="stat-cards-grid" style="margin-bottom:24px;">
+          <div class="stat-card" onclick="showPanel('service-log')">
+            <span class="stat-icon">💰</span>
+            <span class="stat-value" id="dash-stat-revenue">₹0</span>
+            <span class="stat-label">Today's Revenue</span>
+          </div>
+          <div class="stat-card" onclick="showPanel('service-log')">
+            <span class="stat-icon">✂</span>
+            <span class="stat-value" id="dash-stat-cuts">0</span>
+            <span class="stat-label">Services Logged</span>
+          </div>
+          <div class="stat-card" onclick="showPanel('bookings')">
+            <span class="stat-icon">📋</span>
+            <span class="stat-value" id="dash-stat-bookings">0</span>
+            <span class="stat-label">Total Bookings</span>
+          </div>
+          <div class="stat-card" onclick="showPanel('my-status')">
+            <span class="stat-icon">🟢</span>
+            <span class="stat-value" id="dash-stat-status" style="font-size:1.5rem;color:var(--success);">FREE</span>
+            <span class="stat-label">Your Live Status</span>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="vj-card">
+            <div class="card-header">
+              <div class="card-title">Recent Client Bookings</div>
+              <button class="btn btn-ghost btn-sm" onclick="showPanel('bookings')">View All →</button>
+            </div>
+            <div id="dash-recent-bookings"></div>
+          </div>
+          <div class="vj-card">
+            <div class="card-header">
+              <div class="card-title">Today's Quick Log</div>
+              <button class="btn btn-ghost btn-sm" onclick="showPanel('service-log')">Full Log →</button>
+            </div>
+            <div id="dash-recent-logs"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 2: SHOP STATUS ================= -->
+      <div id="panel-shop-status" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="stylist.shopStatus">Shop Open / Close Control</h2>
+          <div class="page-subtitle">Change whether VIJAYAN SALON is officially open to walk-ins and bookings</div>
+        </div>
+
+        <div class="vj-card" style="max-width:680px;text-align:center;padding:36px;">
+          <div style="font-size:4.5rem;margin-bottom:12px;" id="shop-ctrl-icon">🔴</div>
+          <div class="display-title" id="shop-ctrl-text" style="font-size:2.2rem;margin-bottom:8px;">SHOP IS CURRENTLY CLOSED</div>
+          <p style="color:var(--cream-muted);margin-bottom:24px;" id="shop-ctrl-note">Last updated recently</p>
+
+          <div class="form-group" style="text-align:left;max-width:440px;margin:0 auto 24px;">
+            <label class="form-label">Optional Status Note / Reason</label>
+            <input type="text" id="shop-note-input" class="form-input" placeholder="e.g. Lunch break until 2:30 PM, Festival Special Open">
+          </div>
+
+          <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+            <button class="btn btn-success btn-lg" onclick="setShopState(true)" style="min-width:180px;">
+              🔓 <span data-i18n="stylist.openShop">Open Shop Now</span>
+            </button>
+            <button class="btn btn-danger btn-lg" onclick="setShopState(false)" style="min-width:180px;">
+              🔒 <span data-i18n="stylist.closeShop">Close Shop</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 3: MY STATUS ================= -->
+      <div id="panel-my-status" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="stylist.myStatus">My Live Status</h2>
+          <div class="page-subtitle">Update your availability so clients and shop admin see your current state in real-time</div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <div class="status-selector-grid">
+            <div class="status-sel-card active" data-status="FREE" onclick="selectMyStatus('FREE')">
+              <div class="status-sel-icon">🟢</div>
+              <div class="status-sel-label" data-i18n="stylist.free">Free & Available</div>
+              <div class="status-sel-desc">Ready to take the next client</div>
+            </div>
+            <div class="status-sel-card" data-status="BUSY" onclick="selectMyStatus('BUSY')">
+              <div class="status-sel-icon">🔴</div>
+              <div class="status-sel-label" data-i18n="stylist.busy">With Client (Busy)</div>
+              <div class="status-sel-desc">Currently performing haircut/grooming</div>
+            </div>
+            <div class="status-sel-card" data-status="FOOD_BREAK" onclick="selectMyStatus('FOOD_BREAK')">
+              <div class="status-sel-icon">🟡</div>
+              <div class="status-sel-label" data-i18n="stylist.break">Food / Tea Break</div>
+              <div class="status-sel-desc">Temporarily unavailable</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vj-card" style="max-width:540px;">
+          <div class="card-title">Live Preview for Customers</div>
+          <div style="margin-top:16px;display:flex;align-items:center;gap:14px;">
+            <div class="stylist-avail-avatar" id="status-preview-avatar">V</div>
+            <div>
+              <div class="stylist-avail-name" id="status-preview-name">Stylist</div>
+              <div id="status-preview-badge" style="margin-top:4px;">
+                <span class="badge badge-free">Free & Ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 4: BOOKINGS ================= -->
+      <div id="panel-bookings" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="stylist.bookings">Client Bookings & Notifications</h2>
+          <div class="page-subtitle">Incoming appointments from the client portal with live status changes</div>
+        </div>
+
+        <div id="booking-alert-banner" class="notif-banner" style="display:none;">
+          <div class="notif-dot"></div>
+          <div style="flex:1;">
+            <strong style="color:var(--cream);">New Appointments Received!</strong>
+            <div style="color:var(--cream-dim);font-size:0.85rem;">Check new client requests below and confirm their slot.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-amber btn-sm" id="bfilter-all" onclick="filterBookings('ALL')">All</button>
+            <button class="btn btn-ghost btn-sm" id="bfilter-pending" onclick="filterBookings('PENDING')">Pending</button>
+            <button class="btn btn-ghost btn-sm" id="bfilter-confirmed" onclick="filterBookings('CONFIRMED')">Confirmed</button>
+            <button class="btn btn-ghost btn-sm" id="bfilter-completed" onclick="filterBookings('COMPLETED')">Completed</button>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="loadBookings()">🔄 Refresh Bookings</button>
+        </div>
+
+        <div id="stylist-bookings-list"></div>
+      </div>
+
+      <!-- ================= PANEL 5: SERVICE LOG ================= -->
+      <div id="panel-service-log" class="admin-panel">
+        <div class="page-header">
+          <h2 class="page-title" data-i18n="stylist.serviceLog">Daily Work & Payment Log</h2>
+          <div class="page-subtitle">Record each service done (e.g. +1 Cut) and specify Cash vs Online payment</div>
+        </div>
+
+        <!-- ADD LOG ENTRY FORM -->
+        <div class="vj-card" style="margin-bottom:28px;">
+          <div class="card-title" style="margin-bottom:16px;">+ Log a Finished Service</div>
+          <form id="add-log-form" onsubmit="event.preventDefault(); handleAddLog();">
+            <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr auto;gap:14px;align-items:end;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Service</label>
+                <select id="log-svc-select" class="form-select" onchange="updateLogPrice()" required></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Quantity</label>
+                <input type="number" id="log-qty" class="form-input" value="1" min="1" max="20" onchange="updateLogPrice()" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Total Amount (₹)</label>
+                <input type="number" id="log-amt" class="form-input" value="80" required>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Payment Method</label>
+                <select id="log-pay-type" class="form-select" required>
+                  <option value="CASH">💵 Hand Cash</option>
+                  <option value="ONLINE">📱 Online UPI / QR</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-amber" style="height:44px;white-space:nowrap;">
+                ✓ Add to Daily Record
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- LOG TABLE -->
+        <div class="vj-card">
+          <div class="card-header">
+            <div class="card-title">Today's Completed Services Log</div>
+            <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--amber-bright);" id="log-grand-total">Total: ₹0</div>
+          </div>
+          <div class="table-wrap">
+            <table class="vj-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Service Done</th>
+                  <th>Qty</th>
+                  <th>Amount</th>
+                  <th>Payment Type</th>
+                  <th>Date & Time</th>
+                </tr>
+              </thead>
+              <tbody id="log-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PANEL 6: INVENTORY ================= -->
+      <div id="panel-inventory" class="admin-panel">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 class="page-title" data-i18n="stylist.inventory">Shop Inventory & Usage Counter</h2>
+            <div class="page-subtitle">Track shop supplies, decrement count as used, and add new items</div>
+          </div>
+          <button class="btn btn-amber" onclick="openAddInventoryModal()">+ Add New Item</button>
+        </div>
+
+        <div id="inventory-low-banner" class="stock-alert" style="display:none;">
+          <span style="font-size:1.2rem;">⚠</span>
+          <span id="inventory-low-text">Warning: Some inventory items are below minimum threshold!</span>
+        </div>
+
+        <div id="inventory-list-container"></div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<!-- MODAL: ADD INVENTORY ITEM -->
+<div id="modal-inventory" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Inventory Item</div>
+      <button class="modal-close" onclick="closeModal('modal-inventory')">✕</button>
+    </div>
+    <form id="form-add-inventory" onsubmit="event.preventDefault(); handleAddInventory();">
+      <div class="form-group">
+        <label class="form-label">Item Name</label>
+        <input type="text" id="inv-new-name" class="form-input" placeholder="e.g. Gillette Blades, Aftershave Lotion" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="inv-new-cat" class="form-select" required>
+            <option value="Razor">Razor / Blade</option>
+            <option value="Shampoo">Shampoo / Conditioner</option>
+            <option value="Cream">Shaving Cream / Foam</option>
+            <option value="Colour">Hair Colour / Dye</option>
+            <option value="Oil">Oil / Gel</option>
+            <option value="Towel">Towels / Aprons</option>
+            <option value="Other">Other Supplies</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Unit</label>
+          <input type="text" id="inv-new-unit" class="form-input" placeholder="pcs, bottles, packs, ml" value="pcs" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Initial Count</label>
+          <input type="number" id="inv-new-count" class="form-input" value="10" min="0" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Low Stock Alert Threshold</label>
+          <input type="number" id="inv-new-threshold" class="form-input" value="3" min="1" required>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-inventory')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Save Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/utils.js"></script>
+<script>
+  let currentStylist = null;
+  let allServicesList = [];
+  let currentBookings = [];
+  let currentInventory = [];
+  let currentDailyLogs = [];
+  let currentFilter = 'ALL';
+
+  const lang = localStorage.getItem('vj_lang') || 'en';
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  document.getElementById('lang-select').value = lang;
+  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    document.getElementById('clock-display').textContent = timeStr;
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Auth Handling
+  async function handleLogin() {
+    const code = document.getElementById('login-code').value.trim();
+    const pwd = document.getElementById('login-pwd').value;
+    const res = await API.loginStylist(code, pwd);
+    if (res && res.token) {
+      Auth.saveStylistSession(res.token, res.name, res.stylistId || 1);
+      document.getElementById('login-error').style.display = 'none';
+      initStylistApp();
+      showToast(`Welcome back, ${res.name}!`, 'success', 'Logged In ✂');
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function handleLogout() {
+    Auth.clear();
+    document.getElementById('app-wrapper').style.display = 'none';
+    document.getElementById('login-overlay').style.display = 'flex';
+    showToast('Signed out successfully', 'info');
+  }
+
+  function checkSession() {
+    if (Auth.isLoggedIn() && Auth.getRole() === 'stylist') {
+      initStylistApp();
+    } else {
+      document.getElementById('login-overlay').style.display = 'flex';
+      document.getElementById('app-wrapper').style.display = 'none';
+    }
+  }
+
+  function initStylistApp() {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-wrapper').style.display = 'flex';
+    const name = Auth.getName();
+    document.getElementById('sidebar-stylist-name').textContent = name;
+    document.getElementById('topbar-welcome').textContent = `Stylist: ${name}`;
+    document.getElementById('dash-greeting').textContent = `Welcome, ${name}`;
+    document.getElementById('status-preview-name').textContent = name;
+    document.getElementById('status-preview-avatar').textContent = name[0] || 'S';
+
+    loadAllData();
+  }
+
+  // Panel switching
+  function showPanel(panelName) {
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    const p = document.getElementById('panel-' + panelName);
+    if (p) p.classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // Load all initial data
+  async function loadAllData() {
+    await Promise.all([
+      loadShopStatus(),
+      loadServicesForLog(),
+      loadBookings(),
+      loadInventory(),
+      loadDailyLogs()
+    ]);
+  }
+
+  // --- 1. SHOP STATUS ---
+  async function loadShopStatus() {
+    const status = await API.getShopStatus();
+    renderShopStatus(status.isOpen, status.note);
+  }
+
+  function renderShopStatus(isOpen, note) {
+    const badge = document.getElementById('topbar-shop-badge');
+    const ctrlIcon = document.getElementById('shop-ctrl-icon');
+    const ctrlText = document.getElementById('shop-ctrl-text');
+    const ctrlNote = document.getElementById('shop-ctrl-note');
+
+    if (isOpen) {
+      badge.className = 'badge badge-open'; badge.textContent = '● Shop Open';
+      ctrlIcon.textContent = '🟢';
+      ctrlText.textContent = 'SHOP IS CURRENTLY OPEN';
+      ctrlText.style.color = 'var(--success)';
+      ctrlNote.textContent = note ? `Note: "${note}"` : 'Open for walk-ins and online bookings';
+    } else {
+      badge.className = 'badge badge-closed'; badge.textContent = '● Shop Closed';
+      ctrlIcon.textContent = '🔴';
+      ctrlText.textContent = 'SHOP IS CURRENTLY CLOSED';
+      ctrlText.style.color = 'var(--danger)';
+      ctrlNote.textContent = note ? `Reason: "${note}"` : 'Shop is closed';
+    }
+  }
+
+  async function setShopState(isOpen) {
+    const note = document.getElementById('shop-note-input').value.trim();
+    await API.setShopStatus(isOpen, note);
+    renderShopStatus(isOpen, note);
+    showToast(isOpen ? 'VIJAYAN SALON marked as OPEN 🔓' : 'VIJAYAN SALON marked as CLOSED 🔒', isOpen ? 'success' : 'warning');
+  }
+
+  // --- 2. MY STATUS ---
+  async function selectMyStatus(status) {
+    document.querySelectorAll('.status-sel-card').forEach(c => {
+      if (c.dataset.status === status) c.classList.add('active');
+      else c.classList.remove('active');
+    });
+
+    const statusBadge = document.getElementById('status-preview-badge');
+    const dashStatus = document.getElementById('dash-stat-status');
+    const map = {
+      FREE: { badge: 'badge-free', text: 'Free & Ready 🟢', color: 'var(--success)' },
+      BUSY: { badge: 'badge-busy', text: 'With Client 🔴', color: 'var(--danger)' },
+      FOOD_BREAK: { badge: 'badge-break', text: 'Food / Tea Break 🟡', color: 'var(--warning)' }
+    };
+    const cur = map[status] || map.FREE;
+    statusBadge.innerHTML = `<span class="badge ${cur.badge}">${cur.text}</span>`;
+    dashStatus.textContent = status;
+    dashStatus.style.color = cur.color;
+
+    await API.setStylistStatus(status);
+    showToast(`Status updated to ${status}`, 'info', 'Status Changed');
+  }
+
+  // --- 3. BOOKINGS ---
+  async function loadBookings() {
+    currentBookings = await API.getStylistBookings();
+    document.getElementById('badge-bookings-count').textContent = currentBookings.filter(b => b.status === 'PENDING').length;
+    document.getElementById('dash-stat-bookings').textContent = currentBookings.length;
+    renderBookings();
+    renderDashBookings();
+  }
+
+  function filterBookings(f) {
+    currentFilter = f;
+    ['all','pending','confirmed','completed'].forEach(k => {
+      const btn = document.getElementById('bfilter-' + k);
+      if (k.toUpperCase() === f) { btn.className = 'btn btn-amber btn-sm'; }
+      else { btn.className = 'btn btn-ghost btn-sm'; }
+    });
+    renderBookings();
+  }
+
+  function renderBookings() {
+    const list = document.getElementById('stylist-bookings-list');
+    let filtered = currentBookings;
+    if (currentFilter !== 'ALL') {
+      filtered = currentBookings.filter(b => b.status === currentFilter);
+    }
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div>No ${currentFilter.toLowerCase()} bookings found.</div></div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(b => `
+      <div class="booking-card ${b.status === 'PENDING' ? 'new-booking' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div class="booking-client">👤 ${b.clientName}</div>
+            <div class="booking-meta">📞 <a href="tel:${b.contact}" style="color:var(--amber-bright);">${b.contact}</a> • 📅 ${b.bookingDate} at 🕒 ${b.bookingTime}</div>
+            <div class="booking-services">✂ Services: <strong>${b.serviceNames || 'Haircut'}</strong></div>
+            ${b.notes ? `<div style="font-size:0.8rem;color:var(--cream-muted);margin-top:4px;">Notes: "${b.notes}"</div>` : ''}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span>
+            <div style="display:flex;gap:6px;">
+              ${b.status === 'PENDING' ? `<button class="btn btn-success btn-sm" onclick="changeBookingStatus(${b.id},'CONFIRMED')">✓ Confirm</button>` : ''}
+              ${b.status === 'CONFIRMED' ? `<button class="btn btn-teal btn-sm" onclick="changeBookingStatus(${b.id},'COMPLETED')">✓ Completed</button>` : ''}
+              ${b.status !== 'CANCELLED' && b.status !== 'COMPLETED' ? `<button class="btn btn-danger btn-sm" onclick="changeBookingStatus(${b.id},'CANCELLED')">✕ Cancel</button>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function renderDashBookings() {
+    const el = document.getElementById('dash-recent-bookings');
+    const recents = currentBookings.slice(0, 4);
+    if (!recents.length) { el.innerHTML = '<div style="color:var(--cream-muted);padding:12px;">No bookings yet.</div>'; return; }
+    el.innerHTML = recents.map(b => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border-dim);">
+        <div>
+          <div style="font-weight:600;color:var(--cream);">${b.clientName}</div>
+          <div style="font-size:0.8rem;color:var(--cream-muted);">${b.serviceNames || 'Haircut'} • ${b.bookingTime}</div>
+        </div>
+        <span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span>
+      </div>`).join('');
+  }
+
+  async function changeBookingStatus(id, newStatus) {
+    await API.updateBookingStatus(id, newStatus);
+    const item = currentBookings.find(b => b.id === id);
+    if (item) item.status = newStatus;
+    renderBookings();
+    renderDashBookings();
+    document.getElementById('badge-bookings-count').textContent = currentBookings.filter(b => b.status === 'PENDING').length;
+    showToast(`Booking marked as ${newStatus}`, 'success');
+  }
+
+  // --- 4. SERVICES & DAILY LOG ---
+  async function loadServicesForLog() {
+    allServicesList = await API.getServices();
+    const sel = document.getElementById('log-svc-select');
+    sel.innerHTML = allServicesList.map(s => `
+      <option value="${s.id}" data-price="${s.price}">${s.nameEn} (₹${s.price})</option>
+    `).join('');
+    updateLogPrice();
+  }
+
+  function updateLogPrice() {
+    const sel = document.getElementById('log-svc-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt) return;
+    const price = parseInt(opt.dataset.price || '80');
+    const qty = parseInt(document.getElementById('log-qty').value || '1');
+    document.getElementById('log-amt').value = price * qty;
+  }
+
+  async function loadDailyLogs() {
+    currentDailyLogs = await API.getDailyLog();
+    renderDailyLogs();
+  }
+
+  function renderDailyLogs() {
+    const tbody = document.getElementById('log-table-body');
+    const dashLogs = document.getElementById('dash-recent-logs');
+    let totalAmt = 0;
+    let totalCuts = 0;
+
+    tbody.innerHTML = currentDailyLogs.map((l, i) => {
+      totalAmt += Number(l.amount || 0);
+      totalCuts += Number(l.quantity || 1);
+      return `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${l.serviceName}</strong></td>
+          <td>${l.quantity}</td>
+          <td style="color:var(--amber-bright);font-weight:700;">₹${l.amount}</td>
+          <td><span class="badge ${l.paymentType === 'ONLINE' ? 'badge-teal' : 'badge-amber'}">${l.paymentType === 'ONLINE' ? '📱 Online' : '💵 Cash'}</span></td>
+          <td style="color:var(--cream-muted);font-size:0.8rem;">${l.logDate || 'Today'}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('log-grand-total').textContent = `Total: ₹${totalAmt}`;
+    document.getElementById('dash-stat-revenue').textContent = `₹${totalAmt}`;
+    document.getElementById('dash-stat-cuts').textContent = totalCuts;
+
+    if (dashLogs) {
+      dashLogs.innerHTML = currentDailyLogs.slice(-4).reverse().map(l => `
+        <div class="log-entry">
+          <div><div class="log-service">${l.serviceName} (×${l.quantity})</div><div class="log-meta">${l.paymentType}</div></div>
+          <div class="log-amount">₹${l.amount}</div>
+        </div>`).join('');
+    }
+  }
+
+  async function handleAddLog() {
+    const sel = document.getElementById('log-svc-select');
+    const serviceName = sel.options[sel.selectedIndex].text.split(' (')[0];
+    const quantity = parseInt(document.getElementById('log-qty').value);
+    const amount = parseFloat(document.getElementById('log-amt').value);
+    const paymentType = document.getElementById('log-pay-type').value;
+
+    const newLog = await API.addDailyLog({ serviceName, quantity, amount, paymentType });
+    currentDailyLogs.unshift(newLog);
+    renderDailyLogs();
+    showToast(`Logged: ${serviceName} (₹${amount}) via ${paymentType}`, 'success', 'Service Logged ✂');
+  }
+
+  // --- 5. INVENTORY ---
+  async function loadInventory() {
+    currentInventory = await API.getInventory();
+    renderInventory();
+  }
+
+  function renderInventory() {
+    const container = document.getElementById('inventory-list-container');
+    let hasLowStock = false;
+
+    container.innerHTML = currentInventory.map(item => {
+      const isLow = item.currentCount <= item.lowThreshold;
+      if (isLow) hasLowStock = true;
+      return `
+        <div class="inventory-item">
+          <div>
+            <div class="inv-name">${item.itemName}</div>
+            <div class="inv-cat">${item.category} • Alert when below ${item.lowThreshold} ${item.unit}</div>
+          </div>
+          <div class="inv-controls">
+            <button class="inv-btn" onclick="changeInvCount(${item.id}, -1)" title="Decrement count on use">−</button>
+            <span class="inv-count ${isLow ? 'low' : ''}">${item.currentCount} <span style="font-size:0.75rem;color:var(--cream-muted);">${item.unit}</span></span>
+            <button class="inv-btn" onclick="changeInvCount(${item.id}, 1)" title="Increment count">+</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteInvItem(${item.id})" style="color:var(--danger);padding:4px 8px;" title="Delete item">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+
+    document.getElementById('inventory-low-banner').style.display = hasLowStock ? 'flex' : 'none';
+  }
+
+  async function changeInvCount(id, delta) {
+    const item = currentInventory.find(i => i.id === id);
+    if (!item) return;
+    const newCount = Math.max(0, item.currentCount + delta);
+    item.currentCount = newCount;
+    renderInventory();
+    await API.updateInventory(id, { currentCount: newCount });
+    if (newCount <= item.lowThreshold) {
+      showToast(`${item.itemName} is running low! (${newCount} left)`, 'warning', 'Low Stock');
+    }
+  }
+
+  async function deleteInvItem(id) {
+    if (!confirm('Are you sure you want to remove this item from inventory?')) return;
+    await API.deleteInventory(id);
+    currentInventory = currentInventory.filter(i => i.id !== id);
+    renderInventory();
+    showToast('Inventory item deleted', 'info');
+  }
+
+  function openAddInventoryModal() {
+    document.getElementById('inv-new-name').value = '';
+    document.getElementById('inv-new-count').value = '10';
+    document.getElementById('inv-new-threshold').value = '3';
+    openModal('modal-inventory');
+  }
+
+  async function handleAddInventory() {
+    const newItem = {
+      itemName: document.getElementById('inv-new-name').value.trim(),
+      category: document.getElementById('inv-new-cat').value,
+      unit: document.getElementById('inv-new-unit').value.trim(),
+      currentCount: parseInt(document.getElementById('inv-new-count').value),
+      lowThreshold: parseInt(document.getElementById('inv-new-threshold').value)
+    };
+    const created = await API.addInventory(newItem);
+    currentInventory.push(created);
+    renderInventory();
+    closeModal('modal-inventory');
+    showToast(`Added ${newItem.itemName} to inventory`, 'success');
+  }
+
+  // --- INIT ---
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 900);
+    checkSession();
+  });
+</script>
+</body>
+</html>
