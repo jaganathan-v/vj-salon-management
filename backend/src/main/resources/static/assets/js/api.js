@@ -14,29 +14,10 @@ const DEMO = {
     mapsLink: 'https://maps.google.com/maps?q=Ponnammapet+Salem&output=embed'
   },
   shopStatus: { isOpen: false, openedAt: null },
-  services: [
-    { id:1, nameEn:'Haircut',       nameTa:'முடி வெட்டு',        nameHi:'बाल कटाई',        price:80,  offerPct:0,  category:'HAIR'  },
-    { id:2, nameEn:'Beard Trim',    nameTa:'தாடி கத்திரி',        nameHi:'दाढ़ी ट्रिम',      price:50,  offerPct:0,  category:'BEARD' },
-    { id:3, nameEn:'Shave',         nameTa:'ஷேவ்',               nameHi:'शेव',             price:60,  offerPct:0,  category:'BEARD' },
-    { id:4, nameEn:'Hair Colour',   nameTa:'முடி நிறம்',          nameHi:'बाल रंग',         price:300, offerPct:10, category:'HAIR'  },
-    { id:5, nameEn:'Facial',        nameTa:'முகப்பூச்சு',         nameHi:'फेशियल',          price:200, offerPct:0,  category:'SKIN'  },
-    { id:6, nameEn:'Head Massage',  nameTa:'தலை மசாஜ்',           nameHi:'सिर मालिश',       price:100, offerPct:0,  category:'HAIR'  },
-    { id:7, nameEn:'Kids Haircut',  nameTa:'குழந்தை முடி வெட்டு', nameHi:'बच्चों का कटाई',  price:60,  offerPct:0,  category:'HAIR'  },
-    { id:8, nameEn:'Threading',     nameTa:'நூல் நீக்கம்',         nameHi:'थ्रेडिंग',        price:30,  offerPct:0,  category:'SKIN'  }
-  ],
-  stylists: [
-    { id:1, name:'Vijayan', status:'FREE'  },
-    { id:2, name:'Kumar',   status:'BUSY'  }
-  ],
-  offers: [
-    { id:1, titleEn:'Festival Special', titleTa:'திருவிழா சிறப்பு', titleHi:'त्योहार विशेष',
-      discountPct:20, description:'20% off all hair services this season', validUntil:'2026-12-31' }
-  ],
-  achievements: [
-    { id:1, icon:'🏆', year:2018, titleEn:'Best Salon Salem',    description:'Recognized by Salem Business Council'      },
-    { id:2, icon:'⭐', year:2020, titleEn:'500+ Happy Clients',  description:'Milestone of 500 regular clients'          },
-    { id:3, icon:'🎖', year:2023, titleEn:'Google 4.8★ Rating',  description:'Top rating maintained on Google Maps'     }
-  ],
+  services: [],
+  stylists: [],
+  offers: [],
+  achievements: [],
   advertisements: [],
   events: [],
   bookings: [
@@ -127,8 +108,6 @@ const API = {
   loginStylist: async (stylistCode, password) => {
     const res = await _call('/auth/stylist', { method:'POST', body:JSON.stringify({ stylistCode, password }) });
     if (res) return res;
-    if (stylistCode === 'VJS001' && password === 'stylist1') return { token:'demo_token', name:'Vijayan', stylistId:1, stylistCode:'VJS001' };
-    if (stylistCode === 'VJS002' && password === 'stylist2') return { token:'demo_token', name:'Kumar',   stylistId:2, stylistCode:'VJS002' };
     return null;
   },
   loginAdmin: async (adminCode, password) => {

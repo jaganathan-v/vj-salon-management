@@ -184,86 +184,17 @@ CREATE TABLE payment_qr (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. SEED INITIAL DATA
-
--- Shop Settings
-INSERT INTO shop_settings (id, shop_name, tagline, address, phone, email, since_year, maps_link)
-VALUES (1, 'VIJAYAN SALON', 'Excellence in Every Cut', 'No.2 pillayar kovil street, Ponnammapet, Salem - 636001 (near Mariyamman kovil)', '6374402014', 'vijayansalon@gmail.com', 2010, 'https://maps.google.com/maps?q=Ponnammapet+Salem+636001&output=embed')
-ON CONFLICT (id) DO NOTHING;
+-- 3. SEED INITIAL DATA (only required system defaults)
 
 -- Shop Status (Initial: Open)
 INSERT INTO shop_status (id, is_open, note)
-VALUES (1, TRUE, 'Welcome to VIJAYAN SALON! Open for walk-ins and bookings.')
+VALUES (1, TRUE, '')
 ON CONFLICT (id) DO NOTHING;
 
 -- Admin Login: VJADMIN / vj@admin2024 (BCrypt hashed)
 INSERT INTO admin_config (id, admin_code, password_hash, email)
 VALUES (1, 'VJADMIN', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6a', 'admin@vjsalon.com')
 ON CONFLICT (id) DO NOTHING;
-
--- Stylists: VJS001 / stylist1 and VJS002 / stylist2 (BCrypt hashed)
-INSERT INTO stylists (stylist_code, name, password_hash, status, active)
-VALUES 
-('VJS001', 'Vijayan', '$2a$10$slI9muZK4PwEb4VRP3RGIO.DQUI5VMPHXIVNAFuJSIRmFqQcLiT9W', 'FREE', TRUE),
-('VJS002', 'Kumar', '$2a$10$slI9muZK4PwEb4VRP3RGIO.DQUI5VMPHXIVNAFuJSIRmFqQcLiT9W', 'BUSY', TRUE)
-ON CONFLICT (stylist_code) DO NOTHING;
-
--- Multilingual Services
-INSERT INTO services (name_en, name_ta, name_hi, price, offer_pct, category, description, display_order)
-VALUES 
-('Haircut', 'முடி வெட்டு', 'बाल कटाई', 80.00, 0, 'HAIR', 'Professional stylish haircut tailored to face shape.', 1),
-('Beard Trim', 'தாடி கத்திரி', 'दाढ़ी ट्रिम', 50.00, 0, 'BEARD', 'Sharp beard shape, grooming and outline trimming.', 2),
-('Shave', 'ஷேவ்', 'शेव', 60.00, 0, 'BEARD', 'Smooth hot-towel clean razor shave.', 3),
-('Hair Colour', 'முடி நிறம்', 'बाल रंग', 300.00, 10, 'HAIR', 'Natural black and rich dark brown ammonia-free hair dye.', 4),
-('Facial', 'முகப்பூச்சு', 'फेशियल', 200.00, 0, 'SKIN', 'Refreshing fruit scrub and skin cleansing massage.', 5),
-('Head Massage', 'தலை மசாஜ்', 'सिर मालिश', 100.00, 0, 'HAIR', 'Relaxing 20-minute herbal oil scalp massage.', 6),
-('Kids Haircut', 'குழந்தை முடி வெட்டு', 'बच्चों का कटाई', 60.00, 0, 'HAIR', 'Gentle, friendly haircut for children.', 7),
-('Threading', 'நூல் நீக்கம்', 'थ्रेडिंग', 30.00, 0, 'SKIN', 'Clean eyebrow and forehead precision threading.', 8);
-
--- Payment QR
-INSERT INTO payment_qr (id, upi_id, display_name, qr_image_path)
-VALUES (1, '6374402014@okbizaxis', 'VIJAYAN SALOON', 'assets/uploads/qr/payment_qr.jpg')
-ON CONFLICT (id) DO NOTHING;
-
--- Achievements
-INSERT INTO achievements (title_en, title_ta, title_hi, description, year, icon)
-VALUES 
-('Best Salon in Salem', 'சேலத்தின் சிறந்த சலூன் விருது', 'सलेम का सर्वश्रेष्ठ सैलून', 'Recognized by Salem Business Council for excellence in customer grooming.', 2018, '🏆'),
-('500+ Happy Regular Clients', '500+ திருப்திகரமான வாடிக்கையாளர்கள்', '500+ खुश नियमित ग्राहक', 'Milestone of 500 loyal repeating clients across Ponnammapet.', 2020, '⭐'),
-('Google 4.8★ Top Rated', 'கூகிள் 4.8★ உயர் மதிப்பீடு', 'गूगल 4.8★ शीर्ष रेटेड', 'Consistently rated 4.8+ stars for hygiene and punctuality.', 2023, '🎖');
-
--- Active Offers
-INSERT INTO offers (title_en, title_ta, title_hi, description, discount_pct, valid_from, valid_until, active)
-VALUES 
-('Festival Grooming Special', 'திருவிழா சிறப்பு தள்ளுபடி', 'त्योहार विशेष छूट', 'Get 20% discount on all Hair Colour & Facial combos this season!', 20, CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months', TRUE);
-
--- Inventory
-INSERT INTO inventory (item_name, category, current_count, unit, low_threshold, notes)
-VALUES 
-('Gillette Razor Blades', 'Razor', 18, 'pcs', 5, 'Standard double-edge blades'),
-('Clinic Plus Shampoo', 'Shampoo', 4, 'bottles', 5, 'Hair wash station bottles'),
-('Old Spice Shaving Cream', 'Cream', 8, 'pcs', 3, 'Hot lather cream'),
-('Godrej Expert Hair Colour', 'Colour', 6, 'packs', 3, 'Natural black sachets'),
-('Herbal Massage Oil', 'Oil', 5, 'bottles', 2, 'Cooling scalp oil'),
-('Cotton Towels', 'Towel', 25, 'pcs', 10, 'Fresh sterilized salon towels');
-
--- Sample Bookings
-INSERT INTO bookings (client_name, contact, service_names, booking_date, booking_time, notes, status)
-VALUES 
-('Rajesh Kumar', '9876543210', 'Haircut, Beard Trim', CURRENT_DATE, '10:30:00', 'Regular trim, please keep sides short', 'CONFIRMED'),
-('Muthu Selvam', '8765432109', 'Hair Colour', CURRENT_DATE, '12:00:00', 'First time hair colour', 'PENDING');
-
--- Sample Feedback
-INSERT INTO feedback (client_name, service_rating, shop_rating, worker_rating, timing_rating, overall_rating, comments)
-VALUES 
-('Anand G.', 5, 5, 5, 4, 5, 'Wonderful haircut by Vijayan! Very polite and hygienic environment.');
-
--- Sample Daily Logs
-INSERT INTO daily_log (service_name, quantity, amount, payment_type, log_date)
-VALUES 
-('Haircut', 2, 160.00, 'CASH', CURRENT_DATE),
-('Beard Trim', 1, 50.00, 'ONLINE', CURRENT_DATE);
-
 -- 4. CREATE INDEXES FOR FAST QUERYING
 CREATE INDEX idx_bookings_date ON bookings(booking_date);
 CREATE INDEX idx_bookings_status ON bookings(status);

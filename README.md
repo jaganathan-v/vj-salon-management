@@ -19,7 +19,7 @@ DB_PASSWORD=your-postgres-password
 ```
 
 > [!TIP]
-> If you create a new PostgreSQL database named `vjsalon_db` in PostgreSQL (e.g. via pgAdmin, DBeaver, or psql with `CREATE DATABASE vjsalon_db;`), Spring Boot will **automatically create all tables and populate initial seed data** on its very first run via Hibernate `ddl-auto=update` and the built-in `DataSeeder`!
+> If you create a new PostgreSQL database named `vjsalon_db` in PostgreSQL (e.g. via pgAdmin, DBeaver, or psql with `CREATE DATABASE vjsalon_db;`), Spring Boot will **automatically create all tables and seed only the default Admin account and initial shop status row** on its very first run via Hibernate `ddl-auto=update` and the built-in `DataSeeder`. Business content must be added through the Admin dashboard.
 
 ---
 
@@ -67,7 +67,7 @@ The repository includes [`render.yaml`](render.yaml), which configures the Docke
 
 The configured service URL is `https://vj-salon-management.onrender.com/` (Render assigns this URL when the service is created). After deployment, visit that URL for the salon site. A free Render service may take a little while to wake after inactivity.
 
-Default seeded logins: admin `VJADMIN` / `vj@admin2024`; stylists `VJS001` / `stylist1` and `VJS002` / `stylist2`. Change the default admin password after the first login.
+Default seeded login: admin `VJADMIN` / `vj@admin2024`. Change the default admin password after the first login. Stylist accounts must be created from the Admin dashboard.
 
 ---
 
@@ -79,9 +79,7 @@ Default seeded logins: admin `VJADMIN` / `vj@admin2024`; stylists `VJS001` / `st
 - *(Can be changed anytime inside the Admin Portal under "Shop & Admin Pwd" tab; changes update directly in PostgreSQL)*
 
 ### Stylist Staff Portal (`stylist.html`):
-- **Stylist 1:** `VJS001` / Password: `stylist1` (Vijayan)
-- **Stylist 2:** `VJS002` / Password: `stylist2` (Kumar)
-- *(Admin can create unlimited new stylist accounts or reset passwords in Admin -> Stylists tab)*
+- Stylist accounts are created by the Admin in Admin -> Stylists. No stylist accounts are seeded by default.
 
 ---
 
