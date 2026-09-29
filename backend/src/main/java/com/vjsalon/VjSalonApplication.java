@@ -1,6 +1,7 @@
 package com.vjsalon;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -40,7 +41,26 @@ import com.vjsalon.repository.StylistRepository;
 public class VjSalonApplication {
 
     public static void main(String[] args) {
+        configureRenderDatabaseUrl();
         SpringApplication.run(VjSalonApplication.class, args);
+    }
+
+    private static void configureRenderDatabaseUrl() {
+        String databaseUrl = System.getenv("DATABASE_URL");
+        if (databaseUrl == null || databaseUrl.isBlank()) {
+            return;
+        }
+
+        URI uri = URI.create(databaseUrl);
+        if (!"postgres".equals(uri.getScheme()) && !"postgresql".equals(uri.getScheme())) {
+            throw new IllegalArgumentException("DATABASE_URL must use the postgres or postgresql scheme");
+        }
+        String jdbcUrl = "jdbc:postgresql://" + uri.getRawAuthority().substring(
+                uri.getRawAuthority().lastIndexOf('@') + 1) + uri.getRawPath();
+        if (uri.getRawQuery() != null) {
+            jdbcUrl += "?" + uri.getRawQuery();
+        }
+        System.setProperty("spring.datasource.url", jdbcUrl);
     }
 
     @Bean

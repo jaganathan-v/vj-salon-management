@@ -301,14 +301,6 @@
   document.getElementById('lang-select').value = lang;
   function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
 
-  // Clock
-  function updateClock() {
-    const n = new Date();
-    const t = n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    document.getElementById('clock-display').textContent = t;
-  }
-  setInterval(updateClock, 1000); updateClock();
-
   // Section tabs
   function showSection(name) {
     document.querySelectorAll('.client-section').forEach(s => s.classList.remove('active'));

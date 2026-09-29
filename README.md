@@ -10,17 +10,12 @@ To connect the application to your local or remote **PostgreSQL** database, open
 
 📁 **`backend/src/main/resources/application.properties`**
 
-Modify lines **9 to 11**:
+Set these environment variables if your PostgreSQL connection differs from the local defaults:
 
-```properties
-# 1. Database URL (Change 'vjsalon_db' to your PostgreSQL database name)
-spring.datasource.url=jdbc:postgresql://localhost:5432/vjsalon_db
-
-# 2. Database Username (Default: postgres)
-spring.datasource.username=postgres
-
-# 3. Database Password (Enter your PostgreSQL password)
-spring.datasource.password=yourpassword
+```text
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/vjsalon_db
+DB_USERNAME=postgres
+DB_PASSWORD=your-postgres-password
 ```
 
 > [!TIP]
@@ -51,37 +46,32 @@ The database schema (`database/schema.sql`) contains **13 structured tables**:
 
 ---
 
-## 🚀 3. HOW TO RUN THE APPLICATION EFFICIENTLY
+## Run locally or deploy to Render
 
-### Option A: Standalone Instant Run (Frontend Only — Zero Setup Needed)
-The frontend is built to work **immediately** with built-in fallback demo data and local storage simulation:
-1. Open Chrome or any web browser.
-2. Open `frontend/index.html` directly in the browser!
-3. Navigate between **Client**, **Stylist**, **Admin**, and **Settings** portals smoothly.
+The Spring Boot app serves the frontend and API together. The homepage is `http://localhost:8080/`; the HTML files are in `backend/src/main/resources/static/`.
 
-### Option B: Full Stack Run (Spring Boot Backend + PostgreSQL Database)
+### Run locally
 
-#### Step 1 — Create the Database in PostgreSQL:
-In `psql` or `pgAdmin`:
-```sql
-CREATE DATABASE vjsalon_db;
-```
-*(Optional)* You can run `database/schema.sql` if you wish to pre-seed via SQL, or let Spring Boot auto-seed on startup.
+Requirements: Java 17, Maven, and PostgreSQL. Create a database named `vjsalon_db`, then from the repository root run:
 
-#### Step 2 — Start the Spring Boot Backend:
-Open terminal in the `backend` directory:
 ```bash
 cd backend
-mvn clean spring-boot:run
+mvn spring-boot:run
 ```
-Backend will start on `http://localhost:8080`.
 
-#### Step 3 — Open the Frontend:
-Open `frontend/index.html` in your browser. All API calls will automatically connect to `http://localhost:8080/api`.
+By default the app connects to `jdbc:postgresql://localhost:5432/vjsalon_db` as user `postgres`. Set `DB_USERNAME` and `DB_PASSWORD` if your local PostgreSQL credentials differ. The app listens on port 8080 and creates its tables and starter data on first startup.
+
+### Deploy to Render
+
+The repository includes [`render.yaml`](render.yaml), which configures the Docker web service and PostgreSQL database. Push this repository to GitHub, create a new **Blueprint** in Render for that repository, and apply the blueprint. Render will build the app and provision the database.
+
+The configured service URL is `https://vj-salon-management.onrender.com/` (Render assigns this URL when the service is created). After deployment, visit that URL for the salon site. A free Render service may take a little while to wake after inactivity.
+
+Default seeded logins: admin `VJADMIN` / `vj@admin2024`; stylists `VJS001` / `stylist1` and `VJS002` / `stylist2`. Change the default admin password after the first login.
 
 ---
 
-## 🔐 4. DEFAULT USER LOGIN CREDENTIALS
+## 4. DEFAULT USER LOGIN CREDENTIALS
 
 ### Master Admin Portal (`admin.html`):
 - **Admin Code:** `VJADMIN`

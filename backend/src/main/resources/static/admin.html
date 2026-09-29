@@ -134,7 +134,7 @@
           <option value="ta">🇮🇳 தமிழ்</option>
           <option value="hi">🇮🇳 हिंदी</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="handleLogout()">🚪 Logout</button>
+        <button class="btn btn-danger btn-sm" onclick="handleLogout()">Not you? Log out</button>
       </div>
     </header>
 
@@ -677,20 +677,13 @@
   document.getElementById('lang-select').value = lang;
   function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
 
-  // Clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock-display').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  }
-  setInterval(updateClock, 1000); updateClock();
-
   // Auth Handling
   async function handleLogin() {
     const code = document.getElementById('login-code').value.trim();
     const pwd = document.getElementById('login-pwd').value;
     const res = await API.loginAdmin(code, pwd);
     if (res && res.token) {
-      Auth.saveAdminSession(res.token);
+      Auth.saveAdminSession(res.token, code);
       document.getElementById('login-error').style.display = 'none';
       initAdminApp();
       showToast('Welcome to Master Admin!', 'success', 'Admin Logged In 👑');
@@ -716,8 +709,10 @@
   }
 
   function initAdminApp() {
+    Auth.startInactivityTimeout(() => { handleLogout(); showToast('Signed out after 60 minutes of inactivity', 'warning', 'Session expired'); });
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('app-wrapper').style.display = 'flex';
+    document.querySelector('.topbar-title').textContent = `Active admin: ${Auth.getName()} (ID ${localStorage.getItem('vj_admin_id') || 'VJADMIN'})`;
     loadAllAdminData();
     initCharts('daily');
   }

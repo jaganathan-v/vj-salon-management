@@ -268,18 +268,6 @@
 <script>
   const lang = localStorage.getItem('vj_lang') || 'en';
 
-  // ---- CLOCK ----
-  function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    const s = String(now.getSeconds()).padStart(2,'0');
-    const el = document.getElementById('clock-display');
-    el.innerHTML = `<span class="flip-digit">${h[0]}</span><span class="flip-digit">${h[1]}</span><span class="flip-separator">:</span><span class="flip-digit">${m[0]}</span><span class="flip-digit">${m[1]}</span><span class="flip-separator">:</span><span class="flip-digit">${s[0]}</span><span class="flip-digit">${s[1]}</span>`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
   // ---- YEAR ----
   document.getElementById('footer-year').textContent = new Date().getFullYear();
   document.getElementById('years-stat').textContent = (new Date().getFullYear() - 2010) + '+';

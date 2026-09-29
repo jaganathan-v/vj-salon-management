@@ -13,7 +13,7 @@ function showToast(message, type = 'info', title = '') {
   }
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.style.cssText = 'min-width:250px;padding:15px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(20px);transition:all 0.3s ease;';
+  toast.style.cssText = 'min-width:min(250px, calc(100vw - 32px));padding:15px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(20px);transition:all 0.3s ease;';
   
   const icons = { success: '✓', error: '✕', info: '✦', warning: '⚠' };
   const colors = { success: '#4caf50', error: '#f44336', info: '#2196f3', warning: '#ff9800' };
@@ -59,7 +59,7 @@ function showModal(title, bodyHTML, onConfirm = null) {
     modal.className = 'modal';
     modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:1000;';
     modal.innerHTML = `
-      <div class="modal-content" style="background:var(--bg-card,#fff);color:var(--text-main,#333);padding:20px;border-radius:12px;min-width:300px;max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+      <div class="modal-content" style="background:var(--bg-card,#fff);color:var(--text-main,#333);padding:20px;border-radius:12px;min-width:min(300px, calc(100vw - 40px));max-width:500px;box-shadow:0 10px 30px rgba(0,0,0,0.2);">
         <h3 id="generic-modal-title" style="margin-top:0;margin-bottom:15px;"></h3>
         <div id="generic-modal-body" style="margin-bottom:20px;font-size:15px;"></div>
         <div style="display:flex;justify-content:flex-end;gap:10px;">
@@ -100,6 +100,7 @@ function showModal(title, bodyHTML, onConfirm = null) {
 
 // --- Flip Clock ---
 let clockInterval = null;
+let clockLifecycleBound = false;
 function initClock(elementId = 'clock-display') {
   const el = document.getElementById(elementId);
   if (!el) return;
@@ -122,6 +123,16 @@ function initClock(elementId = 'clock-display') {
   update();
   if (clockInterval) clearInterval(clockInterval);
   clockInterval = setInterval(update, 1000);
+  if (!clockLifecycleBound) {
+    window.addEventListener('pagehide', () => {
+      if (clockInterval) clearInterval(clockInterval);
+      clockInterval = null;
+    });
+    window.addEventListener('pageshow', () => {
+      if (!clockInterval && document.getElementById(elementId)) initClock(elementId);
+    });
+    clockLifecycleBound = true;
+  }
 }
 
 // --- Theme Management ---

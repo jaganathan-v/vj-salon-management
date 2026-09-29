@@ -107,7 +107,7 @@
           <option value="ta">🇮🇳 தமிழ்</option>
           <option value="hi">🇮🇳 हिंदी</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="handleLogout()" title="Sign Out">🚪 Logout</button>
+        <button class="btn btn-danger btn-sm" onclick="handleLogout()" title="Log out of this stylist account">Not you? Log out</button>
       </div>
     </header>
 
@@ -269,7 +269,7 @@
         <div class="vj-card" style="margin-bottom:28px;">
           <div class="card-title" style="margin-bottom:16px;">+ Log a Finished Service</div>
           <form id="add-log-form" onsubmit="event.preventDefault(); handleAddLog();">
-            <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1.5fr auto;gap:14px;align-items:end;">
+            <div class="work-log-grid">
               <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Service</label>
                 <select id="log-svc-select" class="form-select" onchange="updateLogPrice()" required></select>
@@ -407,15 +407,6 @@
   document.getElementById('lang-select').value = lang;
   function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
 
-  // Clock
-  function updateClock() {
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-    document.getElementById('clock-display').textContent = timeStr;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-
   // Auth Handling
   async function handleLogin() {
     const code = document.getElementById('login-code').value.trim();
@@ -448,11 +439,12 @@
   }
 
   function initStylistApp() {
+    Auth.startInactivityTimeout(() => { handleLogout(); showToast('Signed out after 10 minutes of inactivity', 'warning', 'Session expired'); });
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('app-wrapper').style.display = 'flex';
     const name = Auth.getName();
     document.getElementById('sidebar-stylist-name').textContent = name;
-    document.getElementById('topbar-welcome').textContent = `Stylist: ${name}`;
+    document.getElementById('topbar-welcome').textContent = `Active stylist: ${name} (ID ${Auth.getStylistId() || '—'})`;
     document.getElementById('dash-greeting').textContent = `Welcome, ${name}`;
     document.getElementById('status-preview-name').textContent = name;
     document.getElementById('status-preview-avatar').textContent = name[0] || 'S';

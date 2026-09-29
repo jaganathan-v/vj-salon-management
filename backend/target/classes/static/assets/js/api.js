@@ -1,7 +1,7 @@
 // ============================
 // VIJAYAN SALON — API CLIENT
 // ============================
-const API_BASE = 'https://vj-salon-management.onrender.com/api';
+const API_BASE = `${window.location.origin}/api`;
 
 // --- Demo Data (used when backend is offline) ---
 const DEMO = {
@@ -78,6 +78,9 @@ async function _call(endpoint, options = {}) {
     return text ? JSON.parse(text) : {};
   } catch (e) {
     console.warn('API offline for', endpoint, '—', e.message);
+    if (options.method && options.method.toUpperCase() !== 'GET' && !endpoint.startsWith('/auth/') && typeof showToast === 'function') {
+      showToast(`Save failed. ${e.message || 'Please check your connection and try again.'}`, 'error', 'Unable to save');
+    }
     return null;
   }
 }
@@ -95,6 +98,7 @@ async function _upload(endpoint, formData, method = 'POST') {
     return await res.json();
   } catch (e) {
     console.warn('Upload failed for', endpoint, '—', e.message);
+    if (typeof showToast === 'function') showToast(`Upload failed. ${e.message || 'Please try again.'}`, 'error', 'Unable to save');
     return null;
   }
 }
