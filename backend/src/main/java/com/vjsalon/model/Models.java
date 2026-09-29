@@ -263,6 +263,7 @@ public class Models {
         private Integer workerRating = 5;
         private Integer timingRating = 5;
         private Integer overallRating = 5;
+        private Long bookingId;
         @Column(columnDefinition = "TEXT")
         private String comments;
         private LocalDateTime createdAt = LocalDateTime.now();
@@ -282,6 +283,8 @@ public class Models {
         public void setTimingRating(Integer timingRating) { this.timingRating = timingRating; }
         public Integer getOverallRating() { return overallRating; }
         public void setOverallRating(Integer overallRating) { this.overallRating = overallRating; }
+        public Long getBookingId() { return bookingId; }
+        public void setBookingId(Long bookingId) { this.bookingId = bookingId; }
         public String getComments() { return comments; }
         public void setComments(String comments) { this.comments = comments; }
         public LocalDateTime getCreatedAt() { return createdAt; }

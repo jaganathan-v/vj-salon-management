@@ -103,6 +103,7 @@ CREATE TABLE feedback (
     worker_rating INTEGER CHECK (worker_rating BETWEEN 1 AND 5),
     timing_rating INTEGER CHECK (timing_rating BETWEEN 1 AND 5),
     overall_rating INTEGER CHECK (overall_rating BETWEEN 1 AND 5),
+    booking_id BIGINT REFERENCES bookings(id) ON DELETE SET NULL,
     comments TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -37,6 +37,7 @@ import com.vjsalon.dto.DTOs.ServiceRequest;
 import com.vjsalon.dto.DTOs.ShopSettingsRequest;
 import com.vjsalon.dto.DTOs.ShopStatusRequest;
 import com.vjsalon.dto.DTOs.StylistStatusRequest;
+import com.vjsalon.dto.DTOs.StylistBookingOption;
 import com.vjsalon.model.Models.Achievement;
 import com.vjsalon.model.Models.Advertisement;
 import com.vjsalon.model.Models.Booking;
@@ -133,6 +134,11 @@ public class Controllers {
         @GetMapping("/stylists/status")
         public ResponseEntity<List<Stylist>> getStylistsStatus() {
             return ResponseEntity.ok(shopService.getStylistsStatus());
+        }
+
+        @GetMapping("/stylists/booking-options")
+        public ResponseEntity<List<StylistBookingOption>> getStylistBookingOptions() {
+            return ResponseEntity.ok(shopService.getBookingStylistOptions());
         }
 
         @PatchMapping("/stylist/me/status")
@@ -251,8 +257,8 @@ public class Controllers {
         }
 
         @PostMapping("/daily-log")
-        public ResponseEntity<DailyLog> addDailyLog(@RequestBody DailyLogRequest req) {
-            return ResponseEntity.ok(dailyLogService.addLog(req));
+        public ResponseEntity<DailyLog> addDailyLog(@RequestBody DailyLogRequest req, Authentication auth) {
+            return ResponseEntity.ok(dailyLogService.addLog(req, auth.getName()));
         }
 
         @GetMapping("/daily-log")

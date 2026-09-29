@@ -8,6 +8,11 @@ import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +28,7 @@ import com.vjsalon.dto.DTOs.AnalyticsResponse;
 import com.vjsalon.dto.DTOs.AuthResponse;
 import com.vjsalon.dto.DTOs.BookingRequest;
 import com.vjsalon.dto.DTOs.DailyLogRequest;
+import com.vjsalon.dto.DTOs.StylistBookingOption;
 import com.vjsalon.dto.DTOs.FeedbackRequest;
 import com.vjsalon.dto.DTOs.InventoryRequest;
 import com.vjsalon.dto.DTOs.LoginRequest;
@@ -135,12 +141,16 @@ public class Services {
         private final AchievementRepository achievementRepo;
         private final AdvertisementRepository adRepo;
         private final PaymentQrRepository paymentQrRepo;
+        private final BookingRepository bookingRepo;
+        private final FeedbackRepository feedbackRepo;
+        private final DailyLogRepository dailyLogRepo;
 
         public ShopService(ShopSettingsRepository settingsRepo, ShopStatusRepository statusRepo,
                            SalonServiceRepository serviceRepo, StylistRepository stylistRepo,
                            OfferRepository offerRepo, EventRepository eventRepo,
                            AchievementRepository achievementRepo, AdvertisementRepository adRepo,
-                           PaymentQrRepository paymentQrRepo) {
+                           PaymentQrRepository paymentQrRepo, BookingRepository bookingRepo,
+                           FeedbackRepository feedbackRepo, DailyLogRepository dailyLogRepo) {
             this.settingsRepo = settingsRepo;
             this.statusRepo = statusRepo;
             this.serviceRepo = serviceRepo;
@@ -150,6 +160,9 @@ public class Services {
             this.achievementRepo = achievementRepo;
             this.adRepo = adRepo;
             this.paymentQrRepo = paymentQrRepo;
+            this.bookingRepo = bookingRepo;
+            this.feedbackRepo = feedbackRepo;
+            this.dailyLogRepo = dailyLogRepo;
         }
 
         public ShopSettings getShopInfo() {
@@ -179,6 +192,64 @@ public class Services {
 
         public List<Stylist> getStylistsStatus() {
             return stylistRepo.findByActiveTrue();
+        }
+
+        public List<StylistBookingOption> getBookingStylistOptions() {
+            LocalDateTime now = LocalDateTime.now();
+            List<Booking> bookings = bookingRepo.findAll();
+            List<Feedback> feedback = feedbackRepo.findAll();
+            List<DailyLog> workLogs = dailyLogRepo.findAll();
+            Map<Long, Booking> bookingsById = bookings.stream()
+                    .filter(b -> b.getId() != null)
+                    .collect(Collectors.toMap(Booking::getId, b -> b, (a, b) -> a));
+
+            return stylistRepo.findByActiveTrue().stream().map(stylist -> {
+                List<Booking> assigned = bookings.stream()
+                        .filter(b -> stylist.getId().equals(b.getStylistId()))
+                        .toList();
+                double ratingTotal = 0;
+                long ratingCount = 0;
+                for (Feedback item : feedback) {
+                    Booking ratedBooking = item.getBookingId() == null ? null : bookingsById.get(item.getBookingId());
+                    if (ratedBooking != null && stylist.getId().equals(ratedBooking.getStylistId())
+                            && item.getWorkerRating() != null) {
+                        ratingTotal += item.getWorkerRating();
+                        ratingCount++;
+                    }
+                }
+
+                Map<String, Long> serviceCounts = new HashMap<>();
+                for (DailyLog log : workLogs) {
+                    if (stylist.getId().equals(log.getStylistId()) && log.getServiceName() != null
+                            && !log.getServiceName().isBlank()) {
+                        serviceCounts.merge(log.getServiceName().trim(), 1L, Long::sum);
+                    }
+                }
+                List<String> specialties = serviceCounts.entrySet().stream()
+                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed()
+                                .thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
+                        .limit(3).map(Map.Entry::getKey).toList();
+
+                String currentStatus = "FREE".equals(stylist.getStatus()) ? "FREE" : "BUSY";
+                String estimatedFreeTime = null;
+                if ("BUSY".equals(currentStatus)) {
+                    Booking nextBooking = assigned.stream()
+                            .filter(b -> b.getBookingDate() != null && b.getBookingTime() != null)
+                            .filter(b -> !"CANCELLED".equals(b.getStatus()) && !"COMPLETED".equals(b.getStatus()))
+                            .filter(b -> !b.getBookingDate().atTime(b.getBookingTime()).isBefore(now))
+                            .min(Comparator.comparing(b -> b.getBookingDate().atTime(b.getBookingTime())))
+                            .orElse(null);
+                    if (nextBooking != null) {
+                        LocalDateTime freeAt = nextBooking.getBookingDate().atTime(nextBooking.getBookingTime()).plusMinutes(60);
+                        estimatedFreeTime = freeAt.toLocalDate().equals(now.toLocalDate())
+                                ? freeAt.format(DateTimeFormatter.ofPattern("h:mm a"))
+                                : freeAt.format(DateTimeFormatter.ofPattern("MMM d, h:mm a"));
+                    }
+                }
+                Double averageRating = ratingCount == 0 ? null : Math.round((ratingTotal / ratingCount) * 10.0) / 10.0;
+                return new StylistBookingOption(stylist.getId(), stylist.getStylistCode(), stylist.getName(),
+                        currentStatus, estimatedFreeTime, averageRating, ratingCount, specialties);
+            }).toList();
         }
 
         @Transactional
@@ -221,9 +292,11 @@ public class Services {
     @Service
     public static class BookingService {
         private final BookingRepository bookingRepo;
+        private final StylistRepository stylistRepo;
 
-        public BookingService(BookingRepository bookingRepo) {
+        public BookingService(BookingRepository bookingRepo, StylistRepository stylistRepo) {
             this.bookingRepo = bookingRepo;
+            this.stylistRepo = stylistRepo;
         }
 
         @Transactional
@@ -243,6 +316,14 @@ public class Services {
             b.setNotes(req.notes());
             b.setStatus("PENDING");
             b.setCreatedAt(LocalDateTime.now());
+            if (req.stylistId() != null) {
+                Stylist stylist = stylistRepo.findById(req.stylistId())
+                        .filter(Stylist::isActive)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selected stylist is unavailable"));
+                b.setStylistId(stylist.getId());
+                stylist.setStatus("BUSY");
+                stylistRepo.save(stylist);
+            }
             return bookingRepo.save(b);
         }
 
@@ -267,9 +348,11 @@ public class Services {
     @Service
     public static class FeedbackService {
         private final FeedbackRepository feedbackRepo;
+        private final BookingRepository bookingRepo;
 
-        public FeedbackService(FeedbackRepository feedbackRepo) {
+        public FeedbackService(FeedbackRepository feedbackRepo, BookingRepository bookingRepo) {
             this.feedbackRepo = feedbackRepo;
+            this.bookingRepo = bookingRepo;
         }
 
         @Transactional
@@ -281,6 +364,12 @@ public class Services {
             f.setWorkerRating(req.workerRating() != null ? req.workerRating() : 5);
             f.setTimingRating(req.timingRating() != null ? req.timingRating() : 5);
             f.setOverallRating(req.overallRating() != null ? req.overallRating() : 5);
+            if (req.bookingId() != null) {
+                if (!bookingRepo.existsById(req.bookingId())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Booking not found for feedback");
+                }
+                f.setBookingId(req.bookingId());
+            }
             f.setComments(req.comments());
             f.setCreatedAt(LocalDateTime.now());
             return feedbackRepo.save(f);
@@ -299,14 +388,19 @@ public class Services {
     @Service
     public static class DailyLogService {
         private final DailyLogRepository dailyLogRepo;
+        private final StylistRepository stylistRepo;
 
-        public DailyLogService(DailyLogRepository dailyLogRepo) {
+        public DailyLogService(DailyLogRepository dailyLogRepo, StylistRepository stylistRepo) {
             this.dailyLogRepo = dailyLogRepo;
+            this.stylistRepo = stylistRepo;
         }
 
         @Transactional
-        public DailyLog addLog(DailyLogRequest req) {
+        public DailyLog addLog(DailyLogRequest req, String stylistCode) {
             DailyLog log = new DailyLog();
+            Stylist stylist = stylistRepo.findByStylistCode(stylistCode)
+                    .orElseThrow(() -> new RuntimeException("Stylist not found: " + stylistCode));
+            log.setStylistId(stylist.getId());
             log.setServiceName(req.serviceName());
             log.setQuantity(req.quantity() != null ? req.quantity() : 1);
             log.setAmount(req.amount());

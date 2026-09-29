@@ -115,11 +115,11 @@ const API = {
   getAchievements:    async () => (await _call('/achievements'))      ?? DEMO.achievements,
   getAdvertisements:  async () => (await _call('/advertisements'))    ?? DEMO.advertisements,
   getStylistsStatus:  async () => (await _call('/stylists/status'))   ?? DEMO.stylists,
+  getStylistBookingOptions: async () => (await _call('/stylists/booking-options')) ?? DEMO.stylists,
   getPaymentQr:       async () => (await _call('/payment/qr'))        ?? DEMO.paymentQr,
 
   createBooking: async (data) =>
-    (await _call('/bookings', { method:'POST', body:JSON.stringify(data) }))
-    ?? { id: Math.floor(Math.random()*9000+1000), ...data, status:'PENDING' },
+    (await _call('/bookings', { method:'POST', body:JSON.stringify(data), requireSuccess:true })),
 
   submitFeedback: async (data) =>
     (await _call('/feedback', { method:'POST', body:JSON.stringify(data) }))

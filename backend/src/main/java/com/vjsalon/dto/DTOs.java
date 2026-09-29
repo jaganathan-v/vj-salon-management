@@ -15,11 +15,15 @@ public class DTOs {
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 
     // Booking DTOs
-    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes, ServiceLocation serviceLocation, String address) {}
+    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes, ServiceLocation serviceLocation, String address, Long stylistId) {}
     public record BookingStatusRequest(String status) {}
 
     // Feedback DTOs
-    public record FeedbackRequest(String clientName, Integer serviceRating, Integer shopRating, Integer workerRating, Integer timingRating, Integer overallRating, String comments) {}
+    public record FeedbackRequest(String clientName, Integer serviceRating, Integer shopRating, Integer workerRating, Integer timingRating, Integer overallRating, String comments, Long bookingId) {}
+
+    public record StylistBookingOption(Long id, String stylistCode, String name, String status,
+                                       String estimatedFreeTime, Double averageRating, Long ratingCount,
+                                       List<String> specialties) {}
 
     // Shop Status DTOs
     public record ShopStatusRequest(boolean isOpen, String note) {}

@@ -109,6 +109,10 @@
           <div id="step-services" class="wizard-panel active" style="padding:0 8px;">
             <p style="color:var(--cream-muted);margin-bottom:16px;" data-i18n="booking.selectServices">Select one or more services:</p>
             <div id="booking-services-list"></div>
+            <div class="form-group" style="margin-top:22px;">
+              <label class="form-label">Choose a Stylist (optional)</label>
+              <div id="booking-stylists-list" class="booking-stylist-list" aria-live="polite"></div>
+            </div>
             <div class="running-total">
               <span class="running-total-label" data-i18n="booking.totalAmount">Total Amount</span>
               <span class="running-total-val" id="running-total">₹0</span>
@@ -202,6 +206,10 @@
           </div>
 
           <div id="feedback-form">
+            <div class="form-group">
+              <label class="form-label" for="fb-booking-id">Booking number (from your confirmation)</label>
+              <input class="form-input" id="fb-booking-id" type="number" min="1" placeholder="Booking number" required>
+            </div>
             <div class="form-group">
               <label class="form-label" data-i18n="booking.name">Your Name</label>
               <input class="form-input" id="fb-name" type="text" placeholder="Your name">
@@ -326,6 +334,8 @@
 
   // Booking state
   let selectedServiceIds = new Set();
+  let selectedStylistId = null;
+  let bookingStylists = [];
   let allServices = [];
 
   function renderBookingServices(services) {
@@ -393,12 +403,17 @@
     const ref = 'VJ-' + Date.now().toString(36).toUpperCase().slice(-6);
     const total = document.getElementById('running-total').textContent;
 
-    await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value, serviceLocation, address:serviceLocation === 'AT_HOME' ? address : null });
+    const booking = await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value, serviceLocation, address:serviceLocation === 'AT_HOME' ? address : null, stylistId:selectedStylistId });
 
-    document.getElementById('booking-ref-no').textContent = ref;
+    document.getElementById('booking-ref-no').textContent = booking.id ? `VJ-${booking.id}` : ref;
+    if (booking.id) {
+      sessionStorage.setItem('vj_last_booking_id', booking.id);
+      document.getElementById('fb-booking-id').value = booking.id;
+    }
     document.getElementById('booking-summary').innerHTML = `
       <strong>${name}</strong> · ${contact}<br>
       ${serviceNames}<br>
+      ${bookingStylists.find(stylist => String(stylist.id) === String(selectedStylistId))?.name ? `Stylist: ${bookingStylists.find(stylist => String(stylist.id) === String(selectedStylistId)).name}<br>` : ''}
       ${serviceLocation === 'AT_HOME' ? `${address}<br>` : 'At the Shop<br>'}
       ${date} at ${time}<br>
       <span style="color:var(--amber-bright);">Total: ${total}</span>`;
@@ -424,6 +439,8 @@
     ['b-name','b-contact','b-notes'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('b-address').value = '';
     setBookingLocation('AT_SHOP');
+    selectedStylistId = null;
+    renderBookingStylists();
     document.getElementById('b-date').value = '';
     gotoStep(1);
   }
@@ -435,7 +452,10 @@
   }
 
   async function submitFeedback() {
+    const bookingId = Number(document.getElementById('fb-booking-id').value);
+    if (!bookingId) { showToast('Enter the booking number from your confirmation.', 'error'); return; }
     const data = {
+      bookingId,
       clientName: document.getElementById('fb-name').value || 'Anonymous',
       serviceRating: getStarVal('sr-service'),
       shopRating:    getStarVal('sr-shop'),
@@ -448,6 +468,39 @@
     document.getElementById('feedback-form').style.display = 'none';
     document.getElementById('feedback-success').style.display = 'block';
     showToast('Thank you for your feedback!', 'success');
+  }
+
+  function escapeBookingText(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[char]));
+  }
+
+  function renderBookingStylists() {
+    const el = document.getElementById('booking-stylists-list');
+    const options = [{ id:null, name:'No preference', status:'FREE', specialties:[] }, ...bookingStylists];
+    el.innerHTML = options.map(stylist => {
+      const selected = String(stylist.id) === String(selectedStylistId);
+      const busy = stylist.status === 'BUSY';
+      const freeTime = busy ? (stylist.estimatedFreeTime ? `Estimated free around ${escapeBookingText(stylist.estimatedFreeTime)}` : 'Free time estimate unavailable') : '';
+      const rating = stylist.ratingCount ? `${Number(stylist.averageRating).toFixed(1)} ★ (${stylist.ratingCount})` : 'No ratings yet';
+      const specialties = (stylist.specialties || []).slice(0, 3).map(escapeBookingText).join(' · ') || 'Specialties not available yet';
+      return `<button type="button" class="booking-stylist-card ${selected ? 'selected' : ''}" aria-pressed="${selected}" onclick="selectBookingStylist(${stylist.id === null ? 'null' : Number(stylist.id)})">
+        <span class="booking-stylist-avatar">${escapeBookingText(stylist.name).slice(0, 1).toUpperCase()}</span>
+        <span class="booking-stylist-details"><strong>${escapeBookingText(stylist.name)}</strong>
+          <span class="booking-stylist-meta"><span class="badge ${busy ? 'badge-busy' : 'badge-free'}">${busy ? 'Busy' : 'Free'}</span>${freeTime ? `<span>${freeTime}</span>` : ''}</span>
+          <span class="booking-stylist-meta">${rating}</span>
+          <span class="booking-stylist-specialties">Best at: ${specialties}</span>
+        </span></button>`;
+    }).join('');
+  }
+
+  function selectBookingStylist(stylistId) {
+    selectedStylistId = stylistId;
+    renderBookingStylists();
+  }
+
+  async function loadBookingStylists() {
+    bookingStylists = await API.getStylistBookingOptions();
+    renderBookingStylists();
   }
 
   // Payment QR
@@ -499,20 +552,24 @@
     document.getElementById('b-date').min = today;
     document.getElementById('b-date').value = today;
 
-    const [status, services, stylists] = await Promise.all([
-      API.getShopStatus(), API.getServices(), API.getStylistsStatus()
+    const [status, services, stylists, bookingOptions] = await Promise.all([
+      API.getShopStatus(), API.getServices(), API.getStylistsStatus(), API.getStylistBookingOptions()
     ]);
+    bookingStylists = bookingOptions;
     allServices = services;
     renderShopStatus(status);
     renderBookingServices(services);
     renderClientServices(services);
     renderStylistAvail(stylists);
+    renderBookingStylists();
     loadPaymentQr();
   }
 
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 1000);
     loadAll();
+    document.getElementById('fb-booking-id').value = sessionStorage.getItem('vj_last_booking_id') || '';
+    window.setInterval(loadBookingStylists, 30000);
     // Handle direct link to booking section
     if (location.hash === '#booking') showSection('booking');
   });
