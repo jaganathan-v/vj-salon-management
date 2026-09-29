@@ -46,6 +46,9 @@ const DEMO = {
 
 // Generic fetch wrapper
 async function _call(endpoint, options = {}) {
+  const { requireSuccess = false, ...requestOptions } = options;
+  let responseStatus = null;
+  let responseBody = '';
   try {
     const token = localStorage.getItem('vj_token');
     const headers = {
@@ -53,21 +56,36 @@ async function _call(endpoint, options = {}) {
       ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
       ...(options.headers || {})
     };
-    const res = await fetch(API_BASE + endpoint, { ...options, headers });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetch(API_BASE + endpoint, { ...requestOptions, headers });
+    responseStatus = res.status;
+    if (!res.ok) {
+      responseBody = await res.text();
+      throw new Error('HTTP ' + res.status);
+    }
     const text = await res.text();
+    responseBody = text;
     return text ? JSON.parse(text) : {};
   } catch (e) {
+    console.error('[API request failed]', {
+      method: requestOptions.method || 'GET',
+      url: API_BASE + endpoint,
+      status: responseStatus,
+      responseBody,
+      error: e
+    });
     console.warn('API offline for', endpoint, '—', e.message);
-    if (options.method && options.method.toUpperCase() !== 'GET' && !endpoint.startsWith('/auth/') && typeof showToast === 'function') {
+    if (!requireSuccess && options.method && options.method.toUpperCase() !== 'GET' && !endpoint.startsWith('/auth/') && typeof showToast === 'function') {
       showToast(`Save failed. ${e.message || 'Please check your connection and try again.'}`, 'error', 'Unable to save');
     }
+    if (requireSuccess) throw e;
     return null;
   }
 }
 
 // Multipart upload wrapper
 async function _upload(endpoint, formData, method = 'POST') {
+  let responseStatus = null;
+  let responseBody = '';
   try {
     const token = localStorage.getItem('vj_token');
     const res = await fetch(API_BASE + endpoint, {
@@ -75,9 +93,12 @@ async function _upload(endpoint, formData, method = 'POST') {
       headers: token ? { 'Authorization': 'Bearer ' + token } : {},
       body: formData
     });
+    responseStatus = res.status;
+    responseBody = await res.text();
     if (!res.ok) throw new Error('HTTP ' + res.status);
-    return await res.json();
+    return responseBody ? JSON.parse(responseBody) : {};
   } catch (e) {
+    console.error('[API upload failed]', { method, url: API_BASE + endpoint, status: responseStatus, responseBody, error: e });
     console.warn('Upload failed for', endpoint, '—', e.message);
     if (typeof showToast === 'function') showToast(`Upload failed. ${e.message || 'Please try again.'}`, 'error', 'Unable to save');
     return null;
@@ -149,12 +170,23 @@ const API = {
   // Generic admin CRUD factory
   crud: (resource) => ({
     list:   async ()       => (await _call('/admin/'+resource))                                             ?? [],
-    create: async (data)   => (await _call('/admin/'+resource,      { method:'POST', body:JSON.stringify(data) })) ?? { id:Date.now(), ...data },
+    create: async (data)   => {
+      const result = await _call('/admin/'+resource, {
+        method:'POST', body:JSON.stringify(data),
+        requireSuccess: resource === 'offers' || resource === 'achievements'
+      });
+      return result ?? { id:Date.now(), ...data };
+    },
     update: async (id, d)  => (await _call('/admin/'+resource+'/'+id, { method:'PUT',  body:JSON.stringify(d)    })) ?? { id, ...d },
     delete: async (id)     => (await _call('/admin/'+resource+'/'+id, { method:'DELETE' }))                 ?? {}
   }),
 
-  uploadAdvertisement: async (formData) => (await _upload('/admin/advertisements', formData)) ?? { id:Date.now() },
+  uploadAdvertisementFile: async (formData) => {
+    const result = await _upload('/admin/ads/upload', formData);
+    if (!result) throw new Error('Advertisement upload failed');
+    return result;
+  },
+  createAdvertisement: async (data) => _call('/admin/ads', { method:'POST', body:JSON.stringify(data), requireSuccess:true }),
   uploadPaymentQr:     async (formData) => (await _upload('/admin/payment-qr', formData, 'PUT')) ?? {},
   resetStylistPassword: async (id, newPassword) =>
     (await _call('/admin/stylists/'+id+'/reset-password', { method:'PATCH', body:JSON.stringify({ newPassword }) })) ?? {}

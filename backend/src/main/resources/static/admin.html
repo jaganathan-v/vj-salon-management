@@ -400,9 +400,14 @@
             </div>
             <div class="form-group">
               <label class="form-label">Select File</label>
-              <input type="file" id="ad-file" class="form-input" accept="image/*,video/*" required>
+              <input type="file" id="ad-file" class="form-input" accept="image/*,video/*" onchange="document.getElementById('ad-file-path').value = ''">
             </div>
-            <button type="submit" class="btn btn-amber">📤 Upload Advertisement</button>
+            <div class="form-group">
+              <label class="form-label" for="ad-file-path">Uploaded File URL</label>
+              <input type="text" id="ad-file-path" class="form-input" placeholder="Upload a file to fill this path" readonly required>
+            </div>
+            <button type="button" class="btn btn-outline" onclick="handleUploadAdFile()">Upload File</button>
+            <button type="submit" class="btn btn-amber">Save Advertisement</button>
           </form>
         </div>
 
@@ -655,6 +660,39 @@
   </div>
 </div>
 
+<div id="modal-achievement" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Achievement</div>
+      <button class="modal-close" onclick="closeModal('modal-achievement')">✕</button>
+    </div>
+    <form onsubmit="event.preventDefault(); handleSaveAchievement();">
+      <div class="form-group">
+        <label class="form-label" for="achievement-title">Achievement Title</label>
+        <input id="achievement-title" class="form-input" required maxlength="200">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="achievement-year">Year</label>
+          <input id="achievement-year" type="number" class="form-input" min="1900" max="2100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="achievement-icon">Icon</label>
+          <input id="achievement-icon" class="form-input" value="🏆" maxlength="20">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="achievement-description">Description</label>
+        <textarea id="achievement-description" class="form-textarea"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-achievement')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Save Achievement</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/i18n.js"></script>
@@ -669,6 +707,8 @@
   let allAdminServices = [];
   let allAdminStylists = [];
   let allAdminOffers = [];
+  let allAdminAchievements = [];
+  let allAdminAds = [];
   let allAdminFeedback = [];
   let allAdminInventory = [];
 
@@ -730,14 +770,16 @@
 
   // Load all data
   async function loadAllAdminData() {
-    const [bookings, services, stylists, offers, feedback, inventory] = await Promise.all([
+    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads] = await Promise.all([
       API.getAllBookings(), API.getServices(), API.getStylistsStatus(),
-      API.getOffers(), API.getAllFeedback(), API.getInventory()
+      API.getOffers(), API.getAllFeedback(), API.getInventory(), API.getAchievements(), API.getAdvertisements()
     ]);
     allAdminBookings = bookings;
     allAdminServices = services;
     allAdminStylists = stylists;
     allAdminOffers = offers;
+    allAdminAchievements = achievements;
+    allAdminAds = ads;
     allAdminFeedback = feedback;
     allAdminInventory = inventory;
 
@@ -745,6 +787,8 @@
     renderAdminServices();
     renderAdminStylists();
     renderAdminOffers();
+    renderAdminAchievements();
+    renderAdminAds();
     renderAdminFeedback();
     renderAdminInventory();
     renderDashOverview();
@@ -1119,11 +1163,16 @@
       validUntil: document.getElementById('off-until').value,
       description: document.getElementById('off-desc').value.trim()
     };
-    const created = await API.crud('offers').create(data);
-    allAdminOffers.push(created);
-    renderAdminOffers();
-    closeModal('modal-offer');
-    showToast('Offer published to frontpage!', 'success');
+    try {
+      const created = await API.crud('offers').create(data);
+      allAdminOffers.push(created);
+      renderAdminOffers();
+      closeModal('modal-offer');
+      showToast('Offer published to frontpage!', 'success');
+    } catch (error) {
+      console.error('[Admin save failed]', { resource: 'offers', payload: data, error });
+      showToast('The offer was not saved. Check the browser console for request details.', 'error');
+    }
   }
 
   async function deleteOffer(id) {
@@ -1132,6 +1181,70 @@
     allAdminOffers = allAdminOffers.filter(o => o.id !== id);
     renderAdminOffers();
     showToast('Offer removed', 'info');
+  }
+
+  // --- CRUD: ACHIEVEMENTS ---
+  function renderAdminAchievements() {
+    const el = document.getElementById('admin-achievements-list');
+    el.innerHTML = allAdminAchievements.map(item => `
+      <div class="crud-item">
+        <div class="crud-item-info">
+          <strong style="color:var(--cream);font-size:1.05rem;">${item.icon || '🏆'} ${item.titleEn}</strong>
+          <div style="color:var(--cream-dim);font-size:0.85rem;margin-top:4px;">${item.year || ''} ${item.description || ''}</div>
+        </div>
+        <div class="crud-item-actions"><button class="btn btn-danger btn-sm" onclick="deleteAchievement(${item.id})">Delete</button></div>
+      </div>`).join('');
+  }
+
+  function openAddAchievementModal() {
+    document.getElementById('achievement-title').value = '';
+    document.getElementById('achievement-year').value = new Date().getFullYear();
+    document.getElementById('achievement-icon').value = '🏆';
+    document.getElementById('achievement-description').value = '';
+    openModal('modal-achievement');
+  }
+
+  async function handleSaveAchievement() {
+    const data = {
+      titleEn: document.getElementById('achievement-title').value.trim(),
+      year: parseInt(document.getElementById('achievement-year').value, 10),
+      icon: document.getElementById('achievement-icon').value.trim(),
+      description: document.getElementById('achievement-description').value.trim()
+    };
+    try {
+      const created = await API.crud('achievements').create(data);
+      allAdminAchievements.push(created);
+      renderAdminAchievements();
+      closeModal('modal-achievement');
+      showToast('Achievement saved.', 'success');
+    } catch (error) {
+      console.error('[Admin save failed]', { resource: 'achievements', payload: data, error });
+      showToast('The achievement was not saved. Check the browser console for request details.', 'error');
+    }
+  }
+
+  async function deleteAchievement(id) {
+    if (!confirm('Delete this achievement?')) return;
+    try {
+      await API.crud('achievements').delete(id);
+      allAdminAchievements = allAdminAchievements.filter(item => item.id !== id);
+      renderAdminAchievements();
+      showToast('Achievement removed.', 'info');
+    } catch (error) {
+      console.error('[Admin delete failed]', { resource: 'achievements', id, error });
+      showToast('The achievement was not deleted. Check the browser console for request details.', 'error');
+    }
+  }
+
+  function renderAdminAds() {
+    const el = document.getElementById('admin-ads-grid');
+    el.innerHTML = allAdminAds.map(ad => `
+      <div class="ad-preview-card">
+        ${ad.type === 'VIDEO'
+          ? `<video class="ad-thumb" src="${ad.filePath}" controls></video>`
+          : `<img class="ad-thumb" src="${ad.filePath}" alt="${ad.title}">`}
+        <div style="padding:12px;"><strong>${ad.title}</strong><div style="font-size:.8rem;color:var(--cream-muted);overflow-wrap:anywhere;">${ad.filePath}</div></div>
+      </div>`).join('');
   }
 
   // --- CRUD: FEEDBACK ---
@@ -1194,18 +1307,36 @@
 
   // --- ADVERTISEMENTS ---
   async function handleUploadAd() {
-    const file = document.getElementById('ad-file').files[0];
-    const title = document.getElementById('ad-title').value;
-    const type = document.getElementById('ad-type').value;
-    if (!file) { showToast('Please select a file to upload', 'error'); return; }
+    const data = {
+      title: document.getElementById('ad-title').value.trim(),
+      type: document.getElementById('ad-type').value,
+      filePath: document.getElementById('ad-file-path').value.trim()
+    };
+    try {
+      const ad = await API.createAdvertisement(data);
+      allAdminAds.push(ad);
+      renderAdminAds();
+      document.getElementById('form-upload-ad').reset();
+      document.getElementById('ad-file-path').value = '';
+      showToast('Advertisement published to the frontpage.', 'success');
+    } catch (error) {
+      console.error('[Admin save failed]', { resource: 'advertisements', payload: data, error });
+      showToast('The advertisement was not saved. Check the browser console for request details.', 'error');
+    }
+  }
 
+  async function handleUploadAdFile() {
+    const file = document.getElementById('ad-file').files[0];
+    if (!file) { showToast('Please select an image or video to upload.', 'error'); return; }
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('title', title);
-    formData.append('type', type);
-
-    await API.uploadAdvertisement(formData);
-    showToast('Advertisement media uploaded!', 'success');
+    try {
+      const result = await API.uploadAdvertisementFile(formData);
+      document.getElementById('ad-file-path').value = result.path;
+      showToast('File uploaded. Save the advertisement to publish it.', 'success');
+    } catch (error) {
+      console.error('[Advertisement upload failed]', { filename: file.name, error });
+    }
   }
 
   // --- PAYMENT QR UPDATE ---

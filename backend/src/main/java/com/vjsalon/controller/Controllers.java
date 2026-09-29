@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.vjsalon.dto.DTOs.AnalyticsResponse;
+import com.vjsalon.dto.DTOs.AchievementRequest;
+import com.vjsalon.dto.DTOs.AdvertisementRequest;
 import com.vjsalon.dto.DTOs.AuthResponse;
 import com.vjsalon.dto.DTOs.BookingRequest;
 import com.vjsalon.dto.DTOs.BookingStatusRequest;
@@ -410,7 +412,43 @@ public class Controllers {
             return ResponseEntity.ok().build();
         }
 
+        // Achievements CRUD
+        @GetMapping("/achievements")
+        public ResponseEntity<List<Achievement>> getAllAchievements() {
+            return ResponseEntity.ok(achievementRepo.findAll());
+        }
+
+        @PostMapping("/achievements")
+        public ResponseEntity<Achievement> createAchievement(@RequestBody AchievementRequest req) {
+            Achievement achievement = new Achievement(req.titleEn(), req.titleTa(), req.titleHi(), req.description(), req.year(), req.icon());
+            return ResponseEntity.ok(achievementRepo.save(achievement));
+        }
+
+        @DeleteMapping("/achievements/{id}")
+        public ResponseEntity<Void> deleteAchievement(@PathVariable Long id) {
+            achievementRepo.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+
         // Media & Payment QR
+        @PostMapping("/ads/upload")
+        public ResponseEntity<Map<String, String>> uploadAdFile(@RequestParam("file") MultipartFile file) {
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Select an image or video to upload"));
+            }
+            return ResponseEntity.ok(Map.of("path", fileStorage.saveFile(file, "ads")));
+        }
+
+        @PostMapping("/ads")
+        public ResponseEntity<Advertisement> createAd(@RequestBody AdvertisementRequest req) {
+            Advertisement ad = new Advertisement();
+            ad.setTitle(req.title());
+            ad.setType(req.type());
+            ad.setFilePath(req.filePath());
+            ad.setActive(true);
+            return ResponseEntity.ok(adRepo.save(ad));
+        }
+
         @PostMapping("/advertisements")
         public ResponseEntity<Advertisement> uploadAd(
                 @RequestParam("file") MultipartFile file,

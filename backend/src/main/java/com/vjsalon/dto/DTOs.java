@@ -50,6 +50,7 @@ public class DTOs {
 
     // Achievement DTO
     public record AchievementRequest(String titleEn, String titleTa, String titleHi, String description, Integer year, String icon) {}
+    public record AdvertisementRequest(String title, String type, String filePath) {}
 
     // Payment QR & Shop Settings
     public record PaymentQrUpdateRequest(String upiId, String displayName) {}

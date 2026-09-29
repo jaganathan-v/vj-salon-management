@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -408,10 +408,12 @@ public class Services {
                 if (!Files.exists(targetDir)) {
                     Files.createDirectories(targetDir);
                 }
-                String filename = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                String originalName = file.getOriginalFilename() == null ? "upload" : Paths.get(file.getOriginalFilename()).getFileName().toString();
+                String extension = originalName.lastIndexOf('.') >= 0 ? originalName.substring(originalName.lastIndexOf('.')).replaceAll("[^.a-zA-Z0-9]", "") : "";
+                String filename = UUID.randomUUID() + extension;
                 Path targetPath = targetDir.resolve(filename);
-                Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-                return "uploads/" + subfolder + "/" + filename;
+                Files.copy(file.getInputStream(), targetPath);
+                return "/uploads/" + subfolder + "/" + filename;
             } catch (IOException e) {
                 throw new RuntimeException("Failed to store file", e);
             }
