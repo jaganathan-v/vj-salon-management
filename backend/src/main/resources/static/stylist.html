@@ -294,6 +294,13 @@
                 <input type="number" id="log-qty" class="form-input" value="1" min="1" max="20" onchange="updateLogPrice()" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Service Location</label>
+                <select id="log-location" class="form-select" onchange="updateLogPrice()" required>
+                  <option value="AT_SHOP">At Shop</option>
+                  <option value="AT_HOME">At Client Home (2× price)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Total Amount (₹)</label>
                 <input type="number" id="log-amt" class="form-input" value="80" required>
               </div>
@@ -323,6 +330,7 @@
                 <tr>
                   <th>#</th>
                   <th>Service Done</th>
+                  <th>Location</th>
                   <th>Qty</th>
                   <th>Amount</th>
                   <th>Payment Type</th>
@@ -656,9 +664,10 @@
     const sel = document.getElementById('log-svc-select');
     const opt = sel.options[sel.selectedIndex];
     if (!opt) return;
-    const price = parseInt(opt.dataset.price || '80');
+    const price = Number(opt.dataset.price || '80');
     const qty = parseInt(document.getElementById('log-qty').value || '1');
-    document.getElementById('log-amt').value = price * qty;
+    const multiplier = document.getElementById('log-location').value === 'AT_HOME' ? 2 : 1;
+    document.getElementById('log-amt').value = price * qty * multiplier;
   }
 
   async function loadDailyLogs() {
@@ -679,6 +688,7 @@
         <tr>
           <td>${i + 1}</td>
           <td><strong>${l.serviceName}</strong></td>
+          <td>${l.serviceLocation === 'AT_HOME' ? 'At Home' : 'At Shop'}</td>
           <td>${l.quantity}</td>
           <td style="color:var(--amber-bright);font-weight:700;">₹${l.amount}</td>
           <td><span class="badge ${l.paymentType === 'ONLINE' ? 'badge-teal' : 'badge-amber'}">${l.paymentType === 'ONLINE' ? '📱 Online' : '💵 Cash'}</span></td>
@@ -705,8 +715,9 @@
     const quantity = parseInt(document.getElementById('log-qty').value);
     const amount = parseFloat(document.getElementById('log-amt').value);
     const paymentType = document.getElementById('log-pay-type').value;
+    const serviceLocation = document.getElementById('log-location').value;
 
-    const newLog = await API.addDailyLog({ serviceName, quantity, amount, paymentType });
+    const newLog = await API.addDailyLog({ serviceName, quantity, amount, paymentType, serviceLocation });
     currentDailyLogs.unshift(newLog);
     renderDailyLogs();
     showToast(`Logged: ${serviceName} (₹${amount}) via ${paymentType}`, 'success', 'Service Logged ✂');

@@ -203,6 +203,8 @@ public class Models {
         private String contact;
         @Column(columnDefinition = "TEXT")
         private String serviceNames;
+        @Column(precision = 10, scale = 2)
+        private BigDecimal totalAmount;
         @Column(nullable = false)
         private LocalDate bookingDate;
         @Column(nullable = false)
@@ -230,6 +232,8 @@ public class Models {
         public void setContact(String contact) { this.contact = contact; }
         public String getServiceNames() { return serviceNames; }
         public void setServiceNames(String serviceNames) { this.serviceNames = serviceNames; }
+        public BigDecimal getTotalAmount() { return totalAmount; }
+        public void setTotalAmount(BigDecimal totalAmount) { this.totalAmount = totalAmount; }
         public LocalDate getBookingDate() { return bookingDate; }
         public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }
         public LocalTime getBookingTime() { return bookingTime; }
@@ -298,6 +302,9 @@ public class Models {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
         private Long stylistId;
+        @Enumerated(EnumType.STRING)
+        @Column(length = 20)
+        private ServiceLocation serviceLocation = ServiceLocation.AT_SHOP;
         @Column(length = 100)
         private String serviceName;
         private Integer quantity = 1;
@@ -313,6 +320,8 @@ public class Models {
         public void setId(Long id) { this.id = id; }
         public Long getStylistId() { return stylistId; }
         public void setStylistId(Long stylistId) { this.stylistId = stylistId; }
+        public ServiceLocation getServiceLocation() { return serviceLocation; }
+        public void setServiceLocation(ServiceLocation serviceLocation) { this.serviceLocation = serviceLocation; }
         public String getServiceName() { return serviceName; }
         public void setServiceName(String serviceName) { this.serviceName = serviceName; }
         public Integer getQuantity() { return quantity; }

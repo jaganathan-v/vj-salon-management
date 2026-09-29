@@ -83,6 +83,7 @@ CREATE TABLE bookings (
     client_name VARCHAR(100) NOT NULL,
     contact VARCHAR(20) NOT NULL,
     service_names TEXT,
+    total_amount NUMERIC(10, 2),
     booking_date DATE NOT NULL,
     booking_time TIME NOT NULL,
     service_location VARCHAR(20) NOT NULL DEFAULT 'AT_SHOP', -- AT_SHOP, AT_HOME
@@ -113,6 +114,7 @@ CREATE TABLE daily_log (
     id BIGSERIAL PRIMARY KEY,
     stylist_id BIGINT REFERENCES stylists(id) ON DELETE SET NULL,
     service_name VARCHAR(100) NOT NULL,
+    service_location VARCHAR(20) DEFAULT 'AT_SHOP',
     quantity INTEGER DEFAULT 1,
     payment_type VARCHAR(20) DEFAULT 'CASH', -- CASH, ONLINE
     amount NUMERIC(10,2) NOT NULL DEFAULT 0.00,

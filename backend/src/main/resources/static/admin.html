@@ -145,6 +145,7 @@
         <div class="page-header">
           <h2 class="page-title">Executive Dashboard</h2>
           <div class="page-subtitle">Real-time revenue, client throughput, and quick management controls</div>
+          <span id="admin-shop-status" class="badge badge-closed">Shop status loading…</span>
         </div>
 
         <div class="stat-cards-grid" style="margin-bottom:24px;">
@@ -253,6 +254,7 @@
                   <th>Services</th>
                   <th>Date & Time</th>
                   <th>Location</th>
+                  <th>Total</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -713,6 +715,8 @@
   let allAdminAds = [];
   let allAdminFeedback = [];
   let allAdminInventory = [];
+  let allAdminDailyLogs = [];
+  let adminLiveRefreshTimer = null;
 
   const lang = localStorage.getItem('vj_lang') || 'en';
   document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
@@ -757,6 +761,12 @@
     document.querySelector('.topbar-title').textContent = `Active admin: ${Auth.getName()} (ID ${localStorage.getItem('vj_admin_id') || 'VJADMIN'})`;
     loadAllAdminData();
     initCharts('daily');
+    if (!adminLiveRefreshTimer) {
+      adminLiveRefreshTimer = window.setInterval(refreshAdminLiveDashboard, 15000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && Auth.isLoggedIn() && Auth.getRole() === 'admin') refreshAdminLiveDashboard();
+      });
+    }
   }
 
   function showPanel(panelName) {
@@ -772,9 +782,10 @@
 
   // Load all data
   async function loadAllAdminData() {
-    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads] = await Promise.all([
+    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads, dailyLogs, shopStatus] = await Promise.all([
       API.getAllBookings(), API.getServices(), API.getStylistsStatus(),
-      API.getOffers(), API.getAllFeedback(), API.getInventory(), API.getAchievements(), API.getAdvertisements()
+      API.getOffers(), API.getAllFeedback(), API.getInventory(), API.getAchievements(), API.getAdvertisements(),
+      API.getDailyLog(), API.getShopStatus()
     ]);
     allAdminBookings = bookings;
     allAdminServices = services;
@@ -784,6 +795,8 @@
     allAdminAds = ads;
     allAdminFeedback = feedback;
     allAdminInventory = inventory;
+    allAdminDailyLogs = dailyLogs;
+    renderAdminShopStatus(shopStatus.isOpen);
 
     renderAdminBookings();
     renderAdminServices();
@@ -794,6 +807,10 @@
     renderAdminFeedback();
     renderAdminInventory();
     renderDashOverview();
+    if (document.getElementById('panel-analytics').classList.contains('active')) {
+      const period = document.querySelector('.period-tab.active')?.id.replace('ptab-', '') || 'daily';
+      initCharts(period);
+    }
   }
 
   // Dashboard Live View
@@ -809,12 +826,55 @@
       </div>`).join('');
 
     const perfEl = document.getElementById('dash-stylist-perf');
-    perfEl.innerHTML = allAdminStylists.map(s => `
-      <div class="perf-row">
-        <span class="perf-name">${s.name}</span>
-        <div class="perf-bar"><div class="progress-wrap"><div class="progress-bar" style="width:${s.status==='FREE'?100:60}%;"></div></div></div>
-        <span class="badge ${s.status==='FREE'?'badge-free':'badge-busy'}">${s.status}</span>
-      </div>`).join('');
+    const workByStylist = new Map();
+    allAdminDailyLogs.forEach(log => {
+      const key = String(log.stylistId);
+      if (!workByStylist.has(key)) workByStylist.set(key, { quantity: 0, amount: 0, homeQuantity: 0, shopQuantity: 0, services: new Map() });
+      const work = workByStylist.get(key);
+      const quantity = Number(log.quantity || 1);
+      work.quantity += quantity;
+      work.amount += Number(log.amount || 0);
+      if (log.serviceLocation === 'AT_HOME') work.homeQuantity += quantity;
+      else work.shopQuantity += quantity;
+      work.services.set(log.serviceName || 'Service', (work.services.get(log.serviceName || 'Service') || 0) + quantity);
+    });
+    const maxQuantity = Math.max(1, ...Array.from(workByStylist.values(), work => work.quantity));
+    perfEl.innerHTML = allAdminStylists.map(s => {
+      const work = workByStylist.get(String(s.id)) || { quantity: 0, amount: 0, homeQuantity: 0, shopQuantity: 0, services: new Map() };
+      const serviceSummary = Array.from(work.services, ([name, quantity]) => `${name} × ${quantity}`).join(' · ');
+      const locationSummary = `${work.shopQuantity} at shop · ${work.homeQuantity} at home`;
+      const badgeClass = s.status === 'FREE' ? 'badge-free' : s.status === 'BUSY' ? 'badge-busy' : 'badge-break';
+      return `
+        <div class="perf-row">
+          <span class="perf-name">${s.name}</span>
+          <div class="perf-bar"><div class="progress-wrap"><div class="progress-bar" style="width:${Math.round(work.quantity / maxQuantity * 100)}%;"></div></div>
+            <small style="display:block;color:var(--cream-muted);margin-top:4px;">${work.quantity} service${work.quantity === 1 ? '' : 's'} today${serviceSummary ? ` · ${serviceSummary}` : ' · No services logged yet'} · ${locationSummary} · ₹${work.amount.toFixed(2)}</small>
+          </div>
+          <span class="badge ${badgeClass}">${s.status}</span>
+        </div>`;
+    }).join('') || '<div style="color:var(--cream-muted);">No active stylists.</div>';
+  }
+
+  function renderAdminShopStatus(isOpen) {
+    const badge = document.getElementById('admin-shop-status');
+    if (!badge) return;
+    badge.className = `badge ${isOpen ? 'badge-open' : 'badge-closed'}`;
+    badge.textContent = isOpen ? '● Shop Open' : '● Shop Closed';
+  }
+
+  async function refreshAdminLiveDashboard() {
+    const [status, stylists, logs, bookings] = await Promise.all([API.getShopStatus(), API.getStylistsStatus(), API.getDailyLog(), API.getAllBookings()]);
+    renderAdminShopStatus(status.isOpen);
+    allAdminStylists = stylists;
+    allAdminDailyLogs = logs;
+    allAdminBookings = bookings;
+    renderAdminBookings();
+    renderAdminStylists();
+    renderDashOverview();
+    if (document.getElementById('panel-analytics').classList.contains('active')) {
+      const period = document.querySelector('.period-tab.active')?.id.replace('ptab-', '') || 'daily';
+      initCharts(period);
+    }
   }
 
   // --- CHARTS (Chart.js) ---
@@ -850,6 +910,13 @@
 
   function initCharts(period) {
     const data = chartDatasets[period] || chartDatasets.daily;
+    const stylistData = period === 'daily' && allAdminStylists.length
+      ? Object.fromEntries(allAdminStylists.map(stylist => [
+          stylist.name,
+          allAdminDailyLogs.filter(log => String(log.stylistId) === String(stylist.id))
+            .reduce((count, log) => count + Number(log.quantity || 1), 0)
+        ]))
+      : data.stylists;
 
     // 1. Revenue Chart
     const ctxRev = document.getElementById('revenueChart');
@@ -909,10 +976,10 @@
       stylistChartInstance = new Chart(ctxSty, {
         type: 'bar',
         data: {
-          labels: Object.keys(data.stylists),
+          labels: Object.keys(stylistData),
           datasets: [{
             label: 'Services Done',
-            data: Object.values(data.stylists),
+            data: Object.values(stylistData),
             backgroundColor: ['#D9722D','#34AAAA'],
             borderRadius: 6
           }]
@@ -972,6 +1039,7 @@
         <td>${b.serviceNames || 'Haircut'}</td>
         <td>${b.bookingDate} at ${b.bookingTime}</td>
         <td>${b.serviceLocation === 'AT_HOME' ? `At Your Home: ${b.address || ''}` : 'At the Shop'}</td>
+        <td>${b.totalAmount == null ? '—' : `₹${Number(b.totalAmount).toFixed(2)}`}</td>
         <td><span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span></td>
         <td>
           <div style="display:flex;gap:6px;">

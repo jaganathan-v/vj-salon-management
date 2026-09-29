@@ -355,6 +355,7 @@
   // ---- SHOP STATUS ----
   function updateShopBadge(isOpen) {
     const b = document.getElementById('shop-status-badge');
+    if (!b) return;
     if (isOpen) { b.className = 'badge badge-open'; b.textContent = '● Open'; }
     else         { b.className = 'badge badge-closed'; b.textContent = '● Closed'; }
   }
@@ -387,6 +388,15 @@
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 1200);
     loadAll();
+    const refreshLiveAvailability = async () => {
+      const [status, stylists] = await Promise.all([API.getShopStatus(), API.getStylistsStatus()]);
+      updateShopBadge(status.isOpen);
+      renderStylists(stylists);
+    };
+    window.setInterval(refreshLiveAvailability, 15000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshLiveAvailability();
+    });
 
     // Intersection Observer for fade-in
     const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold:0.1 });

@@ -15,7 +15,7 @@ public class DTOs {
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 
     // Booking DTOs
-    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes, ServiceLocation serviceLocation, String address, Long stylistId) {}
+    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes, ServiceLocation serviceLocation, String address, Long stylistId, BigDecimal totalAmount) {}
     public record BookingStatusRequest(String status) {}
 
     // Feedback DTOs
@@ -31,7 +31,7 @@ public class DTOs {
     public record HomeServiceStatusRequest(HomeServiceStatus homeServiceStatus) {}
 
     // Daily Log DTO
-    public record DailyLogRequest(String serviceName, Integer quantity, String paymentType, BigDecimal amount) {}
+    public record DailyLogRequest(String serviceName, Integer quantity, String paymentType, BigDecimal amount, ServiceLocation serviceLocation) {}
 
     // Inventory DTOs
     public record InventoryRequest(String itemName, String category, Integer currentCount, String unit, Integer lowThreshold, String notes) {}

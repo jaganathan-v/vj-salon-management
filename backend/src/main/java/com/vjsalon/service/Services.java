@@ -305,6 +305,7 @@ public class Services {
             b.setClientName(req.clientName());
             b.setContact(req.contact());
             b.setServiceNames(req.serviceNames());
+            b.setTotalAmount(req.totalAmount());
             b.setBookingDate(LocalDate.parse(req.bookingDate()));
             b.setBookingTime(LocalTime.parse(req.bookingTime()));
             ServiceLocation location = req.serviceLocation() == null ? ServiceLocation.AT_SHOP : req.serviceLocation();
@@ -402,6 +403,7 @@ public class Services {
                     .orElseThrow(() -> new RuntimeException("Stylist not found: " + stylistCode));
             log.setStylistId(stylist.getId());
             log.setServiceName(req.serviceName());
+            log.setServiceLocation(req.serviceLocation() == null ? ServiceLocation.AT_SHOP : req.serviceLocation());
             log.setQuantity(req.quantity() != null ? req.quantity() : 1);
             log.setAmount(req.amount());
             log.setPaymentType(req.paymentType() != null ? req.paymentType() : "CASH");
