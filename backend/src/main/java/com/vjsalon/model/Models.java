@@ -29,6 +29,10 @@ public class Models {
         private Integer sinceYear = 2010;
         @Column(columnDefinition = "TEXT")
         private String mapsLink;
+        @Column(length = 10)
+        private String siteTheme = "dark";
+        @Column(length = 10)
+        private String siteLanguage = "en";
 
         public ShopSettings() {}
         public Long getId() { return id; }
@@ -47,6 +51,10 @@ public class Models {
         public void setSinceYear(Integer sinceYear) { this.sinceYear = sinceYear; }
         public String getMapsLink() { return mapsLink; }
         public void setMapsLink(String mapsLink) { this.mapsLink = mapsLink; }
+        public String getSiteTheme() { return siteTheme; }
+        public void setSiteTheme(String siteTheme) { this.siteTheme = siteTheme; }
+        public String getSiteLanguage() { return siteLanguage; }
+        public void setSiteLanguage(String siteLanguage) { this.siteLanguage = siteLanguage; }
     }
 
     @Entity

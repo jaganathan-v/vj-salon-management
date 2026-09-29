@@ -162,6 +162,7 @@
                 <button type="button" class="btn btn-outline active" id="location-at-shop" aria-pressed="true" onclick="setBookingLocation('AT_SHOP')" data-i18n="booking.atShop">At the Shop</button>
                 <button type="button" class="btn btn-outline" id="location-at-home" aria-pressed="false" onclick="setBookingLocation('AT_HOME')" data-i18n="booking.atHome">At Your Home</button>
               </div>
+              <small id="home-service-price-note" style="display:none;color:var(--cream-muted);">Home services are charged at twice the shop service price.</small>
               <input type="hidden" id="b-service-location" value="AT_SHOP">
             </div>
             <div class="form-group" id="home-address-group" style="display:none;">
@@ -171,6 +172,10 @@
             <div class="form-group">
               <label class="form-label" data-i18n="booking.notes">Notes (optional)</label>
               <textarea class="form-textarea" id="b-notes" placeholder="Any special requests..."></textarea>
+            </div>
+            <div class="running-total" style="margin-top:12px;">
+              <span class="running-total-label">Updated Total</span>
+              <span class="running-total-val" id="b-total-details">₹0</span>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:8px;">
               <button class="btn btn-ghost" onclick="gotoStep(1)" data-i18n="common.back">← Back</button>
@@ -313,13 +318,14 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
-  const lang = localStorage.getItem('vj_lang') || 'en';
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  const lang = SitePreferences.getLanguage();
+  document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
 
   // Section tabs
   function showSection(name) {
@@ -341,7 +347,7 @@
   function renderBookingServices(services) {
     const el = document.getElementById('booking-services-list');
     el.innerHTML = services.map(s => `
-      <div class="service-card" id="bsvc-${s.id}" onclick="toggleService(${s.id},${s.price})">
+      <div class="service-card" id="bsvc-${s.id}" data-price="${s.price}" data-offer="${s.offerPct || 0}" onclick="toggleService(${s.id},${s.price})">
         <div><div class="service-name">${svcName(s)}</div><div class="service-category">${s.category}</div></div>
         <span class="service-price">₹${s.price}${s.offerPct>0 ? `<span class="service-offer">${s.offerPct}% OFF</span>` : ''}</span>
       </div>`).join('');
@@ -371,7 +377,19 @@
       const svc = allServices.find(s => s.id === id);
       if (svc) total += svc.price * (1 - svc.offerPct/100);
     });
-    document.getElementById('running-total').textContent = '₹' + Math.round(total);
+    const atHome = document.getElementById('b-service-location').value === 'AT_HOME';
+    document.querySelectorAll('#booking-services-list .service-card').forEach(card => {
+      const basePrice = Number(card.dataset.price || 0);
+      const offer = Number(card.dataset.offer || 0);
+      const price = basePrice * (1 - offer / 100) * (atHome ? 2 : 1);
+      const label = card.querySelector('.service-price');
+      if (label) label.innerHTML = `₹${Math.round(price)}${offer > 0 ? `<span class="service-offer">${offer}% OFF</span>` : ''}${atHome ? '<small style="display:block;font-size:.68rem;color:var(--cream-muted);">Home service</small>' : ''}`;
+    });
+    if (atHome) total *= 2;
+    const formattedTotal = '₹' + Math.round(total);
+    document.getElementById('running-total').textContent = formattedTotal;
+    const detailsTotal = document.getElementById('b-total-details');
+    if (detailsTotal) detailsTotal.textContent = formattedTotal;
   }
 
   // Wizard
@@ -403,7 +421,8 @@
     const ref = 'VJ-' + Date.now().toString(36).toUpperCase().slice(-6);
     const total = document.getElementById('running-total').textContent;
 
-    const booking = await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value, serviceLocation, address:serviceLocation === 'AT_HOME' ? address : null, stylistId:selectedStylistId });
+    const totalAmount = Number(document.getElementById('running-total').textContent.replace(/[^0-9.]/g, '')) || 0;
+    const booking = await API.createBooking({ clientName:name, contact, serviceNames, totalAmount, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value, serviceLocation, address:serviceLocation === 'AT_HOME' ? address : null, stylistId:selectedStylistId });
 
     document.getElementById('booking-ref-no').textContent = booking.id ? `VJ-${booking.id}` : ref;
     if (booking.id) {
@@ -429,7 +448,9 @@
     document.getElementById('location-at-home').classList.toggle('active', atHome);
     document.getElementById('location-at-home').setAttribute('aria-pressed', String(atHome));
     document.getElementById('home-address-group').style.display = atHome ? 'block' : 'none';
+    document.getElementById('home-service-price-note').style.display = atHome ? 'block' : 'none';
     document.getElementById('b-address').required = atHome;
+    updateTotal();
   }
 
   function resetBooking() {
@@ -570,6 +591,15 @@
     loadAll();
     document.getElementById('fb-booking-id').value = sessionStorage.getItem('vj_last_booking_id') || '';
     window.setInterval(loadBookingStylists, 30000);
+    const refreshLiveAvailability = async () => {
+      const [status, stylists] = await Promise.all([API.getShopStatus(), API.getStylistsStatus()]);
+      renderShopStatus(status);
+      renderStylistAvail(stylists);
+    };
+    window.setInterval(refreshLiveAvailability, 15000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshLiveAvailability();
+    });
     // Handle direct link to booking section
     if (location.hash === '#booking') showSection('booking');
   });

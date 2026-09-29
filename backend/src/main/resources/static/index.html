@@ -263,10 +263,11 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
-  const lang = localStorage.getItem('vj_lang') || 'en';
+  const lang = SitePreferences.getLanguage();
 
   // ---- YEAR ----
   document.getElementById('footer-year').textContent = new Date().getFullYear();
@@ -277,7 +278,7 @@
   function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
 
   // ---- THEME ----
-  const theme = localStorage.getItem('vj_theme') || 'dark';
+  const theme = SitePreferences.getTheme();
   document.documentElement.setAttribute('data-theme', theme);
 
   // ---- SERVICE NAME ----
@@ -362,19 +363,120 @@
 
   // ---- EVENTS ----
   function showEvents(events) {
-    if (!events.length) return;
+    const banner = document.getElementById('event-banner');
+    banner.style.display = events.length ? 'flex' : 'none';
+    const extra = document.getElementById('event-extra-list');
+    if (!events.length) {
+      document.getElementById('event-title').textContent = '';
+      document.getElementById('event-desc').textContent = '';
+      if (extra) extra.replaceChildren();
+      return;
+    }
     const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
-    const e = events[0];
-    document.getElementById('event-title').textContent = e[nameKey] || e.titleEn;
-    document.getElementById('event-desc').textContent  = e.description || '';
-    document.getElementById('event-banner').style.display = 'flex';
+    const title = e => e[nameKey] || e.titleEn;
+    document.getElementById('event-title').textContent = title(events[0]);
+    document.getElementById('event-desc').textContent = events[0].description || '';
+    let extraList = document.getElementById('event-extra-list');
+    if (!extraList) {
+      extraList = document.createElement('div');
+      extraList.id = 'event-extra-list';
+      document.getElementById('event-desc').after(extraList);
+    }
+    extraList.replaceChildren(...events.slice(1).map(item => {
+      const row = document.createElement('div');
+      row.textContent = `${title(item)}${item.description ? ` — ${item.description}` : ''}`;
+      return row;
+    }));
+  }
+
+  let adCarouselTimer = null;
+  let renderedAdSignature = null;
+  function renderAdvertisements(ads) {
+    const carousel = document.getElementById('ad-carousel');
+    const signature = JSON.stringify((ads || []).map(ad => [ad.id, ad.type, ad.filePath, ad.title]));
+    if (signature === renderedAdSignature) return;
+    renderedAdSignature = signature;
+    if (adCarouselTimer) clearInterval(adCarouselTimer);
+    carousel.replaceChildren();
+
+    const slides = [];
+    (ads || []).forEach(ad => {
+      const slide = document.createElement('div');
+      slide.className = 'ad-slide';
+      if (String(ad.type).toUpperCase() === 'VIDEO') {
+        const video = document.createElement('video');
+        video.src = ad.filePath;
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.playsInline = true;
+        slide.appendChild(video);
+      } else {
+        const image = document.createElement('img');
+        image.src = ad.filePath;
+        image.alt = ad.title || 'Salon advertisement';
+        slide.appendChild(image);
+      }
+      const overlay = document.createElement('div');
+      overlay.className = 'ad-overlay';
+      slide.appendChild(overlay);
+      if (ad.title) {
+        const caption = document.createElement('div');
+        caption.className = 'ad-caption';
+        const captionTitle = document.createElement('div');
+        captionTitle.className = 'ad-caption-title';
+        captionTitle.textContent = ad.title;
+        caption.appendChild(captionTitle);
+        slide.appendChild(caption);
+      }
+      carousel.appendChild(slide);
+      slides.push(slide);
+    });
+
+    if (!slides.length) {
+      const fallback = document.createElement('div');
+      fallback.className = 'ad-slide active';
+      fallback.style.cssText = 'background:linear-gradient(135deg,#0F0F1C,#1E1E32);display:flex;align-items:center;justify-content:center;opacity:1;';
+      fallback.innerHTML = '<div style="text-align:center;padding:40px;"><div style="font-size:4rem;margin-bottom:16px;">✂</div><div style="font-family:var(--font-display);font-size:2rem;color:var(--cream);">Premium Grooming Experience</div><div style="color:var(--cream-dim);margin-top:8px;">Visit us at Ponnammapet, Salem</div></div>';
+      carousel.appendChild(fallback);
+      return;
+    }
+
+    const dots = document.createElement('div');
+    dots.className = 'ad-dots';
+    let activeIndex = 0;
+    const activate = index => {
+      activeIndex = index;
+      slides.forEach((slide, slideIndex) => {
+        slide.classList.toggle('active', slideIndex === index);
+        const video = slide.querySelector('video');
+        if (video) {
+          if (slideIndex === index) video.play().catch(() => {});
+          else video.pause();
+        }
+      });
+      dots.querySelectorAll('.ad-dot').forEach((dot, dotIndex) => dot.classList.toggle('active', dotIndex === index));
+    };
+    slides.forEach((slide, index) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = `ad-dot${index === 0 ? ' active' : ''}`;
+      dot.setAttribute('aria-label', `Show advertisement ${index + 1}`);
+      dot.addEventListener('click', () => activate(index));
+      dots.appendChild(dot);
+    });
+    if (slides.length > 1) {
+      carousel.appendChild(dots);
+      adCarouselTimer = window.setInterval(() => activate((activeIndex + 1) % slides.length), 6000);
+    }
+    activate(0);
   }
 
   // ---- LOAD ALL ----
   async function loadAll() {
-    const [shopStatus, services, stylists, achievements, offers, events] = await Promise.all([
+    const [shopStatus, services, stylists, achievements, offers, events, ads] = await Promise.all([
       API.getShopStatus(), API.getServices(), API.getStylistsStatus(),
-      API.getAchievements(), API.getOffers(), API.getTodayEvents()
+      API.getAchievements(), API.getOffers(), API.getTodayEvents(), API.getAdvertisements()
     ]);
     updateShopBadge(shopStatus.isOpen);
     renderServices(services);
@@ -382,6 +484,7 @@
     renderAchievements(achievements);
     renderOffers(offers);
     showEvents(events);
+    renderAdvertisements(ads);
   }
 
   // ---- INIT ----
@@ -389,9 +492,13 @@
     setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 1200);
     loadAll();
     const refreshLiveAvailability = async () => {
-      const [status, stylists] = await Promise.all([API.getShopStatus(), API.getStylistsStatus()]);
+      const [status, stylists, events, ads] = await Promise.all([
+        API.getShopStatus(), API.getStylistsStatus(), API.getTodayEvents(), API.getAdvertisements()
+      ]);
       updateShopBadge(status.isOpen);
       renderStylists(stylists);
+      showEvents(events);
+      renderAdvertisements(ads);
     };
     window.setInterval(refreshLiveAvailability, 15000);
     document.addEventListener('visibilitychange', () => {

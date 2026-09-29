@@ -50,7 +50,7 @@ async function _call(endpoint, options = {}) {
   let responseStatus = null;
   let responseBody = '';
   try {
-    const token = localStorage.getItem('vj_token');
+    const token = sessionStorage.getItem('vj_token');
     const headers = {
       'Content-Type': 'application/json',
       ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
@@ -66,18 +66,21 @@ async function _call(endpoint, options = {}) {
     responseBody = text;
     return text ? JSON.parse(text) : {};
   } catch (e) {
+    const method = (requestOptions.method || 'GET').toUpperCase();
+    const isLoginRequest = endpoint === '/auth/stylist' || endpoint === '/auth/admin';
+    const isWrite = method !== 'GET' && !isLoginRequest;
     console.error('[API request failed]', {
-      method: requestOptions.method || 'GET',
+      method,
       url: API_BASE + endpoint,
       status: responseStatus,
       responseBody,
       error: e
     });
     console.warn('API offline for', endpoint, '—', e.message);
-    if (!requireSuccess && options.method && options.method.toUpperCase() !== 'GET' && !endpoint.startsWith('/auth/') && typeof showToast === 'function') {
+    if (isWrite && typeof showToast === 'function') {
       showToast(`Save failed. ${e.message || 'Please check your connection and try again.'}`, 'error', 'Unable to save');
     }
-    if (requireSuccess) throw e;
+    if (requireSuccess || isWrite) throw e;
     return null;
   }
 }
@@ -87,7 +90,7 @@ async function _upload(endpoint, formData, method = 'POST') {
   let responseStatus = null;
   let responseBody = '';
   try {
-    const token = localStorage.getItem('vj_token');
+    const token = sessionStorage.getItem('vj_token');
     const res = await fetch(API_BASE + endpoint, {
       method,
       headers: token ? { 'Authorization': 'Bearer ' + token } : {},
@@ -108,6 +111,7 @@ async function _upload(endpoint, formData, method = 'POST') {
 const API = {
   // ---- Public ----
   getShopInfo:        async () => (await _call('/shop/info'))         ?? DEMO.shopInfo,
+  getSitePreferences: async () => await _call('/site-preferences'),
   getShopStatus:      async () => (await _call('/shop/status'))       ?? DEMO.shopStatus,
   getServices:        async () => (await _call('/services'))          ?? DEMO.services,
   getOffers:          async () => (await _call('/offers'))            ?? DEMO.offers,
@@ -134,7 +138,6 @@ const API = {
   loginAdmin: async (adminCode, password) => {
     const res = await _call('/auth/admin', { method:'POST', body:JSON.stringify({ adminCode, password }) });
     if (res) return res;
-    if (adminCode === 'VJADMIN' && password === 'vj@admin2024') return { token:'demo_token_admin' };
     return null;
   },
   changeAdminPassword: async (currentPassword, newPassword) =>
@@ -168,6 +171,8 @@ const API = {
   getAnalytics:   async (period) => (await _call('/admin/analytics?period='+period)) ?? null,
   updateShopSettings: async (data) =>
     (await _call('/admin/shop-settings', { method:'PUT', body:JSON.stringify(data) })) ?? data,
+  updateSitePreferences: async (data) =>
+    await _call('/admin/site-preferences', { method:'PUT', body:JSON.stringify(data), requireSuccess:true }),
 
   // Generic admin CRUD factory
   crud: (resource) => ({

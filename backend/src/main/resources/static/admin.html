@@ -146,6 +146,10 @@
           <h2 class="page-title">Executive Dashboard</h2>
           <div class="page-subtitle">Real-time revenue, client throughput, and quick management controls</div>
           <span id="admin-shop-status" class="badge badge-closed">Shop status loading…</span>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-success btn-sm" onclick="setAdminShopStatus(true)">Open Shop</button>
+            <button class="btn btn-danger btn-sm" onclick="setAdminShopStatus(false)">Close Shop</button>
+          </div>
         </div>
 
         <div class="stat-cards-grid" style="margin-bottom:24px;">
@@ -697,8 +701,45 @@
   </div>
 </div>
 
+<div id="modal-event" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">+ Add Event Notice</div>
+      <button class="modal-close" onclick="closeModal('modal-event')">×</button>
+    </div>
+    <form onsubmit="event.preventDefault(); handleSaveEvent();">
+      <div class="form-group">
+        <label class="form-label" for="event-title-en">Title</label>
+        <input id="event-title-en" class="form-input" maxlength="200" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="event-date">Event date</label>
+          <input id="event-date" type="date" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="event-category">Category</label>
+          <input id="event-category" class="form-input" maxlength="50" placeholder="Holiday, offer, notice">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="event-description">Description</label>
+        <textarea id="event-description" class="form-textarea" maxlength="2000"></textarea>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:18px;">
+        <input id="event-recurring" type="checkbox"> Repeat this event every year
+      </label>
+      <div style="display:flex;justify-content:flex-end;gap:12px;">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-event')">Cancel</button>
+        <button type="submit" class="btn btn-amber">Publish Notice</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
@@ -716,12 +757,13 @@
   let allAdminFeedback = [];
   let allAdminInventory = [];
   let allAdminDailyLogs = [];
+  let allAdminEvents = [];
   let adminLiveRefreshTimer = null;
 
-  const lang = localStorage.getItem('vj_lang') || 'en';
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  const lang = SitePreferences.getLanguage();
+  document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
 
   // Auth Handling
   async function handleLogin() {
@@ -758,7 +800,7 @@
     Auth.startInactivityTimeout(() => { handleLogout(); showToast('Signed out after 60 minutes of inactivity', 'warning', 'Session expired'); });
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('app-wrapper').style.display = 'flex';
-    document.querySelector('.topbar-title').textContent = `Active admin: ${Auth.getName()} (ID ${localStorage.getItem('vj_admin_id') || 'VJADMIN'})`;
+    document.querySelector('.topbar-title').textContent = `Active admin: ${Auth.getName()} (ID ${sessionStorage.getItem('vj_admin_id') || 'VJADMIN'})`;
     loadAllAdminData();
     initCharts('daily');
     if (!adminLiveRefreshTimer) {
@@ -782,10 +824,10 @@
 
   // Load all data
   async function loadAllAdminData() {
-    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads, dailyLogs, shopStatus] = await Promise.all([
+    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads, dailyLogs, shopStatus, events] = await Promise.all([
       API.getAllBookings(), API.getServices(), API.getStylistsStatus(),
       API.getOffers(), API.getAllFeedback(), API.getInventory(), API.getAchievements(), API.getAdvertisements(),
-      API.getDailyLog(), API.getShopStatus()
+      API.getDailyLog(), API.getShopStatus(), API.crud('events').list()
     ]);
     allAdminBookings = bookings;
     allAdminServices = services;
@@ -796,6 +838,7 @@
     allAdminFeedback = feedback;
     allAdminInventory = inventory;
     allAdminDailyLogs = dailyLogs;
+    allAdminEvents = events;
     renderAdminShopStatus(shopStatus.isOpen);
 
     renderAdminBookings();
@@ -806,6 +849,7 @@
     renderAdminAds();
     renderAdminFeedback();
     renderAdminInventory();
+    renderAdminEvents();
     renderDashOverview();
     if (document.getElementById('panel-analytics').classList.contains('active')) {
       const period = document.querySelector('.period-tab.active')?.id.replace('ptab-', '') || 'daily';
@@ -1317,6 +1361,76 @@
           : `<img class="ad-thumb" src="${ad.filePath}" alt="${ad.title}">`}
         <div style="padding:12px;"><strong>${ad.title}</strong><div style="font-size:.8rem;color:var(--cream-muted);overflow-wrap:anywhere;">${ad.filePath}</div></div>
       </div>`).join('');
+  }
+
+  async function setAdminShopStatus(isOpen) {
+    try {
+      const updated = await API.setShopStatus(isOpen, '');
+      renderAdminShopStatus(updated.isOpen);
+      showToast(isOpen ? 'Shop marked open.' : 'Shop marked closed.', 'success');
+    } catch (error) {
+      console.error('[Shop status update failed]', error);
+    }
+  }
+
+  function renderAdminEvents() {
+    const el = document.getElementById('admin-events-list');
+    el.innerHTML = allAdminEvents.length ? allAdminEvents
+      .slice().sort((a, b) => String(a.eventDate || '').localeCompare(String(b.eventDate || '')))
+      .map(item => `
+        <div class="crud-item">
+          <div class="crud-item-info">
+            <strong style="color:var(--cream);font-size:1.05rem;">${item.titleEn}</strong>
+            <span class="badge badge-amber">${item.category || 'Notice'}</span>
+            <div style="color:var(--cream-dim);font-size:.85rem;margin-top:4px;">${item.eventDate || ''}${item.recurring ? ' · Repeats yearly' : ''}${item.description ? ` · ${item.description}` : ''}</div>
+          </div>
+          <div class="crud-item-actions"><button class="btn btn-danger btn-sm" onclick="deleteAdminEvent(${item.id})">Delete</button></div>
+        </div>`).join('')
+      : '<div class="empty-state">No event notices have been added.</div>';
+  }
+
+  function openAddEventModal() {
+    const today = new Date();
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+    document.getElementById('event-title-en').value = '';
+    document.getElementById('event-date').value = today.toISOString().slice(0, 10);
+    document.getElementById('event-category').value = '';
+    document.getElementById('event-description').value = '';
+    document.getElementById('event-recurring').checked = false;
+    openModal('modal-event');
+  }
+
+  async function handleSaveEvent() {
+    const data = {
+      titleEn: document.getElementById('event-title-en').value.trim(),
+      eventDate: document.getElementById('event-date').value,
+      category: document.getElementById('event-category').value.trim(),
+      description: document.getElementById('event-description').value.trim(),
+      isRecurring: document.getElementById('event-recurring').checked
+    };
+    try {
+      const created = await API.crud('events').create(data);
+      allAdminEvents.push(created);
+      renderAdminEvents();
+      closeModal('modal-event');
+      showToast('Event notice published.', 'success');
+    } catch (error) {
+      console.error('[Event save failed]', error);
+      showToast('The event notice was not saved. Check the browser console for details.', 'error');
+    }
+  }
+
+  async function deleteAdminEvent(id) {
+    if (!confirm('Delete this event notice?')) return;
+    try {
+      await API.crud('events').delete(id);
+      allAdminEvents = allAdminEvents.filter(item => item.id !== id);
+      renderAdminEvents();
+      showToast('Event notice deleted.', 'info');
+    } catch (error) {
+      console.error('[Event delete failed]', { id, error });
+      showToast('The event notice was not deleted.', 'error');
+    }
   }
 
   // --- CRUD: FEEDBACK ---

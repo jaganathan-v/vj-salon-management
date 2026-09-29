@@ -38,7 +38,8 @@ function getServiceName(service) {
 }
 
 async function initI18n() {
-  const lang = localStorage.getItem('vj_lang') || 'en';
+  if (window.SitePreferences?.ready) await SitePreferences.ready;
+  const lang = window.SitePreferences?.getLanguage() || localStorage.getItem('vj_lang') || 'en';
   await loadTranslations(lang);
   applyI18n();
 }

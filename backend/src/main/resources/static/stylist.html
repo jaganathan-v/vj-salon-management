@@ -415,6 +415,7 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
@@ -425,10 +426,10 @@
   let currentDailyLogs = [];
   let currentFilter = 'ALL';
 
-  const lang = localStorage.getItem('vj_lang') || 'en';
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  const lang = SitePreferences.getLanguage();
+  document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
 
   // Auth Handling
   async function handleLogin() {
@@ -553,6 +554,7 @@
   }
 
   async function selectMyStatus(status) {
+    await API.setStylistStatus(status);
     document.querySelectorAll('.status-sel-card').forEach(c => {
       if (c.dataset.status === status) c.classList.add('active');
       else c.classList.remove('active');
@@ -570,7 +572,6 @@
     dashStatus.textContent = status;
     dashStatus.style.color = cur.color;
 
-    await API.setStylistStatus(status);
     showToast(`Status updated to ${status}`, 'info', 'Status Changed');
   }
 

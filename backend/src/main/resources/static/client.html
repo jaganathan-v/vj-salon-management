@@ -318,13 +318,14 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
-  const lang = localStorage.getItem('vj_lang') || 'en';
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  const lang = SitePreferences.getLanguage();
+  document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
 
   // Section tabs
   function showSection(name) {

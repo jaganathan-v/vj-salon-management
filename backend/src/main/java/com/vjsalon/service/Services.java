@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -273,7 +274,16 @@ public class Services {
         }
 
         public List<Event> getTodayEvents() {
-            return eventRepo.findByEventDate(LocalDate.now());
+            LocalDate today = LocalDate.now(ZoneId.of("Asia/Kolkata"));
+            return eventRepo.findAll().stream()
+                    .filter(event -> event.getEventDate() != null)
+                    .filter(event -> event.getEventDate().equals(today)
+                            || (event.isRecurring()
+                                && event.getEventDate().getMonthValue() == today.getMonthValue()
+                                && event.getEventDate().getDayOfMonth() == today.getDayOfMonth()))
+                    .sorted(Comparator.comparing((Event event) -> !event.getEventDate().equals(today))
+                            .thenComparing(Event::getTitleEn, String.CASE_INSENSITIVE_ORDER))
+                    .toList();
         }
 
         public List<Achievement> getAllAchievements() {

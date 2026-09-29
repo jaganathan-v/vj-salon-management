@@ -27,6 +27,7 @@ import com.vjsalon.dto.DTOs.BookingRequest;
 import com.vjsalon.dto.DTOs.BookingStatusRequest;
 import com.vjsalon.dto.DTOs.ChangePasswordRequest;
 import com.vjsalon.dto.DTOs.DailyLogRequest;
+import com.vjsalon.dto.DTOs.EventRequest;
 import com.vjsalon.dto.DTOs.FeedbackRequest;
 import com.vjsalon.dto.DTOs.HomeServiceStatusRequest;
 import com.vjsalon.dto.DTOs.InventoryRequest;
@@ -35,6 +36,7 @@ import com.vjsalon.dto.DTOs.LoginRequest;
 import com.vjsalon.dto.DTOs.OfferRequest;
 import com.vjsalon.dto.DTOs.ServiceRequest;
 import com.vjsalon.dto.DTOs.ShopSettingsRequest;
+import com.vjsalon.dto.DTOs.SitePreferencesRequest;
 import com.vjsalon.dto.DTOs.ShopStatusRequest;
 import com.vjsalon.dto.DTOs.StylistStatusRequest;
 import com.vjsalon.dto.DTOs.StylistBookingOption;
@@ -114,6 +116,14 @@ public class Controllers {
         @GetMapping("/shop/info")
         public ResponseEntity<ShopSettings> getShopInfo() {
             return ResponseEntity.ok(shopService.getShopInfo());
+        }
+
+        @GetMapping("/site-preferences")
+        public ResponseEntity<Map<String, String>> getSitePreferences() {
+            ShopSettings settings = shopService.getShopInfo();
+            return ResponseEntity.ok(Map.of(
+                    "theme", settings.getSiteTheme() == null ? "dark" : settings.getSiteTheme(),
+                    "language", settings.getSiteLanguage() == null ? "en" : settings.getSiteLanguage()));
         }
 
         @GetMapping("/shop/status")
@@ -401,6 +411,31 @@ public class Controllers {
         }
 
         // Offers CRUD
+        @GetMapping("/events")
+        public ResponseEntity<List<Event>> getAllEvents() {
+            return ResponseEntity.ok(eventRepo.findAll());
+        }
+
+        @PostMapping("/events")
+        public ResponseEntity<Event> createEvent(@RequestBody EventRequest req) {
+            Event event = new Event();
+            event.setTitleEn(req.titleEn());
+            event.setTitleTa(req.titleTa());
+            event.setTitleHi(req.titleHi());
+            event.setDescription(req.description());
+            event.setEventDate(LocalDate.parse(req.eventDate()));
+            event.setRecurring(req.isRecurring());
+            event.setCategory(req.category());
+            return ResponseEntity.ok(eventRepo.save(event));
+        }
+
+        @DeleteMapping("/events/{id}")
+        public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
+            eventRepo.deleteById(id);
+            return ResponseEntity.ok().build();
+        }
+
+        // Offers CRUD
         @GetMapping("/offers")
         public ResponseEntity<List<Offer>> getAllOffers() {
             return ResponseEntity.ok(offerRepo.findAll());
@@ -500,6 +535,25 @@ public class Controllers {
             s.setPhone(req.phone());
             s.setSinceYear(req.sinceYear());
             return ResponseEntity.ok(settingsRepo.save(s));
+        }
+
+        @PutMapping("/site-preferences")
+        public ResponseEntity<Map<String, String>> updateSitePreferences(@RequestBody SitePreferencesRequest req) {
+            ShopSettings settings = settingsRepo.findById(1L).orElseGet(ShopSettings::new);
+            if (req.theme() != null) {
+                if (!List.of("dark", "light", "sepia").contains(req.theme())) {
+                    return ResponseEntity.badRequest().build();
+                }
+                settings.setSiteTheme(req.theme());
+            }
+            if (req.language() != null) {
+                if (!List.of("en", "ta", "hi").contains(req.language())) {
+                    return ResponseEntity.badRequest().build();
+                }
+                settings.setSiteLanguage(req.language());
+            }
+            settingsRepo.save(settings);
+            return ResponseEntity.ok(Map.of("theme", settings.getSiteTheme(), "language", settings.getSiteLanguage()));
         }
     }
 }

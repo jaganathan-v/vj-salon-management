@@ -138,7 +138,7 @@ function initClock(elementId = 'clock-display') {
 
 // --- Theme Management ---
 function applyTheme() {
-  const theme = localStorage.getItem('vj_theme') || 'dark';
+  const theme = window.SitePreferences?.getTheme() || localStorage.getItem('vj_theme') || 'dark';
   document.documentElement.setAttribute('data-theme', theme);
 }
 

@@ -294,6 +294,13 @@
                 <input type="number" id="log-qty" class="form-input" value="1" min="1" max="20" onchange="updateLogPrice()" required>
               </div>
               <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Service Location</label>
+                <select id="log-location" class="form-select" onchange="updateLogPrice()" required>
+                  <option value="AT_SHOP">At Shop</option>
+                  <option value="AT_HOME">At Client Home (2× price)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
                 <label class="form-label">Total Amount (₹)</label>
                 <input type="number" id="log-amt" class="form-input" value="80" required>
               </div>
@@ -323,6 +330,7 @@
                 <tr>
                   <th>#</th>
                   <th>Service Done</th>
+                  <th>Location</th>
                   <th>Qty</th>
                   <th>Amount</th>
                   <th>Payment Type</th>
@@ -407,6 +415,7 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
@@ -417,10 +426,10 @@
   let currentDailyLogs = [];
   let currentFilter = 'ALL';
 
-  const lang = localStorage.getItem('vj_lang') || 'en';
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('vj_theme') || 'dark');
+  const lang = SitePreferences.getLanguage();
+  document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
 
   // Auth Handling
   async function handleLogin() {
@@ -545,6 +554,7 @@
   }
 
   async function selectMyStatus(status) {
+    await API.setStylistStatus(status);
     document.querySelectorAll('.status-sel-card').forEach(c => {
       if (c.dataset.status === status) c.classList.add('active');
       else c.classList.remove('active');
@@ -562,7 +572,6 @@
     dashStatus.textContent = status;
     dashStatus.style.color = cur.color;
 
-    await API.setStylistStatus(status);
     showToast(`Status updated to ${status}`, 'info', 'Status Changed');
   }
 
@@ -656,9 +665,10 @@
     const sel = document.getElementById('log-svc-select');
     const opt = sel.options[sel.selectedIndex];
     if (!opt) return;
-    const price = parseInt(opt.dataset.price || '80');
+    const price = Number(opt.dataset.price || '80');
     const qty = parseInt(document.getElementById('log-qty').value || '1');
-    document.getElementById('log-amt').value = price * qty;
+    const multiplier = document.getElementById('log-location').value === 'AT_HOME' ? 2 : 1;
+    document.getElementById('log-amt').value = price * qty * multiplier;
   }
 
   async function loadDailyLogs() {
@@ -679,6 +689,7 @@
         <tr>
           <td>${i + 1}</td>
           <td><strong>${l.serviceName}</strong></td>
+          <td>${l.serviceLocation === 'AT_HOME' ? 'At Home' : 'At Shop'}</td>
           <td>${l.quantity}</td>
           <td style="color:var(--amber-bright);font-weight:700;">₹${l.amount}</td>
           <td><span class="badge ${l.paymentType === 'ONLINE' ? 'badge-teal' : 'badge-amber'}">${l.paymentType === 'ONLINE' ? '📱 Online' : '💵 Cash'}</span></td>
@@ -705,8 +716,9 @@
     const quantity = parseInt(document.getElementById('log-qty').value);
     const amount = parseFloat(document.getElementById('log-amt').value);
     const paymentType = document.getElementById('log-pay-type').value;
+    const serviceLocation = document.getElementById('log-location').value;
 
-    const newLog = await API.addDailyLog({ serviceName, quantity, amount, paymentType });
+    const newLog = await API.addDailyLog({ serviceName, quantity, amount, paymentType, serviceLocation });
     currentDailyLogs.unshift(newLog);
     renderDailyLogs();
     showToast(`Logged: ${serviceName} (₹${amount}) via ${paymentType}`, 'success', 'Service Logged ✂');

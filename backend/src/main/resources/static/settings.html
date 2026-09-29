@@ -165,13 +165,15 @@
 
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/api.js"></script>
+<script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
   // Load preferences
-  function loadPreferences() {
-    const currentTheme = localStorage.getItem('vj_theme') || 'dark';
-    const currentLang = localStorage.getItem('vj_lang') || 'en';
+  async function loadPreferences() {
+    await SitePreferences.ready;
+    const currentTheme = SitePreferences.getTheme();
+    const currentLang = SitePreferences.getLanguage();
     const currentFont = localStorage.getItem('vj_fontsize') || 'medium';
 
     // Theme active state
@@ -192,7 +194,11 @@
     applyPreferences(currentTheme, currentFont);
   }
 
-  function selectTheme(theme) {
+  async function selectTheme(theme) {
+    if (Auth.getRole() === 'admin') {
+      await SitePreferences.saveAsAdmin({ theme });
+      return;
+    }
     localStorage.setItem('vj_theme', theme);
     document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
     document.getElementById('theme-card-' + theme).classList.add('active');
@@ -200,7 +206,11 @@
     showToast(`Theme changed to ${theme.toUpperCase()}`, 'success', 'Theme Updated');
   }
 
-  function selectLanguage(langCode) {
+  async function selectLanguage(langCode) {
+    if (Auth.getRole() === 'admin') {
+      await SitePreferences.saveAsAdmin({ language: langCode });
+      return;
+    }
     localStorage.setItem('vj_lang', langCode);
     document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('active'));
     document.getElementById('lang-card-' + langCode).classList.add('active');
@@ -230,9 +240,9 @@
     setTimeout(() => window.location.reload(), 1200);
   }
 
-  window.addEventListener('DOMContentLoaded', () => {
+  window.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => document.getElementById('loading-screen').classList.add('hidden'), 800);
-    loadPreferences();
+    await loadPreferences();
   });
 </script>
 </body>
