@@ -145,6 +145,8 @@ const API = {
     (await _call('/shop/status', { method:'PATCH', body:JSON.stringify({ isOpen, note }) })) ?? { isOpen, note },
   setStylistStatus: async (status) =>
     (await _call('/stylist/me/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? { status },
+  setHomeServiceStatus: async (homeServiceStatus) =>
+    (await _call('/stylist/me/home-service-status', { method:'PATCH', body:JSON.stringify({ homeServiceStatus }) })) ?? { homeServiceStatus },
   getStylistBookings: async () => (await _call('/bookings')) ?? DEMO.bookings,
   updateBookingStatus: async (id, status) =>
     (await _call('/bookings/'+id+'/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? { id, status },

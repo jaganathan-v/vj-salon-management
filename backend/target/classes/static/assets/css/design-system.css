@@ -466,6 +466,8 @@ a:hover { color:var(--amber-bright); }
 .form-textarea { min-height:100px; resize:vertical; line-height:1.6; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 .form-help { font-size:0.78rem; color:var(--cream-muted); margin-top:5px; }
+.location-toggle { display:flex; flex-wrap:wrap; gap:10px; }
+.location-toggle .btn { flex:1 1 180px; justify-content:center; }
 
 /* Star rating (interactive, CSS-only RTL trick) */
 .star-rating { display:flex; flex-direction:row-reverse; gap:4px; justify-content:flex-end; }

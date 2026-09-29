@@ -153,6 +153,18 @@
               </div>
             </div>
             <div class="form-group">
+              <label class="form-label" data-i18n="booking.serviceLocation">Where would you like your service?</label>
+              <div class="location-toggle" role="group" aria-label="Service location">
+                <button type="button" class="btn btn-outline active" id="location-at-shop" aria-pressed="true" onclick="setBookingLocation('AT_SHOP')" data-i18n="booking.atShop">At the Shop</button>
+                <button type="button" class="btn btn-outline" id="location-at-home" aria-pressed="false" onclick="setBookingLocation('AT_HOME')" data-i18n="booking.atHome">At Your Home</button>
+              </div>
+              <input type="hidden" id="b-service-location" value="AT_SHOP">
+            </div>
+            <div class="form-group" id="home-address-group" style="display:none;">
+              <label class="form-label" for="b-address" data-i18n="booking.homeAddress">Home Address</label>
+              <textarea class="form-textarea" id="b-address" autocomplete="street-address" placeholder="Enter the address for your home visit"></textarea>
+            </div>
+            <div class="form-group">
               <label class="form-label" data-i18n="booking.notes">Notes (optional)</label>
               <textarea class="form-textarea" id="b-notes" placeholder="Any special requests..."></textarea>
             </div>
@@ -371,23 +383,38 @@
     const contact = document.getElementById('b-contact').value.trim();
     const date = document.getElementById('b-date').value;
     const time = document.getElementById('b-time').value;
+    const serviceLocation = document.getElementById('b-service-location').value;
+    const address = document.getElementById('b-address').value.trim();
     if (!name || !contact || !date) { showToast('Please fill all required fields.', 'error'); return; }
     if (!/^\d{10}$/.test(contact)) { showToast('Enter a valid 10-digit phone number.', 'error'); return; }
+    if (serviceLocation === 'AT_HOME' && !address) { showToast('Enter your home address for an at-home service.', 'error'); return; }
 
     const serviceNames = [...selectedServiceIds].map(id => svcName(allServices.find(s=>s.id===id))).join(', ');
     const ref = 'VJ-' + Date.now().toString(36).toUpperCase().slice(-6);
     const total = document.getElementById('running-total').textContent;
 
-    await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value });
+    await API.createBooking({ clientName:name, contact, serviceNames, bookingDate:date, bookingTime:time, notes:document.getElementById('b-notes').value, serviceLocation, address:serviceLocation === 'AT_HOME' ? address : null });
 
     document.getElementById('booking-ref-no').textContent = ref;
     document.getElementById('booking-summary').innerHTML = `
       <strong>${name}</strong> · ${contact}<br>
       ${serviceNames}<br>
+      ${serviceLocation === 'AT_HOME' ? `${address}<br>` : 'At the Shop<br>'}
       ${date} at ${time}<br>
       <span style="color:var(--amber-bright);">Total: ${total}</span>`;
     gotoStep(3);
     showToast('Booking confirmed! Stylist notified.', 'success', 'Confirmed ✓');
+  }
+
+  function setBookingLocation(location) {
+    const atHome = location === 'AT_HOME';
+    document.getElementById('b-service-location').value = location;
+    document.getElementById('location-at-shop').classList.toggle('active', !atHome);
+    document.getElementById('location-at-shop').setAttribute('aria-pressed', String(!atHome));
+    document.getElementById('location-at-home').classList.toggle('active', atHome);
+    document.getElementById('location-at-home').setAttribute('aria-pressed', String(atHome));
+    document.getElementById('home-address-group').style.display = atHome ? 'block' : 'none';
+    document.getElementById('b-address').required = atHome;
   }
 
   function resetBooking() {
@@ -395,6 +422,8 @@
     document.querySelectorAll('.service-card.selected').forEach(c => c.classList.remove('selected'));
     updateTotal();
     ['b-name','b-contact','b-notes'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('b-address').value = '';
+    setBookingLocation('AT_SHOP');
     document.getElementById('b-date').value = '';
     gotoStep(1);
   }
@@ -453,11 +482,14 @@
     const el = document.getElementById('stylist-avail-grid');
     const map = { FREE:'badge-free', BUSY:'badge-busy', FOOD_BREAK:'badge-break' };
     const lbl = { FREE:'Free', BUSY:'With Client', FOOD_BREAK:'Food Break' };
+    const homeMap = { FREE:'badge-free', BUSY:'badge-busy' };
+    const homeLbl = { FREE:'Home visits: Free', BUSY:'Home visits: Busy' };
     el.innerHTML = stylists.map(s => `
       <div class="stylist-avail-card">
         <div class="stylist-avail-avatar">${s.name[0]}</div>
         <div><div class="stylist-avail-name">${s.name}</div>
           <span class="badge ${map[s.status]||'badge-amber'}" style="margin-top:6px;display:inline-flex;">${lbl[s.status]||s.status}</span>
+          <span class="badge ${homeMap[s.homeServiceStatus]||'badge-free'}" style="margin-top:6px;display:inline-flex;">${homeLbl[s.homeServiceStatus]||'Home visits: Free'}</span>
         </div>
       </div>`).join('');
   }

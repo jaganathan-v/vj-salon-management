@@ -8,6 +8,9 @@ import java.time.LocalTime;
 
 public class Models {
 
+    public enum ServiceLocation { AT_SHOP, AT_HOME }
+    public enum HomeServiceStatus { FREE, BUSY }
+
     @Entity
     @Table(name = "shop_settings")
     public static class ShopSettings {
@@ -84,6 +87,9 @@ public class Models {
         private String passwordHash;
         @Column(length = 20)
         private String status = "FREE"; // FREE, BUSY, FOOD_BREAK
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'FREE'")
+        private HomeServiceStatus homeServiceStatus = HomeServiceStatus.FREE;
         private boolean active = true;
         private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -98,6 +104,8 @@ public class Models {
         public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
+        public HomeServiceStatus getHomeServiceStatus() { return homeServiceStatus; }
+        public void setHomeServiceStatus(HomeServiceStatus homeServiceStatus) { this.homeServiceStatus = homeServiceStatus; }
         public boolean isActive() { return active; }
         public void setActive(boolean active) { this.active = active; }
         public LocalDateTime getCreatedAt() { return createdAt; }
@@ -199,6 +207,11 @@ public class Models {
         private LocalDate bookingDate;
         @Column(nullable = false)
         private LocalTime bookingTime;
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'AT_SHOP'")
+        private ServiceLocation serviceLocation = ServiceLocation.AT_SHOP;
+        @Column(columnDefinition = "TEXT")
+        private String address;
         @Column(columnDefinition = "TEXT")
         private String notes;
         @Column(length = 20)
@@ -221,6 +234,10 @@ public class Models {
         public void setBookingDate(LocalDate bookingDate) { this.bookingDate = bookingDate; }
         public LocalTime getBookingTime() { return bookingTime; }
         public void setBookingTime(LocalTime bookingTime) { this.bookingTime = bookingTime; }
+        public ServiceLocation getServiceLocation() { return serviceLocation; }
+        public void setServiceLocation(ServiceLocation serviceLocation) { this.serviceLocation = serviceLocation; }
+        public String getAddress() { return address; }
+        public void setAddress(String address) { this.address = address; }
         public String getNotes() { return notes; }
         public void setNotes(String notes) { this.notes = notes; }
         public String getStatus() { return status; }

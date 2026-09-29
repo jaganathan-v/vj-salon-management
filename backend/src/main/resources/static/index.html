@@ -310,12 +310,15 @@
     const el = document.getElementById('stylist-status-grid');
     const statusMap = { FREE:'badge-free', BUSY:'badge-busy', FOOD_BREAK:'badge-break' };
     const labelMap  = { FREE:'Free', BUSY:'With Client', FOOD_BREAK:'Food Break' };
+    const homeStatusMap = { FREE:'badge-free', BUSY:'badge-busy' };
+    const homeLabelMap = { FREE:'Home visits: Free', BUSY:'Home visits: Busy' };
     el.innerHTML = stylists.map(s => `
       <div class="stylist-avail-card">
         <div class="stylist-avail-avatar">${s.name[0]}</div>
         <div>
           <div class="stylist-avail-name">${s.name}</div>
           <span class="badge ${statusMap[s.status] || 'badge-amber'}" style="margin-top:6px;display:inline-flex;">${labelMap[s.status] || s.status}</span>
+          <span class="badge ${homeStatusMap[s.homeServiceStatus] || 'badge-free'}" style="margin-top:6px;display:inline-flex;">${homeLabelMap[s.homeServiceStatus] || 'Home visits: Free'}</span>
         </div>
       </div>`).join('');
   }

@@ -58,6 +58,7 @@ CREATE TABLE stylists (
     name VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     status VARCHAR(20) DEFAULT 'FREE', -- FREE, BUSY, FOOD_BREAK
+    home_service_status VARCHAR(20) NOT NULL DEFAULT 'FREE', -- FREE, BUSY
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -84,6 +85,8 @@ CREATE TABLE bookings (
     service_names TEXT,
     booking_date DATE NOT NULL,
     booking_time TIME NOT NULL,
+    service_location VARCHAR(20) NOT NULL DEFAULT 'AT_SHOP', -- AT_SHOP, AT_HOME
+    address TEXT,
     notes TEXT,
     status VARCHAR(20) DEFAULT 'PENDING', -- PENDING, CONFIRMED, COMPLETED, CANCELLED
     stylist_id BIGINT REFERENCES stylists(id) ON DELETE SET NULL,

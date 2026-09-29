@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,11 +34,13 @@ import com.vjsalon.model.Models.DailyLog;
 import com.vjsalon.model.Models.Event;
 import com.vjsalon.model.Models.Feedback;
 import com.vjsalon.model.Models.Inventory;
+import com.vjsalon.model.Models.HomeServiceStatus;
 import com.vjsalon.model.Models.Offer;
 import com.vjsalon.model.Models.PaymentQr;
 import com.vjsalon.model.Models.SalonService;
 import com.vjsalon.model.Models.ShopSettings;
 import com.vjsalon.model.Models.ShopStatus;
+import com.vjsalon.model.Models.ServiceLocation;
 import com.vjsalon.model.Models.Stylist;
 import com.vjsalon.repository.AchievementRepository;
 import com.vjsalon.repository.AdminConfigRepository;
@@ -185,6 +189,14 @@ public class Services {
             return stylistRepo.save(s);
         }
 
+        @Transactional
+        public Stylist updateHomeServiceStatus(String stylistCode, HomeServiceStatus status) {
+            Stylist stylist = stylistRepo.findByStylistCode(stylistCode)
+                    .orElseThrow(() -> new RuntimeException("Stylist not found: " + stylistCode));
+            stylist.setHomeServiceStatus(status);
+            return stylistRepo.save(stylist);
+        }
+
         public List<Offer> getActiveOffers() {
             return offerRepo.findByActiveTrueAndValidUntilGreaterThanEqual(LocalDate.now());
         }
@@ -222,6 +234,12 @@ public class Services {
             b.setServiceNames(req.serviceNames());
             b.setBookingDate(LocalDate.parse(req.bookingDate()));
             b.setBookingTime(LocalTime.parse(req.bookingTime()));
+            ServiceLocation location = req.serviceLocation() == null ? ServiceLocation.AT_SHOP : req.serviceLocation();
+            if (location == ServiceLocation.AT_HOME && (req.address() == null || req.address().isBlank())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address is required for home service bookings");
+            }
+            b.setServiceLocation(location);
+            b.setAddress(location == ServiceLocation.AT_HOME ? req.address().trim() : null);
             b.setNotes(req.notes());
             b.setStatus("PENDING");
             b.setCreatedAt(LocalDateTime.now());

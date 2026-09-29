@@ -1,4 +1,4 @@
-{
+﻿{
   "nav.home": "முகப்பு",
   "nav.client": "வாடிக்கையாளர்",
   "nav.stylist": "பணியாளர்",
@@ -130,5 +130,14 @@
   "shop.name": "கடை பெயர்",
   "shop.phone": "தொலைபேசி",
   "shop.since": "தொடங்கிய ஆண்டு",
-  "stylist.invalidCreds": "தவறான முடி திருத்துநர் எண் அல்லது கடவுச்சொல்"
+  "stylist.invalidCreds": "தவறான முடி திருத்துநர் எண் அல்லது கடவுச்சொல்",
+  "booking.serviceLocation": "உங்கள் சேவை எங்கு வேண்டும்?",
+  "booking.atShop": "கடையில்",
+  "booking.atHome": "உங்கள் வீட்டில்",
+  "booking.homeAddress": "வீட்டு முகவரி",
+  "stylist.homeAvailability": "வீட்டு வருகை கிடைக்கும் நிலை",
+  "stylist.homeFree": "வீட்டு வருகைக்கு கிடைக்கும்",
+  "stylist.homeBusy": "வீட்டு வருகைக்கு பிஸி",
+  "stylist.homeVisitsFree": "வீட்டு வருகை: கிடைக்கும்",
+  "stylist.homeVisitsBusy": "வீட்டு வருகை: பிஸி"
 }

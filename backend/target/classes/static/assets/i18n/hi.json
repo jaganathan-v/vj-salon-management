@@ -1,4 +1,4 @@
-{
+﻿{
   "nav.home": "होम",
   "nav.client": "ग्राहक",
   "nav.stylist": "स्टाइलिस्ट",
@@ -130,5 +130,14 @@
   "shop.name": "दुकान का नाम",
   "shop.phone": "फ़ोन",
   "shop.since": "स्थापना",
-  "stylist.invalidCreds": "स्टाइलिस्ट आईडी या पासवर्ड गलत है"
+  "stylist.invalidCreds": "स्टाइलिस्ट आईडी या पासवर्ड गलत है",
+  "booking.serviceLocation": "आपकी सेवा कहाँ चाहिए?",
+  "booking.atShop": "दुकान पर",
+  "booking.atHome": "आपके घर पर",
+  "booking.homeAddress": "घर का पता",
+  "stylist.homeAvailability": "होम विज़िट उपलब्धता",
+  "stylist.homeFree": "होम विज़िट के लिए उपलब्ध",
+  "stylist.homeBusy": "होम विज़िट के लिए व्यस्त",
+  "stylist.homeVisitsFree": "होम विज़िट: उपलब्ध",
+  "stylist.homeVisitsBusy": "होम विज़िट: व्यस्त"
 }

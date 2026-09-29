@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import com.vjsalon.model.Models.HomeServiceStatus;
+import com.vjsalon.model.Models.ServiceLocation;
+
 public class DTOs {
 
     // Auth DTOs
@@ -12,7 +15,7 @@ public class DTOs {
     public record ChangePasswordRequest(String currentPassword, String newPassword) {}
 
     // Booking DTOs
-    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes) {}
+    public record BookingRequest(String clientName, String contact, String serviceNames, String bookingDate, String bookingTime, String notes, ServiceLocation serviceLocation, String address) {}
     public record BookingStatusRequest(String status) {}
 
     // Feedback DTOs
@@ -21,6 +24,7 @@ public class DTOs {
     // Shop Status DTOs
     public record ShopStatusRequest(boolean isOpen, String note) {}
     public record StylistStatusRequest(String status) {}
+    public record HomeServiceStatusRequest(HomeServiceStatus homeServiceStatus) {}
 
     // Daily Log DTO
     public record DailyLogRequest(String serviceName, Integer quantity, String paymentType, BigDecimal amount) {}

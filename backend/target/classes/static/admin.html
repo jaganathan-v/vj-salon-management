@@ -252,6 +252,7 @@
                   <th>Contact</th>
                   <th>Services</th>
                   <th>Date & Time</th>
+                  <th>Location</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -339,6 +340,7 @@
                   <th>Code</th>
                   <th>Stylist Name</th>
                   <th>Current Status</th>
+                  <th>Home Visit Status</th>
                   <th>Account Status</th>
                   <th>Actions</th>
                 </tr>
@@ -969,6 +971,7 @@
         <td><a href="tel:${b.contact}" style="color:var(--amber-bright);">${b.contact}</a></td>
         <td>${b.serviceNames || 'Haircut'}</td>
         <td>${b.bookingDate} at ${b.bookingTime}</td>
+        <td>${b.serviceLocation === 'AT_HOME' ? `At Your Home: ${b.address || ''}` : 'At the Shop'}</td>
         <td><span class="badge ${getStatusBadgeClass(b.status)}">${b.status}</span></td>
         <td>
           <div style="display:flex;gap:6px;">
@@ -1089,6 +1092,7 @@
         <td><code>${s.stylistCode || 'VJS00' + s.id}</code></td>
         <td><strong>${s.name}</strong></td>
         <td><span class="badge ${s.status === 'FREE' ? 'badge-free' : s.status === 'BUSY' ? 'badge-busy' : 'badge-break'}">${s.status}</span></td>
+        <td><span class="badge ${s.homeServiceStatus === 'BUSY' ? 'badge-busy' : 'badge-free'}">${s.homeServiceStatus || 'FREE'}</span></td>
         <td><span class="badge badge-open">Active</span></td>
         <td>
           <div style="display:flex;gap:6px;">

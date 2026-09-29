@@ -28,6 +28,7 @@ import com.vjsalon.dto.DTOs.BookingStatusRequest;
 import com.vjsalon.dto.DTOs.ChangePasswordRequest;
 import com.vjsalon.dto.DTOs.DailyLogRequest;
 import com.vjsalon.dto.DTOs.FeedbackRequest;
+import com.vjsalon.dto.DTOs.HomeServiceStatusRequest;
 import com.vjsalon.dto.DTOs.InventoryRequest;
 import com.vjsalon.dto.DTOs.InventoryUpdateRequest;
 import com.vjsalon.dto.DTOs.LoginRequest;
@@ -138,6 +139,12 @@ public class Controllers {
         public ResponseEntity<Stylist> updateMyStatus(@RequestBody StylistStatusRequest req, Authentication auth) {
             String stylistCode = auth.getName();
             return ResponseEntity.ok(shopService.updateStylistStatus(stylistCode, req.status()));
+        }
+
+        @PatchMapping("/stylist/me/home-service-status")
+        public ResponseEntity<Stylist> updateMyHomeServiceStatus(@RequestBody HomeServiceStatusRequest req, Authentication auth) {
+            String stylistCode = auth.getName();
+            return ResponseEntity.ok(shopService.updateHomeServiceStatus(stylistCode, req.homeServiceStatus()));
         }
 
         @GetMapping("/offers")

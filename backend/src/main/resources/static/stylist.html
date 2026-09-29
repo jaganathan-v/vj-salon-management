@@ -213,6 +213,23 @@
           </div>
         </div>
 
+        <div class="vj-card" style="margin-bottom:24px;">
+          <div class="card-title" data-i18n="stylist.homeAvailability">Home Visit Availability</div>
+          <div class="page-subtitle" style="margin-bottom:16px;">This availability is independent of your in-shop status.</div>
+          <div class="status-selector-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));">
+            <div class="status-sel-card active" data-home-status="FREE" onclick="selectHomeServiceStatus('FREE')">
+              <div class="status-sel-icon">🏠</div>
+              <div class="status-sel-label" data-i18n="stylist.homeFree">Free for home visits</div>
+              <div class="status-sel-desc">Available for an at-home appointment</div>
+            </div>
+            <div class="status-sel-card" data-home-status="BUSY" onclick="selectHomeServiceStatus('BUSY')">
+              <div class="status-sel-icon">🔒</div>
+              <div class="status-sel-label" data-i18n="stylist.homeBusy">Unavailable for home visits</div>
+              <div class="status-sel-desc">Not available for home appointments</div>
+            </div>
+          </div>
+        </div>
+
         <div class="vj-card" style="max-width:540px;">
           <div class="card-title">Live Preview for Customers</div>
           <div style="margin-top:16px;display:flex;align-items:center;gap:14px;">
@@ -222,6 +239,7 @@
               <div id="status-preview-badge" style="margin-top:4px;">
                 <span class="badge badge-free">Free & Ready</span>
               </div>
+              <div style="margin-top:6px;" id="home-status-preview-badge"><span class="badge badge-free">Home visits: Free</span></div>
             </div>
           </div>
         </div>
@@ -462,6 +480,7 @@
   async function loadAllData() {
     await Promise.all([
       loadShopStatus(),
+      loadHomeServiceStatus(),
       loadServicesForLog(),
       loadBookings(),
       loadInventory(),
@@ -504,6 +523,27 @@
   }
 
   // --- 2. MY STATUS ---
+  function renderHomeServiceStatus(status) {
+    const normalized = status === 'BUSY' ? 'BUSY' : 'FREE';
+    document.querySelectorAll('[data-home-status]').forEach(card => {
+      card.classList.toggle('active', card.dataset.homeStatus === normalized);
+    });
+    const badge = document.getElementById('home-status-preview-badge');
+    badge.innerHTML = `<span class="badge ${normalized === 'FREE' ? 'badge-free' : 'badge-busy'}">Home visits: ${normalized === 'FREE' ? 'Free' : 'Busy'}</span>`;
+  }
+
+  async function loadHomeServiceStatus() {
+    const stylists = await API.getStylistsStatus();
+    const me = stylists.find(stylist => String(stylist.id) === String(Auth.getStylistId()));
+    renderHomeServiceStatus(me?.homeServiceStatus || 'FREE');
+  }
+
+  async function selectHomeServiceStatus(status) {
+    await API.setHomeServiceStatus(status);
+    renderHomeServiceStatus(status);
+    showToast(`Home visit availability updated to ${status}`, 'info', 'Status Changed');
+  }
+
   async function selectMyStatus(status) {
     document.querySelectorAll('.status-sel-card').forEach(c => {
       if (c.dataset.status === status) c.classList.add('active');
@@ -563,6 +603,7 @@
             <div class="booking-client">👤 ${b.clientName}</div>
             <div class="booking-meta">📞 <a href="tel:${b.contact}" style="color:var(--amber-bright);">${b.contact}</a> • 📅 ${b.bookingDate} at 🕒 ${b.bookingTime}</div>
             <div class="booking-services">✂ Services: <strong>${b.serviceNames || 'Haircut'}</strong></div>
+            <div class="booking-meta">${b.serviceLocation === 'AT_HOME' ? `At Your Home: ${b.address || ''}` : 'At the Shop'}</div>
             ${b.notes ? `<div style="font-size:0.8rem;color:var(--cream-muted);margin-top:4px;">Notes: "${b.notes}"</div>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">

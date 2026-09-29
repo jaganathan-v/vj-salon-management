@@ -1,4 +1,4 @@
-{
+﻿{
   "nav.home": "Home",
   "nav.client": "Client",
   "nav.stylist": "Stylist",
@@ -130,5 +130,14 @@
   "shop.name": "Shop Name",
   "shop.phone": "Phone",
   "shop.since": "Est.",
-  "stylist.invalidCreds": "Invalid Stylist ID or Password"
+  "stylist.invalidCreds": "Invalid Stylist ID or Password",
+  "booking.serviceLocation": "Where would you like your service?",
+  "booking.atShop": "At the Shop",
+  "booking.atHome": "At Your Home",
+  "booking.homeAddress": "Home Address",
+  "stylist.homeAvailability": "Home Visit Availability",
+  "stylist.homeFree": "Free for home visits",
+  "stylist.homeBusy": "Busy for home visits",
+  "stylist.homeVisitsFree": "Home visits: Free",
+  "stylist.homeVisitsBusy": "Home visits: Busy"
 }
