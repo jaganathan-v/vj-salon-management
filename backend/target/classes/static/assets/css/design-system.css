@@ -304,18 +304,19 @@ a:hover { color:var(--amber-bright); }
   height:60px;
   background:var(--bg-dark);
   border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
   padding:0 28px;
   position:sticky; top:0; z-index:200;
   flex-shrink:0;
 }
-.topbar-left  { display:flex; align-items:center; gap:16px; }
-.topbar-right { display:flex; align-items:center; gap:12px; }
-.topbar-title { font-family:var(--font-display); font-size:1.2rem; color:var(--cream); }
+.topbar-left  { display:flex; align-items:center; gap:16px; min-width:0; }
+.topbar-right { display:flex; align-items:center; gap:12px; flex-shrink:0; white-space:nowrap; }
+.topbar-title { font-family:var(--font-display); font-size:1.2rem; color:var(--cream); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 .topbar-clock {
   font-family:var(--font-display);
   font-size:1.05rem; color:var(--amber-mid); letter-spacing:0.06em;
+  display:flex; align-items:center; flex-wrap:nowrap; flex-shrink:0; white-space:nowrap;
 }
 .topbar-lang {
   background:var(--bg-surface);
@@ -912,7 +913,16 @@ a:hover { color:var(--amber-bright); }
   .form-row { grid-template-columns:1fr; }
   .status-selector-grid { grid-template-columns:1fr; }
   .theme-grid, .lang-grid { grid-template-columns:1fr; }
-  .topbar { padding:0 16px; }
+  .topbar { height:auto; min-height:60px; flex-wrap:wrap; align-content:center; padding:8px 12px; gap:4px; }
+  .topbar-left { flex:1 1 100%; gap:6px; }
+  .topbar-title { flex:1 1 auto; font-size:0.9rem; overflow:visible; text-overflow:clip; white-space:normal; }
+  .topbar-left .badge { display:none; }
+  .topbar-right { flex:1 1 100%; justify-content:space-between; gap:6px; }
+  .topbar-clock { font-size:0.9rem; letter-spacing:0; }
+  .topbar-clock .flip-digit { width:26px; height:36px; padding:2px 4px !important; font-size:1.1rem !important; }
+  .topbar-clock .flip-separator { font-size:1.1rem; padding:0; }
+  .topbar-clock .flip-seconds-separator, .topbar-clock .flip-second { display:none; }
+  .topbar-lang { width:86px; max-width:86px; padding:4px 5px; font-size:0.72rem; }
   .hero-title { font-size:2rem; }
   .hero { min-height:88vh; padding:48px 0 72px; }
   .hero-content { width:100%; max-width:100%; padding:0 18px; box-sizing:border-box; }

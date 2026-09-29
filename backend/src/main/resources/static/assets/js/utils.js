@@ -104,6 +104,7 @@ let clockLifecycleBound = false;
 function initClock(elementId = 'clock-display') {
   const el = document.getElementById(elementId);
   if (!el) return;
+  el.classList.add('flip-clock');
   
   function update() {
     const now = new Date();
@@ -112,11 +113,11 @@ function initClock(elementId = 'clock-display') {
     const s = String(now.getSeconds()).padStart(2, '0');
     
     el.innerHTML = `
-      <span class="flip-digit" style="background:#222;color:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;font-size:1.2em;">${h}</span>
-      <span class="flip-separator" style="font-weight:bold;margin:0 2px;">:</span>
-      <span class="flip-digit" style="background:#222;color:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;font-size:1.2em;">${m}</span>
-      <span class="flip-separator" style="font-weight:bold;margin:0 2px;">:</span>
-      <span class="flip-digit" style="background:#222;color:#fff;padding:4px 8px;border-radius:4px;font-family:monospace;font-size:1.2em;">${s}</span>
+      <span class="flip-digit flip-hour">${h}</span>
+      <span class="flip-separator">:</span>
+      <span class="flip-digit flip-minute">${m}</span>
+      <span class="flip-separator flip-seconds-separator">:</span>
+      <span class="flip-digit flip-second">${s}</span>
     `;
   }
   
