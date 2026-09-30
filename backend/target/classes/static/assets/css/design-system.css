@@ -654,6 +654,7 @@ a:hover { color:var(--amber-bright); }
 .ad-slide    { position:absolute; inset:0; opacity:0; transition:opacity 0.8s ease; }
 .ad-slide.active { opacity:1; }
 .ad-slide img, .ad-slide video { width:100%; height:100%; object-fit:cover; }
+.ad-media-unavailable { width:100%; height:100%; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; color:var(--cream-muted); text-align:center; background:var(--bg-card); }
 .ad-overlay  { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,0.7),transparent 60%); }
 .ad-caption  { position:absolute; bottom:0; left:0; right:0; padding:24px; }
 .ad-caption-title { font-family:var(--font-display); font-size:1.4rem; color:#fff; }

@@ -444,6 +444,13 @@
         const image = document.createElement('img');
         image.src = ad.filePath;
         image.alt = ad.title || 'Salon advertisement';
+        image.addEventListener('error', () => {
+          image.remove();
+          const unavailable = document.createElement('div');
+          unavailable.className = 'ad-media-unavailable';
+          unavailable.textContent = 'Image unavailable. Re-upload it from Admin → Ads & Photos.';
+          slide.appendChild(unavailable);
+        }, { once: true });
         slide.appendChild(image);
       }
       const overlay = document.createElement('div');
