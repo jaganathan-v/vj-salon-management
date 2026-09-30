@@ -524,6 +524,20 @@ public class Controllers {
             return ResponseEntity.ok(adRepo.save(ad));
         }
 
+        @DeleteMapping("/advertisements/{id}")
+        public ResponseEntity<Void> deleteAd(@PathVariable Long id) {
+            Advertisement ad = adRepo.findById(id).orElse(null);
+            if (ad == null) return ResponseEntity.notFound().build();
+
+            String filePath = ad.getFilePath();
+            adRepo.delete(ad);
+            if (filePath != null && filePath.matches("/api/media/[0-9]+")) {
+                Long mediaId = Long.valueOf(filePath.substring("/api/media/".length()));
+                mediaAssetRepo.deleteById(mediaId);
+            }
+            return ResponseEntity.noContent().build();
+        }
+
         @PostMapping("/advertisements")
         public ResponseEntity<Advertisement> uploadAd(
                 @RequestParam("file") MultipartFile file,

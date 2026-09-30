@@ -1372,8 +1372,24 @@
         ${ad.type === 'VIDEO'
           ? `<video class="ad-thumb" src="${ad.filePath}" controls></video>`
           : `<img class="ad-thumb" src="${ad.filePath}" alt="${ad.title}">`}
-        <div style="padding:12px;"><strong>${ad.title}</strong><div style="font-size:.8rem;color:var(--cream-muted);overflow-wrap:anywhere;">${ad.filePath}</div></div>
+        <div style="padding:12px;"><strong>${ad.title}</strong><div style="font-size:.8rem;color:var(--cream-muted);overflow-wrap:anywhere;">${ad.filePath}</div>
+          <button class="btn btn-danger btn-sm" style="margin-top:10px;" onclick="deleteAdvertisement(${ad.id})">Delete Advertisement</button>
+        </div>
       </div>`).join('');
+  }
+
+  async function deleteAdvertisement(id) {
+    const ad = allAdminAds.find(item => item.id === id);
+    if (!ad || !confirm(`Delete the advertisement "${ad.title}"?`)) return;
+    try {
+      await API.crud('advertisements').delete(id);
+      allAdminAds = allAdminAds.filter(item => item.id !== id);
+      renderAdminAds();
+      showToast('Advertisement deleted.', 'info');
+    } catch (error) {
+      console.error('[Admin delete failed]', { resource: 'advertisements', id, error });
+      showToast('The advertisement was not deleted. Check the browser console for details.', 'error');
+    }
   }
 
   async function setAdminShopStatus(isOpen) {
