@@ -377,6 +377,7 @@ public class Services {
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selected stylist is unavailable"));
                 b.setStylistId(stylist.getId());
                 stylist.setStatus("BUSY");
+                stylist.setAvailableAt(b.getBookingDate().atTime(b.getBookingTime()).plusMinutes(60));
                 stylistRepo.save(stylist);
             }
             return bookingRepo.save(b);
@@ -384,6 +385,12 @@ public class Services {
 
         public List<Booking> getAllBookings() {
             return bookingRepo.findAllByOrderByCreatedAtDesc();
+        }
+
+        public List<Booking> getBookingsForStylist(String stylistCode) {
+            Stylist stylist = stylistRepo.findByStylistCode(stylistCode)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Stylist account not found"));
+            return bookingRepo.findByStylistIdOrderByCreatedAtDesc(stylist.getId());
         }
 
         @Transactional

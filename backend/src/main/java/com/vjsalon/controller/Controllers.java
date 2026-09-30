@@ -222,8 +222,12 @@ public class Controllers {
         }
 
         @GetMapping
-        public ResponseEntity<List<Booking>> getBookings() {
-            return ResponseEntity.ok(bookingService.getAllBookings());
+        public ResponseEntity<List<Booking>> getBookings(Authentication auth) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+            return ResponseEntity.ok(isAdmin
+                    ? bookingService.getAllBookings()
+                    : bookingService.getBookingsForStylist(auth.getName()));
         }
 
         @PatchMapping("/{id}/status")

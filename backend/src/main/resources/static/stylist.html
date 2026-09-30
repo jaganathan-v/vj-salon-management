@@ -427,6 +427,8 @@
   let currentDailyLogs = [];
   let currentFilter = 'ALL';
   let statusRefreshTimer = null;
+  let bookingRefreshTimer = null;
+  let seenBookingIds = null;
 
   const lang = SitePreferences.getLanguage();
   document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
@@ -452,6 +454,10 @@
     if (statusRefreshTimer) {
       window.clearInterval(statusRefreshTimer);
       statusRefreshTimer = null;
+    }
+    if (bookingRefreshTimer) {
+      window.clearInterval(bookingRefreshTimer);
+      bookingRefreshTimer = null;
     }
     Auth.clear();
     document.getElementById('app-wrapper').style.display = 'none';
@@ -481,6 +487,7 @@
 
     loadAllData();
     if (!statusRefreshTimer) statusRefreshTimer = window.setInterval(loadHomeServiceStatus, 30000);
+    if (!bookingRefreshTimer) bookingRefreshTimer = window.setInterval(loadBookings, 15000);
   }
 
   // Panel switching
@@ -604,7 +611,17 @@
 
   // --- 3. BOOKINGS ---
   async function loadBookings() {
-    currentBookings = await API.getStylistBookings();
+    const bookings = await API.getStylistBookings();
+    const nextIds = new Set(bookings.map(booking => String(booking.id)));
+    if (seenBookingIds) {
+      const newlyAssigned = bookings.filter(booking => !seenBookingIds.has(String(booking.id)) && booking.status === 'PENDING');
+      if (newlyAssigned.length) {
+        const booking = newlyAssigned[0];
+        showToast(`New booking assigned to you from ${booking.clientName}.`, 'info', 'New booking');
+      }
+    }
+    seenBookingIds = nextIds;
+    currentBookings = bookings;
     document.getElementById('badge-bookings-count').textContent = currentBookings.filter(b => b.status === 'PENDING').length;
     document.getElementById('dash-stat-bookings').textContent = currentBookings.length;
     renderBookings();

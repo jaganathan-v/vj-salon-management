@@ -1374,13 +1374,17 @@
 
   function renderAdminAds() {
     const el = document.getElementById('admin-ads-grid');
+    if (!allAdminAds.length) {
+      el.innerHTML = '<div style="color:var(--cream-muted);padding:12px;">No advertisements have been added yet.</div>';
+      return;
+    }
     el.innerHTML = allAdminAds.map(ad => `
       <div class="ad-preview-card">
         ${ad.type === 'VIDEO'
           ? `<video class="ad-thumb" src="${ad.filePath}" controls></video>`
           : `<img class="ad-thumb" src="${ad.filePath}" alt="${ad.title}">`}
         <div style="padding:12px;"><strong>${ad.title}</strong><div style="font-size:.8rem;color:var(--cream-muted);overflow-wrap:anywhere;">${ad.filePath}</div>
-          <button class="btn btn-danger btn-sm" style="margin-top:10px;" onclick="deleteAdvertisement(${ad.id})">Delete Advertisement</button>
+          <button type="button" class="btn btn-danger" style="margin-top:12px;width:100%;" onclick="deleteAdvertisement(${ad.id})" aria-label="Delete advertisement: ${ad.title}">Delete Advertisement</button>
         </div>
       </div>`).join('');
   }
