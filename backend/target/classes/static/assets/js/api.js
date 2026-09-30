@@ -7,49 +7,6 @@ function normalizeShopStatus(status) {
   return status ? { ...status, isOpen: status.isOpen ?? status.open ?? false } : status;
 }
 
-// --- Demo Data (used when backend is offline) ---
-const DEMO = {
-  shopInfo: {
-    shopName: 'VIJAYAN SALON',
-    tagline: 'Excellence in Every Cut',
-    address: 'No.2 pillayar kovil street, Ponnammapet, Salem - 636001 (near Mariyamman kovil)',
-    phone: '6374402014',
-    sinceYear: 2010,
-    happyClients: 500,
-    googleRating: 4.8,
-    mapsLink: 'https://maps.google.com/maps?q=Ponnammapet+Salem&output=embed'
-  },
-  shopStatus: { isOpen: false, openedAt: null },
-  services: [],
-  stylists: [],
-  offers: [],
-  achievements: [],
-  advertisements: [],
-  events: [],
-  bookings: [
-    { id:1, clientName:'Rajesh Kumar',  contact:'9876543210', serviceNames:'Haircut, Beard Trim', bookingDate:'2026-08-28', bookingTime:'10:00', status:'PENDING',   notes:'' },
-    { id:2, clientName:'Muthu Selvam',  contact:'8765432109', serviceNames:'Hair Colour',         bookingDate:'2026-08-28', bookingTime:'11:30', status:'CONFIRMED', notes:'' }
-  ],
-  feedback: [
-    { id:1, clientName:'Anand', serviceRating:5, shopRating:4, workerRating:5, timingRating:4, overallRating:5, comments:'Excellent service!', createdAt:'2026-08-27' }
-  ],
-  inventory: [
-    { id:1, itemName:'Gillette Razor',       category:'Razor',   currentCount:15, unit:'pcs',     lowThreshold:5 },
-    { id:2, itemName:'Shampoo (Clinic Plus)', category:'Shampoo', currentCount:3,  unit:'bottles', lowThreshold:5 },
-    { id:3, itemName:'Shaving Cream',         category:'Cream',   currentCount:8,  unit:'pcs',     lowThreshold:3 },
-    { id:4, itemName:'Hair Colour (Black)',    category:'Colour',  currentCount:6,  unit:'packs',   lowThreshold:3 }
-  ],
-  paymentQr: {
-    upiId: '6374402014@okbizaxis',
-    qrImagePath: 'assets/uploads/qr/payment_qr.jpg',
-    displayName: 'VIJAYAN SALOON'
-  },
-  dailyLog: [
-    { id:1, serviceName:'Haircut',    quantity:2, paymentType:'CASH',   amount:160, logDate:'2026-08-28' },
-    { id:2, serviceName:'Beard Trim', quantity:1, paymentType:'ONLINE', amount:50,  logDate:'2026-08-28' }
-  ]
-};
-
 // Generic fetch wrapper
 async function _call(endpoint, options = {}) {
   const { requireSuccess = false, ...requestOptions } = options;
@@ -116,24 +73,24 @@ async function _upload(endpoint, formData, method = 'POST') {
 
 const API = {
   // ---- Public ----
-  getShopInfo:        async () => (await _call('/shop/info'))         ?? DEMO.shopInfo,
+  getShopInfo:        async () => (await _call('/shop/info'))         ?? {},
   getSitePreferences: async () => await _call('/site-preferences'),
-  getShopStatus:      async () => normalizeShopStatus((await _call('/shop/status')) ?? DEMO.shopStatus),
-  getServices:        async () => (await _call('/services'))          ?? DEMO.services,
-  getOffers:          async () => (await _call('/offers'))            ?? DEMO.offers,
-  getTodayEvents:     async () => (await _call('/events/today'))      ?? DEMO.events,
-  getAchievements:    async () => (await _call('/achievements'))      ?? DEMO.achievements,
-  getAdvertisements:  async () => (await _call('/advertisements'))    ?? DEMO.advertisements,
-  getStylistsStatus:  async () => (await _call('/stylists/status'))   ?? DEMO.stylists,
-  getStylistBookingOptions: async () => (await _call('/stylists/booking-options')) ?? DEMO.stylists,
-  getPaymentQr:       async () => (await _call('/payment/qr'))        ?? DEMO.paymentQr,
+  getShopStatus:      async () => normalizeShopStatus((await _call('/shop/status')) ?? { isOpen: false, openedAt: null }),
+  getServices:        async () => (await _call('/services'))          ?? [],
+  getOffers:          async () => (await _call('/offers'))            ?? [],
+  getTodayEvents:     async () => (await _call('/events/today'))      ?? [],
+  getAchievements:    async () => (await _call('/achievements'))      ?? [],
+  getAdvertisements:  async () => (await _call('/advertisements'))    ?? [],
+  getStylistsStatus:  async () => (await _call('/stylists/status'))   ?? [],
+  getStylistBookingOptions: async () => (await _call('/stylists/booking-options')) ?? [],
+  getPaymentQr:       async () => (await _call('/payment/qr'))        ?? null,
 
   createBooking: async (data) =>
     (await _call('/bookings', { method:'POST', body:JSON.stringify(data), requireSuccess:true })),
 
   submitFeedback: async (data) =>
     (await _call('/feedback', { method:'POST', body:JSON.stringify(data) }))
-    ?? { id: Date.now(), ...data },
+    ?? null,
 
   // ---- Auth ----
   loginStylist: async (stylistCode, password) => {
@@ -156,23 +113,23 @@ const API = {
     (await _call('/stylist/me/status', { method:'PATCH', body:JSON.stringify({ status, availableAt }) })) ?? { status, availableAt },
   setHomeServiceStatus: async (homeServiceStatus) =>
     (await _call('/stylist/me/home-service-status', { method:'PATCH', body:JSON.stringify({ homeServiceStatus }) })) ?? { homeServiceStatus },
-  getStylistBookings: async () => (await _call('/bookings')) ?? DEMO.bookings,
+  getStylistBookings: async () => (await _call('/bookings')) ?? [],
   updateBookingStatus: async (id, status) =>
-    (await _call('/bookings/'+id+'/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? { id, status },
+    (await _call('/bookings/'+id+'/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? null,
   deleteBooking: async (id) => (await _call('/bookings/'+id, { method:'DELETE' })) ?? {},
   addDailyLog:   async (data) =>
-    (await _call('/daily-log', { method:'POST', body:JSON.stringify(data) })) ?? { id:Date.now(), ...data },
-  getDailyLog:   async () => (await _call('/daily-log')) ?? DEMO.dailyLog,
-  getInventory:  async () => (await _call('/inventory')) ?? DEMO.inventory,
+    (await _call('/daily-log', { method:'POST', body:JSON.stringify(data) })) ?? null,
+  getDailyLog:   async () => (await _call('/daily-log')) ?? [],
+  getInventory:  async () => (await _call('/inventory')) ?? [],
   addInventory:  async (data) =>
-    (await _call('/inventory', { method:'POST', body:JSON.stringify(data) })) ?? { id:Date.now(), ...data },
+    (await _call('/inventory', { method:'POST', body:JSON.stringify(data) })) ?? null,
   updateInventory: async (id, data) =>
-    (await _call('/inventory/'+id, { method:'PATCH', body:JSON.stringify(data) })) ?? { id, ...data },
+    (await _call('/inventory/'+id, { method:'PATCH', body:JSON.stringify(data) })) ?? null,
   deleteInventory: async (id) => (await _call('/inventory/'+id, { method:'DELETE' })) ?? {},
 
   // ---- Admin ----
-  getAllBookings:  async () => (await _call('/admin/bookings'))  ?? DEMO.bookings,
-  getAllFeedback:  async () => (await _call('/admin/feedback'))  ?? DEMO.feedback,
+  getAllBookings:  async () => (await _call('/admin/bookings'))  ?? [],
+  getAllFeedback:  async () => (await _call('/admin/feedback'))  ?? [],
   deleteFeedback: async (id) => (await _call('/admin/feedback/'+id, { method:'DELETE' })) ?? {},
   getAnalytics:   async (period) => (await _call('/admin/analytics?period='+period)) ?? null,
   updateShopSettings: async (data) =>
@@ -188,9 +145,9 @@ const API = {
         method:'POST', body:JSON.stringify(data),
         requireSuccess: resource === 'offers' || resource === 'achievements' || resource === 'stylists'
       });
-      return result ?? { id:Date.now(), ...data };
+      return result ?? null;
     },
-    update: async (id, d)  => (await _call('/admin/'+resource+'/'+id, { method:'PUT',  body:JSON.stringify(d)    })) ?? { id, ...d },
+    update: async (id, d)  => (await _call('/admin/'+resource+'/'+id, { method:'PUT',  body:JSON.stringify(d)    })) ?? null,
     delete: async (id)     => (await _call('/admin/'+resource+'/'+id, { method:'DELETE' }))                 ?? {}
   }),
 

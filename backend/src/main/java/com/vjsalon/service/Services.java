@@ -515,44 +515,11 @@ public class Services {
         }
 
         public AnalyticsResponse getAnalytics(String period) {
-            if ("weekly".equalsIgnoreCase(period)) {
-                return new AnalyticsResponse(
-                    "weekly",
-                    List.of("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"),
-                    List.of(3800.0, 4200.0, 3900.0, 5100.0, 6800.0, 9400.0, 8100.0),
-                    Map.of("Haircut", 120, "Beard Trim", 85, "Hair Colour", 35, "Facial", 22, "Shave", 40),
-                    Map.of("Vijayan", 65, "Kumar", 52),
-                    List.of(4.7, 4.8, 4.7, 4.9, 4.8, 4.9, 4.8)
-                );
-            } else if ("monthly".equalsIgnoreCase(period)) {
-                return new AnalyticsResponse(
-                    "monthly",
-                    List.of("Week 1", "Week 2", "Week 3", "Week 4"),
-                    List.of(28000.0, 31500.0, 29800.0, 34200.0),
-                    Map.of("Haircut", 480, "Beard Trim", 320, "Hair Colour", 140, "Facial", 88, "Shave", 160),
-                    Map.of("Vijayan", 280, "Kumar", 230),
-                    List.of(4.6, 4.8, 4.7, 4.9)
-                );
-            } else if ("yearly".equalsIgnoreCase(period)) {
-                return new AnalyticsResponse(
-                    "yearly",
-                    List.of("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
-                    List.of(95000.0, 110000.0, 105000.0, 118000.0, 125000.0, 112000.0, 130000.0, 118500.0, 0.0, 0.0, 0.0, 0.0),
-                    Map.of("Haircut", 5400, "Beard Trim", 3800, "Hair Colour", 1600, "Facial", 950, "Shave", 1900),
-                    Map.of("Vijayan", 2800, "Kumar", 2400),
-                    List.of(4.6, 4.7, 4.8, 4.8, 4.9, 4.8, 4.9, 4.8, 4.8, 4.8, 4.8, 4.8)
-                );
-            } else {
-                // Default: Daily
-                return new AnalyticsResponse(
-                    "daily",
-                    List.of("9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM"),
-                    List.of(450.0, 920.0, 600.0, 1100.0, 1400.0, 850.0),
-                    Map.of("Haircut", 18, "Beard Trim", 12, "Hair Colour", 4, "Facial", 2, "Shave", 6),
-                    Map.of("Vijayan", 12, "Kumar", 9),
-                    List.of(4.8, 4.9, 4.7, 4.8, 4.9, 4.8)
-                );
-            }
+            String selectedPeriod = List.of("daily", "weekly", "monthly", "yearly").stream()
+                .filter(value -> value.equalsIgnoreCase(period == null ? "" : period))
+                .findFirst()
+                .orElse("daily");
+            return new AnalyticsResponse(selectedPeriod, List.of(), List.of(), Map.of(), Map.of(), List.of());
         }
     }
 

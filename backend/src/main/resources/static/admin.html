@@ -34,7 +34,7 @@
     <form id="admin-login-form" onsubmit="event.preventDefault(); handleLogin();">
       <div class="form-group">
         <label class="form-label">Admin ID / Code</label>
-        <input type="text" id="login-code" class="form-input" placeholder="VJADMIN" value="VJADMIN" required autocomplete="username">
+        <input type="text" id="login-code" class="form-input" required autocomplete="username">
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
@@ -43,9 +43,6 @@
       <button type="submit" class="btn btn-amber btn-full btn-lg" style="margin-top:10px;">
         <span>👑</span> <span>Sign In as Admin</span>
       </button>
-      <div class="login-hint">
-        Default Credentials: <strong>VJADMIN</strong> / <strong>vj@admin2024</strong>
-      </div>
     </form>
   </div>
 </div>
@@ -811,7 +808,7 @@
     Auth.startInactivityTimeout(() => { handleLogout(); showToast('Signed out after 60 minutes of inactivity', 'warning', 'Session expired'); });
     document.getElementById('login-overlay').style.display = 'none';
     document.getElementById('app-wrapper').style.display = 'flex';
-    document.querySelector('.topbar-title').textContent = `Active admin: ${Auth.getName()} (ID ${sessionStorage.getItem('vj_admin_id') || 'VJADMIN'})`;
+    document.querySelector('.topbar-title').textContent = 'Admin Dashboard';
     loadAllAdminData();
     initCharts('daily');
     if (!adminLiveRefreshTimer) {
@@ -941,26 +938,10 @@
 
   // --- CHARTS (Chart.js) ---
   const chartDatasets = {
-    daily: {
-      labels: ['9 AM','11 AM','1 PM','3 PM','5 PM','7 PM'],
-      revenue: [450, 920, 600, 1100, 1400, 850],
-      stylists: { Vijayan: 12, Kumar: 9 }
-    },
-    weekly: {
-      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-      revenue: [3800, 4200, 3900, 5100, 6800, 9400, 8100],
-      stylists: { Vijayan: 65, Kumar: 52 }
-    },
-    monthly: {
-      labels: ['Week 1','Week 2','Week 3','Week 4'],
-      revenue: [28000, 31500, 29800, 34200],
-      stylists: { Vijayan: 280, Kumar: 230 }
-    },
-    yearly: {
-      labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-      revenue: [95000, 110000, 105000, 118000, 125000, 112000, 130000, 118500, 0, 0, 0, 0],
-      stylists: { Vijayan: 2800, Kumar: 2400 }
-    }
+    daily: { labels: [], revenue: [], stylists: {} },
+    weekly: { labels: [], revenue: [], stylists: {} },
+    monthly: { labels: [], revenue: [], stylists: {} },
+    yearly: { labels: [], revenue: [], stylists: {} }
   };
 
   function switchPeriod(p) {
@@ -970,15 +951,14 @@
     initCharts(p);
   }
 
-  function initCharts(period) {
+  async function initCharts(period) {
     const data = chartDatasets[period] || chartDatasets.daily;
-    const stylistData = period === 'daily' && allAdminStylists.length
-      ? Object.fromEntries(allAdminStylists.map(stylist => [
-          stylist.name,
-          allAdminDailyLogs.filter(log => String(log.stylistId) === String(stylist.id))
-            .reduce((count, log) => count + Number(log.quantity || 1), 0)
-        ]))
-      : data.stylists;
+    const analytics = await API.getAnalytics(period);
+    const labels = analytics?.labels || data.labels;
+    const revenueData = analytics?.revenueData || data.revenue;
+    const serviceData = analytics?.serviceData || {};
+    const stylistData = analytics?.stylistData || data.stylists;
+    const ratingTrends = analytics?.ratingTrends || [];
 
     // 1. Revenue Chart
     const ctxRev = document.getElementById('revenueChart');
@@ -987,10 +967,10 @@
       revenueChartInstance = new Chart(ctxRev, {
         type: 'bar',
         data: {
-          labels: data.labels,
+          labels,
           datasets: [{
             label: 'Revenue (₹)',
-            data: data.revenue,
+            data: revenueData,
             backgroundColor: 'rgba(217, 114, 45, 0.75)',
             borderColor: '#D9722D',
             borderWidth: 1.5,
@@ -1016,9 +996,9 @@
       servicesChartInstance = new Chart(ctxSvc, {
         type: 'doughnut',
         data: {
-          labels: ['Haircut','Beard Trim','Hair Colour','Facial','Shave','Head Massage'],
+          labels: Object.keys(serviceData),
           datasets: [{
-            data: [42, 28, 14, 8, 12, 6],
+            data: Object.values(serviceData),
             backgroundColor: ['#D9722D','#34AAAA','#F08040','#48B87A','#FFB870','#7A3A10'],
             borderWidth: 0
           }]
@@ -1066,10 +1046,10 @@
       ratingsChartInstance = new Chart(ctxRat, {
         type: 'line',
         data: {
-          labels: data.labels,
+          labels,
           datasets: [{
             label: 'Average Rating (★)',
-            data: [4.6, 4.8, 4.7, 4.9, 4.8, 4.9, 4.8].slice(0, data.labels.length),
+            data: ratingTrends,
             borderColor: '#FFB870',
             backgroundColor: 'rgba(255, 184, 112, 0.1)',
             fill: true,
