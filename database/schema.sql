@@ -31,6 +31,8 @@ CREATE TABLE shop_settings (
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(100),
     since_year INTEGER DEFAULT 2010,
+    happy_clients INTEGER NOT NULL DEFAULT 500,
+    google_rating NUMERIC(2, 1) NOT NULL DEFAULT 4.8,
     maps_link TEXT,
     site_theme VARCHAR(10) NOT NULL DEFAULT 'dark',
     site_language VARCHAR(10) NOT NULL DEFAULT 'en'

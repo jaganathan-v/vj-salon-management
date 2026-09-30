@@ -534,6 +534,8 @@ public class Controllers {
             s.setAddress(req.address());
             s.setPhone(req.phone());
             s.setSinceYear(req.sinceYear());
+            s.setHappyClients(req.happyClients());
+            s.setGoogleRating(req.googleRating());
             return ResponseEntity.ok(settingsRepo.save(s));
         }
 

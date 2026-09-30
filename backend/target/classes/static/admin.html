@@ -519,7 +519,17 @@
                 </div>
                 <div class="form-group">
                   <label class="form-label">Established Year</label>
-                  <input type="number" id="set-since" class="form-input" value="2010" required>
+                  <input type="number" id="set-since" class="form-input" min="1800" required>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Happy Clients</label>
+                  <input type="number" id="set-happy-clients" class="form-input" min="0" step="1" required>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Google Rating (out of 5)</label>
+                  <input type="number" id="set-google-rating" class="form-input" min="0" max="5" step="0.1" required>
                 </div>
               </div>
               <button type="submit" class="btn btn-amber">Save Shop Settings ✓</button>
@@ -824,10 +834,10 @@
 
   // Load all data
   async function loadAllAdminData() {
-    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads, dailyLogs, shopStatus, events] = await Promise.all([
+    const [bookings, services, stylists, offers, feedback, inventory, achievements, ads, dailyLogs, shopStatus, events, shopInfo] = await Promise.all([
       API.getAllBookings(), API.getServices(), API.getStylistsStatus(),
       API.getOffers(), API.getAllFeedback(), API.getInventory(), API.getAchievements(), API.getAdvertisements(),
-      API.getDailyLog(), API.getShopStatus(), API.crud('events').list()
+      API.getDailyLog(), API.getShopStatus(), API.crud('events').list(), API.getShopInfo()
     ]);
     allAdminBookings = bookings;
     allAdminServices = services;
@@ -839,6 +849,13 @@
     allAdminInventory = inventory;
     allAdminDailyLogs = dailyLogs;
     allAdminEvents = events;
+    document.getElementById('set-shop-name').value = shopInfo.shopName || '';
+    document.getElementById('set-tagline').value = shopInfo.tagline || '';
+    document.getElementById('set-address').value = shopInfo.address || '';
+    document.getElementById('set-phone').value = shopInfo.phone || '';
+    document.getElementById('set-since').value = shopInfo.sinceYear ?? '';
+    document.getElementById('set-happy-clients').value = shopInfo.happyClients ?? 0;
+    document.getElementById('set-google-rating').value = shopInfo.googleRating ?? 0;
     renderAdminShopStatus(shopStatus.isOpen);
 
     renderAdminBookings();
@@ -1559,7 +1576,9 @@
       tagline: document.getElementById('set-tagline').value.trim(),
       address: document.getElementById('set-address').value.trim(),
       phone: document.getElementById('set-phone').value.trim(),
-      sinceYear: parseInt(document.getElementById('set-since').value)
+      sinceYear: parseInt(document.getElementById('set-since').value),
+      happyClients: parseInt(document.getElementById('set-happy-clients').value),
+      googleRating: parseFloat(document.getElementById('set-google-rating').value)
     };
     await API.updateShopSettings(data);
     showToast('Shop details saved to database!', 'success', 'Updated ✓');

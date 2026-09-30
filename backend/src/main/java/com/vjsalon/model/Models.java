@@ -27,6 +27,9 @@ public class Models {
         @Column(length = 100)
         private String email;
         private Integer sinceYear = 2010;
+        private Integer happyClients = 500;
+        @Column(precision = 2, scale = 1)
+        private BigDecimal googleRating = new BigDecimal("4.8");
         @Column(columnDefinition = "TEXT")
         private String mapsLink;
         @Column(length = 10)
@@ -49,6 +52,10 @@ public class Models {
         public void setEmail(String email) { this.email = email; }
         public Integer getSinceYear() { return sinceYear; }
         public void setSinceYear(Integer sinceYear) { this.sinceYear = sinceYear; }
+        public Integer getHappyClients() { return happyClients == null ? 500 : happyClients; }
+        public void setHappyClients(Integer happyClients) { this.happyClients = happyClients; }
+        public BigDecimal getGoogleRating() { return googleRating == null ? new BigDecimal("4.8") : googleRating; }
+        public void setGoogleRating(BigDecimal googleRating) { this.googleRating = googleRating; }
         public String getMapsLink() { return mapsLink; }
         public void setMapsLink(String mapsLink) { this.mapsLink = mapsLink; }
         public String getSiteTheme() { return siteTheme; }

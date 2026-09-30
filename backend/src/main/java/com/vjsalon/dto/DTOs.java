@@ -62,6 +62,6 @@ public class DTOs {
 
     // Payment QR & Shop Settings
     public record PaymentQrUpdateRequest(String upiId, String displayName) {}
-    public record ShopSettingsRequest(String shopName, String tagline, String address, String phone, String email, Integer sinceYear, String mapsLink) {}
+    public record ShopSettingsRequest(String shopName, String tagline, String address, String phone, String email, Integer sinceYear, Integer happyClients, BigDecimal googleRating, String mapsLink) {}
     public record SitePreferencesRequest(String theme, String language) {}
 }

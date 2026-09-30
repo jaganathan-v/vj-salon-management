@@ -101,10 +101,10 @@
             <a href="client.html" class="btn btn-outline btn-lg" data-i18n="hero.explore">Explore Services</a>
           </div>
           <div class="hero-stats">
-            <div class="hero-stat"><span class="hero-stat-val" id="years-stat">15+</span><span class="hero-stat-label">Years</span></div>
+            <div class="hero-stat"><span class="hero-stat-val" id="years-stat">—</span><span class="hero-stat-label">Years</span></div>
             <div class="hero-stat"><span class="hero-stat-val">8+</span><span class="hero-stat-label" data-i18n="hero.statServices">Services</span></div>
-            <div class="hero-stat"><span class="hero-stat-val">500+</span><span class="hero-stat-label" data-i18n="hero.statClients">Happy Clients</span></div>
-            <div class="hero-stat"><span class="hero-stat-val">4.8★</span><span class="hero-stat-label" data-i18n="hero.statRating">Google Rating</span></div>
+            <div class="hero-stat"><span class="hero-stat-val" id="clients-stat">—</span><span class="hero-stat-label" data-i18n="hero.statClients">Happy Clients</span></div>
+            <div class="hero-stat"><span class="hero-stat-val" id="rating-stat">—</span><span class="hero-stat-label" data-i18n="hero.statRating">Google Rating</span></div>
           </div>
         </div>
         <div class="scroll-indicator"><div class="scroll-line"></div><span>Scroll</span></div>
@@ -272,7 +272,15 @@
 
   // ---- YEAR ----
   document.getElementById('footer-year').textContent = new Date().getFullYear();
-  document.getElementById('years-stat').textContent = (new Date().getFullYear() - 2010) + '+';
+  function renderShopStats(shopInfo) {
+    const sinceYear = Number(shopInfo.sinceYear);
+    const currentYear = new Date().getFullYear();
+    document.getElementById('years-stat').textContent = Number.isFinite(sinceYear) && sinceYear > 0 && sinceYear <= currentYear
+      ? `${currentYear - sinceYear}+`
+      : '—';
+    document.getElementById('clients-stat').textContent = `${Number(shopInfo.happyClients) || 0}+`;
+    document.getElementById('rating-stat').textContent = `${Number(shopInfo.googleRating).toFixed(1)}★`;
+  }
 
   // ---- LANG ----
   document.getElementById('lang-select').value = lang;
@@ -497,10 +505,11 @@
 
   // ---- LOAD ALL ----
   async function loadAll() {
-    const [shopStatus, services, stylists, achievements, offers, events, ads] = await Promise.all([
-      API.getShopStatus(), API.getServices(), API.getStylistsStatus(),
+    const [shopInfo, shopStatus, services, stylists, achievements, offers, events, ads] = await Promise.all([
+      API.getShopInfo(), API.getShopStatus(), API.getServices(), API.getStylistsStatus(),
       API.getAchievements(), API.getOffers(), API.getTodayEvents(), API.getAdvertisements()
     ]);
+    renderShopStats(shopInfo);
     updateShopBadge(shopStatus.isOpen);
     renderServices(services);
     renderStylists(stylists);

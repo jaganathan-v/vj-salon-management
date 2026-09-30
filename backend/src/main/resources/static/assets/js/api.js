@@ -11,6 +11,8 @@ const DEMO = {
     address: 'No.2 pillayar kovil street, Ponnammapet, Salem - 636001 (near Mariyamman kovil)',
     phone: '6374402014',
     sinceYear: 2010,
+    happyClients: 500,
+    googleRating: 4.8,
     mapsLink: 'https://maps.google.com/maps?q=Ponnammapet+Salem&output=embed'
   },
   shopStatus: { isOpen: false, openedAt: null },
