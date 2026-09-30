@@ -266,6 +266,7 @@
 <script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/utils.js"></script>
+<script src="/js/main.js"></script>
 <script>
   const lang = SitePreferences.getLanguage();
 
@@ -287,9 +288,20 @@
     return (map[lang] || s.nameEn) || s.nameEn;
   }
 
+  function showEmptyState(element, message) {
+    const note = document.createElement('p');
+    note.className = 'empty-state';
+    note.textContent = message;
+    element.replaceChildren(note);
+  }
+
   // ---- RENDER SERVICES ----
   function renderServices(services) {
     const el = document.getElementById('services-list');
+    if (!services || services.length === 0) {
+      showEmptyState(el, 'Our services will be listed here soon.');
+      return;
+    }
     const cats = { HAIR:'💇 Hair Services', BEARD:'🧔 Beard & Shave', SKIN:'💆 Skin & Beauty' };
     const grouped = {};
     services.forEach(s => { if (!grouped[s.category]) grouped[s.category] = []; grouped[s.category].push(s); });
@@ -309,6 +321,10 @@
   // ---- RENDER STYLISTS ----
   function renderStylists(stylists) {
     const el = document.getElementById('stylist-status-grid');
+    if (!stylists || stylists.length === 0) {
+      showEmptyState(el, 'Our stylists will be listed here soon!');
+      return;
+    }
     const statusMap = { FREE:'badge-free', BUSY:'badge-busy', FOOD_BREAK:'badge-break' };
     const labelMap  = { FREE:'Free', BUSY:'With Client', FOOD_BREAK:'Food Break' };
     const homeStatusMap = { FREE:'badge-free', BUSY:'badge-busy' };
@@ -327,6 +343,10 @@
   // ---- RENDER ACHIEVEMENTS ----
   function renderAchievements(list) {
     const el = document.getElementById('achievements-list');
+    if (!list || list.length === 0) {
+      showEmptyState(el, 'Our achievements will be listed here soon.');
+      return;
+    }
     const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
     el.innerHTML = list.map(a => `
       <div class="achievement-card fade-in">
@@ -341,8 +361,11 @@
 
   // ---- RENDER OFFERS ----
   function renderOffers(offers) {
-    if (!offers.length) return;
     const el = document.getElementById('offers-grid');
+    if (!offers || offers.length === 0) {
+      showEmptyState(el, 'New offers will be listed here soon.');
+      return;
+    }
     const nameKey = lang === 'ta' ? 'titleTa' : lang === 'hi' ? 'titleHi' : 'titleEn';
     el.innerHTML = offers.map(o => `
       <div class="offer-card fade-in">
