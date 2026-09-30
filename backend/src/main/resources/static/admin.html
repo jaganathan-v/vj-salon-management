@@ -341,6 +341,7 @@
                 <tr>
                   <th>Code</th>
                   <th>Stylist Name</th>
+                  <th>Skills (editable)</th>
                   <th>Current Status</th>
                   <th>Home Visit Status</th>
                   <th>Account Status</th>
@@ -631,6 +632,10 @@
           <label class="form-label">Initial Password</label>
           <input type="password" id="st-pwd" class="form-input" placeholder="••••••••" required>
         </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="st-skills">Stylist Skills (comma-separated)</label>
+        <input type="text" id="st-skills" class="form-input" placeholder="Haircut, beard styling, hair coloring">
       </div>
       <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:20px;">
         <button type="button" class="btn btn-ghost" onclick="closeModal('modal-stylist')">Cancel</button>
@@ -1216,7 +1221,13 @@
       <tr>
         <td><code>${s.stylistCode || 'VJS00' + s.id}</code></td>
         <td><strong>${s.name}</strong></td>
-        <td><span class="badge ${s.status === 'FREE' ? 'badge-free' : s.status === 'BUSY' ? 'badge-busy' : 'badge-break'}">${s.status}</span></td>
+        <td><div style="display:flex;gap:6px;min-width:240px;">
+          <input class="form-input" id="stylist-skills-${s.id}" value="${s.skills || ''}" placeholder="Haircut, coloring, styling">
+          <button class="btn btn-outline btn-sm" onclick="saveStylistSkills(${s.id})">Save</button>
+        </div></td>
+        <td><span class="badge ${s.status === 'FREE' ? 'badge-free' : s.status === 'BUSY' ? 'badge-busy' : 'badge-break'}">${s.status}</span>
+          ${s.availableAt ? `<small style="display:block;color:var(--cream-muted);margin-top:4px;">Free at ${new Date(s.availableAt).toLocaleString([], { dateStyle:'short', timeStyle:'short' })}</small>` : ''}
+        </td>
         <td><span class="badge ${s.homeServiceStatus === 'BUSY' ? 'badge-busy' : 'badge-free'}">${s.homeServiceStatus || 'FREE'}</span></td>
         <td><span class="badge badge-open">Active</span></td>
         <td>
@@ -1232,6 +1243,7 @@
     document.getElementById('st-name').value = '';
     document.getElementById('st-code').value = 'VJS00' + (allAdminStylists.length + 1);
     document.getElementById('st-pwd').value = 'stylist' + (allAdminStylists.length + 1);
+    document.getElementById('st-skills').value = '';
     openModal('modal-stylist');
   }
 
@@ -1239,11 +1251,26 @@
     const name = document.getElementById('st-name').value.trim();
     const stylistCode = document.getElementById('st-code').value.trim();
     const password = document.getElementById('st-pwd').value;
-    const created = await API.crud('stylists').create({ name, stylistCode, password, status: 'FREE' });
+    const skills = document.getElementById('st-skills').value.trim();
+    const created = await API.crud('stylists').create({ name, stylistCode, password, skills, status: 'FREE' });
     allAdminStylists.push(created);
     renderAdminStylists();
     closeModal('modal-stylist');
     showToast(`Stylist ${name} (${stylistCode}) created!`, 'success');
+  }
+
+  async function saveStylistSkills(id) {
+    const stylist = allAdminStylists.find(item => item.id === id);
+    if (!stylist) return;
+    const skills = document.getElementById(`stylist-skills-${id}`).value.trim();
+    try {
+      const updated = await API.crud('stylists').update(id, { skills });
+      allAdminStylists = allAdminStylists.map(item => item.id === id ? { ...item, ...updated, skills } : item);
+      showToast(`Skills updated for ${stylist.name}.`, 'success');
+    } catch (error) {
+      console.error('[Admin update failed]', { resource: 'stylist skills', id, error });
+      showToast('Stylist skills were not saved. Check the browser console for details.', 'error');
+    }
   }
 
   async function promptResetStylistPassword(id, name) {

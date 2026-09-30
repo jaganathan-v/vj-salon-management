@@ -105,6 +105,9 @@ public class Models {
         private String passwordHash;
         @Column(length = 20)
         private String status = "FREE"; // FREE, BUSY, FOOD_BREAK
+        @Column(columnDefinition = "TEXT")
+        private String skills = "";
+        private LocalDateTime availableAt;
         @Enumerated(EnumType.STRING)
         @Column(nullable = false, length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'FREE'")
         private HomeServiceStatus homeServiceStatus = HomeServiceStatus.FREE;
@@ -122,6 +125,10 @@ public class Models {
         public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
         public String getStatus() { return status; }
         public void setStatus(String status) { this.status = status; }
+        public String getSkills() { return skills; }
+        public void setSkills(String skills) { this.skills = skills; }
+        public LocalDateTime getAvailableAt() { return availableAt; }
+        public void setAvailableAt(LocalDateTime availableAt) { this.availableAt = availableAt; }
         public HomeServiceStatus getHomeServiceStatus() { return homeServiceStatus; }
         public void setHomeServiceStatus(HomeServiceStatus homeServiceStatus) { this.homeServiceStatus = homeServiceStatus; }
         public boolean isActive() { return active; }

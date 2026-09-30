@@ -63,6 +63,8 @@ CREATE TABLE stylists (
     name VARCHAR(100) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     status VARCHAR(20) DEFAULT 'FREE', -- FREE, BUSY, FOOD_BREAK
+    skills TEXT,
+    available_at TIMESTAMP,
     home_service_status VARCHAR(20) NOT NULL DEFAULT 'FREE', -- FREE, BUSY
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

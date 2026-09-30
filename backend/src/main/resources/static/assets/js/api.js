@@ -152,8 +152,8 @@ const API = {
   // ---- Stylist ----
   setShopStatus:   async (isOpen, note='') =>
     normalizeShopStatus((await _call('/shop/status', { method:'PATCH', body:JSON.stringify({ isOpen, note }) })) ?? { isOpen, note }),
-  setStylistStatus: async (status) =>
-    (await _call('/stylist/me/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? { status },
+  setStylistStatus: async (status, availableAt = null) =>
+    (await _call('/stylist/me/status', { method:'PATCH', body:JSON.stringify({ status, availableAt }) })) ?? { status, availableAt },
   setHomeServiceStatus: async (homeServiceStatus) =>
     (await _call('/stylist/me/home-service-status', { method:'PATCH', body:JSON.stringify({ homeServiceStatus }) })) ?? { homeServiceStatus },
   getStylistBookings: async () => (await _call('/bookings')) ?? DEMO.bookings,
@@ -186,7 +186,7 @@ const API = {
     create: async (data)   => {
       const result = await _call('/admin/'+resource, {
         method:'POST', body:JSON.stringify(data),
-        requireSuccess: resource === 'offers' || resource === 'achievements'
+        requireSuccess: resource === 'offers' || resource === 'achievements' || resource === 'stylists'
       });
       return result ?? { id:Date.now(), ...data };
     },

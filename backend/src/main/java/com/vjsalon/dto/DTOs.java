@@ -1,6 +1,7 @@
 package com.vjsalon.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class DTOs {
 
     // Shop Status DTOs
     public record ShopStatusRequest(boolean isOpen, String note) {}
-    public record StylistStatusRequest(String status) {}
+    public record StylistStatusRequest(String status, LocalDateTime availableAt) {}
     public record HomeServiceStatusRequest(HomeServiceStatus homeServiceStatus) {}
 
     // Daily Log DTO

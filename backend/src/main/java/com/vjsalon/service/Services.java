@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -192,11 +193,27 @@ public class Services {
         }
 
         public List<Stylist> getStylistsStatus() {
+            releaseExpiredStylistStatuses();
             return stylistRepo.findByActiveTrue();
         }
 
+        @Scheduled(fixedDelay = 30000)
+        @Transactional
+        public void releaseExpiredStylistStatuses() {
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+            for (Stylist stylist : stylistRepo.findAll()) {
+                if (!"FREE".equals(stylist.getStatus()) && stylist.getAvailableAt() != null
+                        && !stylist.getAvailableAt().isAfter(now)) {
+                    stylist.setStatus("FREE");
+                    stylist.setAvailableAt(null);
+                    stylistRepo.save(stylist);
+                }
+            }
+        }
+
         public List<StylistBookingOption> getBookingStylistOptions() {
-            LocalDateTime now = LocalDateTime.now();
+            releaseExpiredStylistStatuses();
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
             List<Booking> bookings = bookingRepo.findAll();
             List<Feedback> feedback = feedbackRepo.findAll();
             List<DailyLog> workLogs = dailyLogRepo.findAll();
@@ -226,25 +243,43 @@ public class Services {
                         serviceCounts.merge(log.getServiceName().trim(), 1L, Long::sum);
                     }
                 }
-                List<String> specialties = serviceCounts.entrySet().stream()
+                List<String> historicalSpecialties = serviceCounts.entrySet().stream()
                         .sorted(Map.Entry.<String, Long>comparingByValue().reversed()
                                 .thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
-                        .limit(3).map(Map.Entry::getKey).toList();
+                        .map(Map.Entry::getKey).toList();
+                List<String> specialties = new ArrayList<>();
+                if (stylist.getSkills() != null && !stylist.getSkills().isBlank()) {
+                    for (String skill : stylist.getSkills().split(",")) {
+                        String normalized = skill.trim();
+                        if (!normalized.isEmpty() && !specialties.contains(normalized)) specialties.add(normalized);
+                    }
+                }
+                for (String skill : historicalSpecialties) {
+                    if (!specialties.contains(skill)) specialties.add(skill);
+                }
+                specialties = specialties.stream().limit(3).toList();
 
                 String currentStatus = "FREE".equals(stylist.getStatus()) ? "FREE" : "BUSY";
                 String estimatedFreeTime = null;
                 if ("BUSY".equals(currentStatus)) {
-                    Booking nextBooking = assigned.stream()
-                            .filter(b -> b.getBookingDate() != null && b.getBookingTime() != null)
-                            .filter(b -> !"CANCELLED".equals(b.getStatus()) && !"COMPLETED".equals(b.getStatus()))
-                            .filter(b -> !b.getBookingDate().atTime(b.getBookingTime()).isBefore(now))
-                            .min(Comparator.comparing(b -> b.getBookingDate().atTime(b.getBookingTime())))
-                            .orElse(null);
-                    if (nextBooking != null) {
-                        LocalDateTime freeAt = nextBooking.getBookingDate().atTime(nextBooking.getBookingTime()).plusMinutes(60);
+                    if (stylist.getAvailableAt() != null) {
+                        LocalDateTime freeAt = stylist.getAvailableAt();
                         estimatedFreeTime = freeAt.toLocalDate().equals(now.toLocalDate())
                                 ? freeAt.format(DateTimeFormatter.ofPattern("h:mm a"))
                                 : freeAt.format(DateTimeFormatter.ofPattern("MMM d, h:mm a"));
+                    } else {
+                        Booking nextBooking = assigned.stream()
+                                .filter(b -> b.getBookingDate() != null && b.getBookingTime() != null)
+                                .filter(b -> !"CANCELLED".equals(b.getStatus()) && !"COMPLETED".equals(b.getStatus()))
+                                .filter(b -> !b.getBookingDate().atTime(b.getBookingTime()).isBefore(now))
+                                .min(Comparator.comparing(b -> b.getBookingDate().atTime(b.getBookingTime())))
+                                .orElse(null);
+                        if (nextBooking != null) {
+                            LocalDateTime freeAt = nextBooking.getBookingDate().atTime(nextBooking.getBookingTime()).plusMinutes(60);
+                            estimatedFreeTime = freeAt.toLocalDate().equals(now.toLocalDate())
+                                    ? freeAt.format(DateTimeFormatter.ofPattern("h:mm a"))
+                                    : freeAt.format(DateTimeFormatter.ofPattern("MMM d, h:mm a"));
+                        }
                     }
                 }
                 Double averageRating = ratingCount == 0 ? null : Math.round((ratingTotal / ratingCount) * 10.0) / 10.0;
@@ -254,10 +289,19 @@ public class Services {
         }
 
         @Transactional
-        public Stylist updateStylistStatus(String stylistCode, String status) {
+        public Stylist updateStylistStatus(String stylistCode, String status, LocalDateTime availableAt) {
             Stylist s = stylistRepo.findByStylistCode(stylistCode)
                     .orElseThrow(() -> new RuntimeException("Stylist not found: " + stylistCode));
-            s.setStatus(status);
+            String normalizedStatus = status == null ? "" : status.trim().toUpperCase();
+            if (!List.of("FREE", "BUSY", "FOOD_BREAK").contains(normalizedStatus)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Choose Free, Busy, or Food Break.");
+            }
+            if (!"FREE".equals(normalizedStatus)
+                    && (availableAt == null || !availableAt.isAfter(LocalDateTime.now(ZoneId.of("Asia/Kolkata"))))) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Set a future time when you will be available again.");
+            }
+            s.setStatus(normalizedStatus);
+            s.setAvailableAt("FREE".equals(normalizedStatus) ? null : availableAt);
             return stylistRepo.save(s);
         }
 

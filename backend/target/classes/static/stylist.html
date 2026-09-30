@@ -190,6 +190,11 @@
         </div>
 
         <div style="margin-bottom:24px;">
+          <div class="form-group" style="max-width:360px;">
+            <label class="form-label" for="stylist-available-at">Available again at</label>
+            <input type="datetime-local" id="stylist-available-at" class="form-input">
+            <small style="display:block;color:var(--cream-muted);margin-top:6px;">Choose a future time before setting Busy or Food / Tea Break. You will automatically become Free then.</small>
+          </div>
           <div class="status-selector-grid">
             <div class="status-sel-card active" data-status="FREE" onclick="selectMyStatus('FREE')">
               <div class="status-sel-icon">🟢</div>
@@ -421,6 +426,7 @@
   let currentInventory = [];
   let currentDailyLogs = [];
   let currentFilter = 'ALL';
+  let statusRefreshTimer = null;
 
   const lang = SitePreferences.getLanguage();
   document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
@@ -443,6 +449,10 @@
   }
 
   function handleLogout() {
+    if (statusRefreshTimer) {
+      window.clearInterval(statusRefreshTimer);
+      statusRefreshTimer = null;
+    }
     Auth.clear();
     document.getElementById('app-wrapper').style.display = 'none';
     document.getElementById('login-overlay').style.display = 'flex';
@@ -470,6 +480,7 @@
     document.getElementById('status-preview-avatar').textContent = name[0] || 'S';
 
     loadAllData();
+    if (!statusRefreshTimer) statusRefreshTimer = window.setInterval(loadHomeServiceStatus, 30000);
   }
 
   // Panel switching
@@ -541,6 +552,7 @@
     const stylists = await API.getStylistsStatus();
     const me = stylists.find(stylist => String(stylist.id) === String(Auth.getStylistId()));
     renderHomeServiceStatus(me?.homeServiceStatus || 'FREE');
+    if (me) renderMyStatus(me.status || 'FREE', me.availableAt);
   }
 
   async function selectHomeServiceStatus(status) {
@@ -550,7 +562,19 @@
   }
 
   async function selectMyStatus(status) {
-    await API.setStylistStatus(status);
+    const availableAtInput = document.getElementById('stylist-available-at');
+    const availableAt = status === 'FREE' ? null : availableAtInput.value;
+    if (status !== 'FREE' && (!availableAt || new Date(availableAt).getTime() <= Date.now())) {
+      showToast('Choose a future “Available again at” time first.', 'warning', 'Time required');
+      availableAtInput.focus();
+      return;
+    }
+    const updated = await API.setStylistStatus(status, availableAt);
+    renderMyStatus(updated.status || status, updated.availableAt);
+    showToast(`Status updated to ${status}`, 'info', 'Status Changed');
+  }
+
+  function renderMyStatus(status, availableAt) {
     document.querySelectorAll('.status-sel-card').forEach(c => {
       if (c.dataset.status === status) c.classList.add('active');
       else c.classList.remove('active');
@@ -567,8 +591,15 @@
     statusBadge.innerHTML = `<span class="badge ${cur.badge}">${cur.text}</span>`;
     dashStatus.textContent = status;
     dashStatus.style.color = cur.color;
-
-    showToast(`Status updated to ${status}`, 'info', 'Status Changed');
+    const availableAtInput = document.getElementById('stylist-available-at');
+    if (availableAtInput && availableAt) availableAtInput.value = String(availableAt).slice(0, 16);
+    if (availableAtInput && status === 'FREE') availableAtInput.value = '';
+    if (availableAt) {
+      const returnLabel = document.createElement('div');
+      returnLabel.style.cssText = 'margin-top:6px;color:var(--cream-muted);font-size:.85rem;';
+      returnLabel.textContent = `Available again at ${new Date(availableAt).toLocaleString([], { dateStyle:'medium', timeStyle:'short' })}`;
+      statusBadge.appendChild(returnLabel);
+    }
   }
 
   // --- 3. BOOKINGS ---

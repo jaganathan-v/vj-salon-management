@@ -160,7 +160,7 @@ public class Controllers {
         @PatchMapping("/stylist/me/status")
         public ResponseEntity<Stylist> updateMyStatus(@RequestBody StylistStatusRequest req, Authentication auth) {
             String stylistCode = auth.getName();
-            return ResponseEntity.ok(shopService.updateStylistStatus(stylistCode, req.status()));
+            return ResponseEntity.ok(shopService.updateStylistStatus(stylistCode, req.status(), req.availableAt()));
         }
 
         @PatchMapping("/stylist/me/home-service-status")
@@ -408,10 +408,20 @@ public class Controllers {
             Stylist s = new Stylist();
             s.setName(req.get("name"));
             s.setStylistCode(req.get("stylistCode"));
+            s.setSkills(req.getOrDefault("skills", ""));
             s.setPasswordHash(passwordEncoder.encode(req.get("password")));
             s.setStatus("FREE");
+            s.setAvailableAt(null);
             s.setActive(true);
             return ResponseEntity.ok(stylistRepo.save(s));
+        }
+
+        @PutMapping("/stylists/{id}")
+        public ResponseEntity<Stylist> updateStylist(@PathVariable Long id, @RequestBody Map<String, String> req) {
+            Stylist stylist = stylistRepo.findById(id).orElse(null);
+            if (stylist == null) return ResponseEntity.notFound().build();
+            if (req.containsKey("skills")) stylist.setSkills(req.get("skills"));
+            return ResponseEntity.ok(stylistRepo.save(stylist));
         }
 
         @PatchMapping("/stylists/{id}/reset-password")
