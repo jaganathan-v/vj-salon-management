@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS daily_log CASCADE;
 DROP TABLE IF EXISTS feedback CASCADE;
 DROP TABLE IF EXISTS bookings CASCADE;
 DROP TABLE IF EXISTS inventory CASCADE;
+DROP TABLE IF EXISTS media_assets CASCADE;
 DROP TABLE IF EXISTS advertisements CASCADE;
 DROP TABLE IF EXISTS offers CASCADE;
 DROP TABLE IF EXISTS achievements CASCADE;
@@ -147,6 +148,14 @@ CREATE TABLE advertisements (
     display_order INTEGER DEFAULT 0,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Uploaded media is stored in Postgres so it survives ephemeral app filesystems
+CREATE TABLE media_assets (
+    id BIGSERIAL PRIMARY KEY,
+    file_name VARCHAR(255) NOT NULL,
+    content_type VARCHAR(120) NOT NULL,
+    content BYTEA NOT NULL
 );
 
 -- Daily Events & Special Notices

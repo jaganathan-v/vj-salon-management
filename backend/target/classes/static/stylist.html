@@ -425,7 +425,7 @@
   const lang = SitePreferences.getLanguage();
   document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { if (Auth.getRole() === 'admin') { SitePreferences.saveAsAdmin({ language: v }); return; } sessionStorage.setItem('vj_lang', v); location.reload(); }
 
   // Auth Handling
   async function handleLogin() {

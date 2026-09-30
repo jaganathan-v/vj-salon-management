@@ -39,7 +39,7 @@ function getServiceName(service) {
 
 async function initI18n() {
   if (window.SitePreferences?.ready) await SitePreferences.ready;
-  const lang = window.SitePreferences?.getLanguage() || localStorage.getItem('vj_lang') || 'en';
+  const lang = window.SitePreferences?.getLanguage() || sessionStorage.getItem('vj_lang') || 'en';
   await loadTranslations(lang);
   applyI18n();
 }

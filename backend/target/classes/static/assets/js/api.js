@@ -3,6 +3,10 @@
 // ============================
 const API_BASE = `${window.location.origin}/api`;
 
+function normalizeShopStatus(status) {
+  return status ? { ...status, isOpen: status.isOpen ?? status.open ?? false } : status;
+}
+
 // --- Demo Data (used when backend is offline) ---
 const DEMO = {
   shopInfo: {
@@ -114,7 +118,7 @@ const API = {
   // ---- Public ----
   getShopInfo:        async () => (await _call('/shop/info'))         ?? DEMO.shopInfo,
   getSitePreferences: async () => await _call('/site-preferences'),
-  getShopStatus:      async () => (await _call('/shop/status'))       ?? DEMO.shopStatus,
+  getShopStatus:      async () => normalizeShopStatus((await _call('/shop/status')) ?? DEMO.shopStatus),
   getServices:        async () => (await _call('/services'))          ?? DEMO.services,
   getOffers:          async () => (await _call('/offers'))            ?? DEMO.offers,
   getTodayEvents:     async () => (await _call('/events/today'))      ?? DEMO.events,
@@ -147,7 +151,7 @@ const API = {
 
   // ---- Stylist ----
   setShopStatus:   async (isOpen, note='') =>
-    (await _call('/shop/status', { method:'PATCH', body:JSON.stringify({ isOpen, note }) })) ?? { isOpen, note },
+    normalizeShopStatus((await _call('/shop/status', { method:'PATCH', body:JSON.stringify({ isOpen, note }) })) ?? { isOpen, note }),
   setStylistStatus: async (status) =>
     (await _call('/stylist/me/status', { method:'PATCH', body:JSON.stringify({ status }) })) ?? { status },
   setHomeServiceStatus: async (homeServiceStatus) =>

@@ -282,7 +282,7 @@
 
   // ---- LANG ----
   document.getElementById('lang-select').value = lang;
-  function changeLang(v) { localStorage.setItem('vj_lang', v); location.reload(); }
+  function changeLang(v) { sessionStorage.setItem('vj_lang', v); location.reload(); }
 
   // ---- THEME ----
   const theme = SitePreferences.getTheme();

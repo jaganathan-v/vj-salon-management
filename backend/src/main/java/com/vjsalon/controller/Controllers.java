@@ -1,10 +1,12 @@
 package com.vjsalon.controller;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -47,6 +49,7 @@ import com.vjsalon.model.Models.DailyLog;
 import com.vjsalon.model.Models.Event;
 import com.vjsalon.model.Models.Feedback;
 import com.vjsalon.model.Models.Inventory;
+import com.vjsalon.model.Models.MediaAsset;
 import com.vjsalon.model.Models.Offer;
 import com.vjsalon.model.Models.PaymentQr;
 import com.vjsalon.model.Models.SalonService;
@@ -57,6 +60,7 @@ import com.vjsalon.repository.AchievementRepository;
 import com.vjsalon.repository.AdvertisementRepository;
 import com.vjsalon.repository.EventRepository;
 import com.vjsalon.repository.OfferRepository;
+import com.vjsalon.repository.MediaAssetRepository;
 import com.vjsalon.repository.PaymentQrRepository;
 import com.vjsalon.repository.SalonServiceRepository;
 import com.vjsalon.repository.ShopSettingsRepository;
@@ -108,9 +112,11 @@ public class Controllers {
     @RequestMapping("/api")
     public static class ShopController {
         private final ShopService shopService;
+        private final MediaAssetRepository mediaAssetRepo;
 
-        public ShopController(ShopService shopService) {
+        public ShopController(ShopService shopService, MediaAssetRepository mediaAssetRepo) {
             this.shopService = shopService;
+            this.mediaAssetRepo = mediaAssetRepo;
         }
 
         @GetMapping("/shop/info")
@@ -181,6 +187,15 @@ public class Controllers {
         @GetMapping("/advertisements")
         public ResponseEntity<List<Advertisement>> getAdvertisements() {
             return ResponseEntity.ok(shopService.getActiveAdvertisements());
+        }
+
+        @GetMapping("/media/{id}")
+        public ResponseEntity<byte[]> getMedia(@PathVariable Long id) {
+            MediaAsset asset = mediaAssetRepo.findById(id).orElse(null);
+            if (asset == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(asset.getContentType()))
+                    .body(asset.getContent());
         }
 
         @GetMapping("/payment/qr")
@@ -311,6 +326,7 @@ public class Controllers {
         private final EventRepository eventRepo;
         private final AchievementRepository achievementRepo;
         private final AdvertisementRepository adRepo;
+        private final MediaAssetRepository mediaAssetRepo;
         private final PaymentQrRepository paymentQrRepo;
         private final ShopSettingsRepository settingsRepo;
         private final FileStorageService fileStorage;
@@ -324,6 +340,7 @@ public class Controllers {
                                EventRepository eventRepo,
                                AchievementRepository achievementRepo,
                                AdvertisementRepository adRepo,
+                               MediaAssetRepository mediaAssetRepo,
                                PaymentQrRepository paymentQrRepo,
                                ShopSettingsRepository settingsRepo,
                                FileStorageService fileStorage,
@@ -336,6 +353,7 @@ public class Controllers {
             this.eventRepo = eventRepo;
             this.achievementRepo = achievementRepo;
             this.adRepo = adRepo;
+            this.mediaAssetRepo = mediaAssetRepo;
             this.paymentQrRepo = paymentQrRepo;
             this.settingsRepo = settingsRepo;
             this.fileStorage = fileStorage;
@@ -480,11 +498,20 @@ public class Controllers {
 
         // Media & Payment QR
         @PostMapping("/ads/upload")
-        public ResponseEntity<Map<String, String>> uploadAdFile(@RequestParam("file") MultipartFile file) {
+        public ResponseEntity<Map<String, String>> uploadAdFile(@RequestParam("file") MultipartFile file) throws IOException {
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Select an image or video to upload"));
             }
-            return ResponseEntity.ok(Map.of("path", fileStorage.saveFile(file, "ads")));
+            String contentType = file.getContentType();
+            if (contentType == null || !(contentType.startsWith("image/") || contentType.startsWith("video/"))) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Only image and video files are supported"));
+            }
+            MediaAsset asset = new MediaAsset();
+            asset.setFileName(file.getOriginalFilename() == null ? "advertisement" : file.getOriginalFilename());
+            asset.setContentType(contentType);
+            asset.setContent(file.getBytes());
+            MediaAsset savedAsset = mediaAssetRepo.save(asset);
+            return ResponseEntity.ok(Map.of("path", "/api/media/" + savedAsset.getId()));
         }
 
         @PostMapping("/ads")
@@ -501,12 +528,15 @@ public class Controllers {
         public ResponseEntity<Advertisement> uploadAd(
                 @RequestParam("file") MultipartFile file,
                 @RequestParam("title") String title,
-                @RequestParam("type") String type) {
-            String path = fileStorage.saveFile(file, "ads");
+                @RequestParam("type") String type) throws IOException {
             Advertisement ad = new Advertisement();
             ad.setTitle(title);
             ad.setType(type);
-            ad.setFilePath(path);
+            MediaAsset asset = new MediaAsset();
+            asset.setFileName(file.getOriginalFilename() == null ? "advertisement" : file.getOriginalFilename());
+            asset.setContentType(file.getContentType() == null ? "application/octet-stream" : file.getContentType());
+            asset.setContent(file.getBytes());
+            ad.setFilePath("/api/media/" + mediaAssetRepo.save(asset).getId());
             ad.setActive(true);
             return ResponseEntity.ok(adRepo.save(ad));
         }

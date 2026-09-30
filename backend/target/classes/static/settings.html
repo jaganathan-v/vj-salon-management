@@ -196,7 +196,7 @@
       await SitePreferences.saveAsAdmin({ theme });
       return;
     }
-    localStorage.setItem('vj_theme', theme);
+    sessionStorage.setItem('vj_theme', theme);
     document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
     document.getElementById('theme-card-' + theme).classList.add('active');
     document.documentElement.setAttribute('data-theme', theme);
@@ -208,7 +208,7 @@
       await SitePreferences.saveAsAdmin({ language: langCode });
       return;
     }
-    localStorage.setItem('vj_lang', langCode);
+    sessionStorage.setItem('vj_lang', langCode);
     document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('active'));
     document.getElementById('lang-card-' + langCode).classList.add('active');
     showToast('Language preference saved! Reloading...', 'info');
@@ -232,7 +232,8 @@
 
   function resetAllPreferences() {
     if (!confirm('Are you sure you want to reset all local settings on this device?')) return;
-    ['vj_theme','vj_lang','vj_fontsize','vj_token','vj_user_name','vj_stylist_id','vj_role'].forEach(k => localStorage.removeItem(k));
+    ['vj_fontsize'].forEach(k => localStorage.removeItem(k));
+    ['vj_theme','vj_lang','vj_token','vj_user_name','vj_stylist_id','vj_role'].forEach(k => sessionStorage.removeItem(k));
     showToast('All local preferences cleared', 'info');
     setTimeout(() => window.location.reload(), 1200);
   }

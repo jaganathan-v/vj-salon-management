@@ -1,6 +1,7 @@
 package com.vjsalon.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -78,7 +79,9 @@ public class Models {
         public ShopStatus() {}
         public Long getId() { return id; }
         public void setId(Long id) { this.id = id; }
+        @JsonProperty("isOpen")
         public boolean isOpen() { return isOpen; }
+        @JsonProperty("isOpen")
         public void setOpen(boolean open) { isOpen = open; }
         public LocalDateTime getOpenedAt() { return openedAt; }
         public void setOpenedAt(LocalDateTime openedAt) { this.openedAt = openedAt; }
@@ -428,6 +431,30 @@ public class Models {
         public void setActive(boolean active) { this.active = active; }
         public LocalDateTime getCreatedAt() { return createdAt; }
         public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    }
+
+    @Entity
+    @Table(name = "media_assets")
+    public static class MediaAsset {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+        @Column(nullable = false, length = 255)
+        private String fileName;
+        @Column(nullable = false, length = 120)
+        private String contentType;
+        @Column(nullable = false, columnDefinition = "BYTEA")
+        private byte[] content;
+
+        public MediaAsset() {}
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+        public String getFileName() { return fileName; }
+        public void setFileName(String fileName) { this.fileName = fileName; }
+        public String getContentType() { return contentType; }
+        public void setContentType(String contentType) { this.contentType = contentType; }
+        public byte[] getContent() { return content; }
+        public void setContent(byte[] content) { this.content = content; }
     }
 
     @Entity
