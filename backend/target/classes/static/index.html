@@ -69,11 +69,7 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-clock" id="clock-display">00:00:00</div>
-        <select class="topbar-lang" id="lang-select" onchange="changeLang(this.value)">
-          <option value="en">🇬🇧 EN</option>
-          <option value="ta">🇮🇳 தமிழ்</option>
-          <option value="hi">🇮🇳 हिंदी</option>
-        </select>
+        <div class="language-picker"><span class="language-icon" aria-hidden="true">🌐</span><select class="topbar-lang" id="lang-select" aria-label="Choose language" onchange="changeLang(this.value)"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option></select></div>
       </div>
     </header>
 

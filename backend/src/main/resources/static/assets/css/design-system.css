@@ -326,12 +326,15 @@ a:hover { color:var(--amber-bright); }
   font-size:1.05rem; color:var(--amber-mid); letter-spacing:0.06em;
   display:flex; align-items:center; flex-wrap:nowrap; flex-shrink:0; white-space:nowrap;
 }
+.language-picker { display:inline-flex; align-items:center; gap:6px; }
+.language-icon { font-size:1.1rem; line-height:1; }
 .topbar-lang {
   background:var(--bg-surface);
   border:1px solid var(--border);
   border-radius:var(--radius-sm);
   padding:4px 10px;
   color:var(--cream); font-family:var(--font-body); font-size:0.82rem;
+  min-width:104px;
   cursor:pointer;
 }
 
@@ -934,7 +937,7 @@ a:hover { color:var(--amber-bright); }
   .topbar-clock .flip-digit { width:26px; height:36px; padding:2px 4px !important; font-size:1.1rem !important; }
   .topbar-clock .flip-separator { font-size:1.1rem; padding:0; }
   .topbar-clock .flip-seconds-separator, .topbar-clock .flip-second { display:none; }
-  .topbar-lang { width:86px; max-width:86px; padding:4px 5px; font-size:0.72rem; }
+  .topbar-lang { width:104px; max-width:104px; padding:4px 5px; font-size:0.72rem; }
   .hero-title { font-size:2rem; }
   .hero { min-height:88vh; padding:48px 0 72px; }
   .hero-content { width:100%; max-width:100%; padding:0 18px; box-sizing:border-box; }
