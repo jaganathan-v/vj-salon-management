@@ -54,7 +54,7 @@
       </a>
     </nav>
     <div class="sidebar-footer" style="font-size:0.75rem;color:var(--cream-muted);text-align:center;">
-      © 2025 VIJAYAN SALON
+      © <span class="current-year"></span> VIJAYAN SALON
     </div>
   </aside>
 
@@ -250,7 +250,7 @@
       <footer class="vj-footer">
         <div class="footer-logo">VIJAYAN SALON</div>
         <div class="footer-tagline">Excellence in Every Cut — Ponnammapet, Salem</div>
-        <div class="footer-copy">© <span id="footer-year">2025</span> VIJAYAN SALON. All rights reserved. | Since 2010</div>
+        <div class="footer-copy">© <span class="current-year"></span> VIJAYAN SALON. All rights reserved. | Since 2010</div>
       </footer>
 
     </div><!-- /page-content -->
@@ -267,7 +267,9 @@
   const lang = SitePreferences.getLanguage();
 
   // ---- YEAR ----
-  document.getElementById('footer-year').textContent = new Date().getFullYear();
+  document.querySelectorAll('.current-year').forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
   function renderShopStats(shopInfo) {
     const sinceYear = Number(shopInfo.sinceYear);
     const currentYear = new Date().getFullYear();
