@@ -2,6 +2,17 @@
 // VJ SALON — UTILITIES
 // ============================
 
+// Replace icon placeholders whenever a screen inserts new HTML.
+function renderLucideIcons() {
+  if (window.lucide) window.lucide.createIcons();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  new MutationObserver(records => {
+    if (records.some(record => [...record.addedNodes].some(node => node.nodeType === 1 && (node.matches?.('[data-lucide]') || node.querySelector?.('[data-lucide]'))))) renderLucideIcons();
+  }).observe(document.body, { childList: true, subtree: true });
+});
+document.addEventListener('DOMContentLoaded', () => renderLucideIcons(), { once: true });
+
 // --- Toast Notifications ---
 function showToast(message, type = 'info', title = '') {
   let container = document.getElementById('toast-container');
@@ -15,17 +26,18 @@ function showToast(message, type = 'info', title = '') {
   toast.className = `toast toast-${type}`;
   toast.style.cssText = 'min-width:min(250px, calc(100vw - 32px));padding:15px;border-radius:8px;background:#333;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.15);display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(20px);transition:all 0.3s ease;';
   
-  const icons = { success: '✓', error: '✕', info: '✦', warning: '⚠' };
+  const icons = { success: 'check', error: 'x', info: 'info', warning: 'triangle-alert' };
   const colors = { success: '#4caf50', error: '#f44336', info: '#2196f3', warning: '#ff9800' };
   
   toast.style.borderLeft = `4px solid ${colors[type]}`;
   
-  let html = `<div style="font-size:20px;color:${colors[type]}">${icons[type]}</div><div>`;
+  let html = `<i data-lucide="${icons[type]}" aria-hidden="true" style="width:20px;height:20px;color:${colors[type]}"></i><div>`;
   if (title) html += `<div style="font-weight:bold;margin-bottom:4px;">${title}</div>`;
   html += `<div style="font-size:14px;">${message}</div></div>`;
   toast.innerHTML = html;
   
   container.appendChild(toast);
+  renderLucideIcons(toast);
   
   // Animate in
   requestAnimationFrame(() => {
@@ -180,7 +192,8 @@ function initSidebar() {
     toggle.className = 'mobile-menu-toggle';
     toggle.setAttribute('aria-label', 'Open navigation menu');
     toggle.setAttribute('aria-expanded', 'false');
-    toggle.textContent = '☰';
+    toggle.innerHTML = '<i data-lucide="menu" aria-hidden="true"></i>';
+    renderLucideIcons(toggle);
     topbarLeft.prepend(toggle);
 
     const closeMenu = () => {

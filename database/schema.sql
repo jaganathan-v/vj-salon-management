@@ -180,7 +180,7 @@ CREATE TABLE achievements (
     title_hi VARCHAR(200),
     description TEXT,
     year INTEGER,
-    icon VARCHAR(20) DEFAULT '🏆'
+    icon VARCHAR(20) DEFAULT 'trophy'
 );
 
 -- Promotional Offers & Discounts

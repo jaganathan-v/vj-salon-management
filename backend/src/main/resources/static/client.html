@@ -27,11 +27,11 @@
       <div><div class="sidebar-logo-text">VIJAYAN SALON</div><div class="sidebar-logo-sub">Client Portal</div></div>
     </div>
     <nav class="sidebar-nav">
-      <a href="index.html" class="sidebar-item"><span class="sidebar-icon">🏠</span><span class="sidebar-label" data-i18n="nav.home">Home</span></a>
-      <a href="client.html" class="sidebar-item active"><span class="sidebar-icon">👤</span><span class="sidebar-label" data-i18n="nav.client">Client</span></a>
-      <a href="stylist.html" class="sidebar-item"><span class="sidebar-icon">✂</span><span class="sidebar-label" data-i18n="nav.stylist">Stylist</span></a>
-      <a href="admin.html" class="sidebar-item"><span class="sidebar-icon">👑</span><span class="sidebar-label" data-i18n="nav.admin">Admin</span></a>
-      <a href="settings.html" class="sidebar-item"><span class="sidebar-icon">⚙</span><span class="sidebar-label" data-i18n="nav.settings">Settings</span></a>
+      <a href="index.html" class="sidebar-item"><span class="sidebar-icon"><i data-lucide="house" aria-hidden="true"></i></span><span class="sidebar-label" data-i18n="nav.home">Home</span></a>
+      <a href="client.html" class="sidebar-item active"><span class="sidebar-icon"><i data-lucide="user-round" aria-hidden="true"></i></span><span class="sidebar-label" data-i18n="nav.client">Client</span></a>
+      <a href="stylist.html" class="sidebar-item"><span class="sidebar-icon"><i data-lucide="scissors" aria-hidden="true"></i></span><span class="sidebar-label" data-i18n="nav.stylist">Stylist</span></a>
+      <a href="admin.html" class="sidebar-item"><span class="sidebar-icon"><i data-lucide="crown" aria-hidden="true"></i></span><span class="sidebar-label" data-i18n="nav.admin">Admin</span></a>
+      <a href="settings.html" class="sidebar-item"><span class="sidebar-icon"><i data-lucide="settings" aria-hidden="true"></i></span><span class="sidebar-label" data-i18n="nav.settings">Settings</span></a>
     </nav>
   </aside>
 
@@ -43,7 +43,7 @@
       </div>
       <div class="topbar-right">
         <div class="topbar-clock" id="clock-display">00:00</div>
-        <div class="language-picker"><span class="language-icon" aria-hidden="true">🌐</span><select class="topbar-lang" id="lang-select" aria-label="Choose language" onchange="changeLang(this.value)"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option></select></div>
+        <div class="language-picker"><span class="language-icon" aria-hidden="true"><i data-lucide="globe" aria-hidden="true"></i></span><select class="topbar-lang" id="lang-select" aria-label="Choose language" onchange="changeLang(this.value)"><option value="en">English</option><option value="ta">தமிழ்</option><option value="hi">हिन्दी</option></select></div>
       </div>
     </header>
 
@@ -51,20 +51,20 @@
 
       <!-- CLIENT TABS -->
       <div class="client-tabs">
-        <button class="client-tab active" onclick="showSection('status')">🏪 Shop Status</button>
-        <button class="client-tab" onclick="showSection('booking')">✂ <span data-i18n="booking.title">Book Appointment</span></button>
-        <button class="client-tab" onclick="showSection('feedback')">⭐ <span data-i18n="feedback.title">Feedback</span></button>
-        <button class="client-tab" onclick="showSection('payment')">💳 <span data-i18n="payment.title">Payment</span></button>
+        <button class="client-tab active" onclick="showSection('status')"><i data-lucide="store" aria-hidden="true"></i> Shop Status</button>
+        <button class="client-tab" onclick="showSection('booking')"><i data-lucide="scissors" aria-hidden="true"></i> <span data-i18n="booking.title">Book Appointment</span></button>
+        <button class="client-tab" onclick="showSection('feedback')"><i data-lucide="star" aria-hidden="true"></i> <span data-i18n="feedback.title">Feedback</span></button>
+        <button class="client-tab" onclick="showSection('payment')"><i data-lucide="credit-card" aria-hidden="true"></i> <span data-i18n="payment.title">Payment</span></button>
       </div>
 
       <!-- ====== SECTION: STATUS ====== -->
       <div id="section-status" class="client-section active">
         <div class="two-col" style="margin-bottom:24px;">
           <div class="vj-card shop-status-big">
-            <span class="status-icon" id="status-icon-big">🔴</span>
+            <span class="status-icon" id="status-icon-big"><i data-lucide="circle" aria-hidden="true"></i></span>
             <div class="status-text" id="status-text-big" data-i18n="shop.closed">Closed</div>
             <p style="color:var(--cream-muted);margin-top:8px;" id="status-since">—</p>
-            <a href="#" onclick="showSection('booking');return false;" class="btn btn-amber btn-full" style="margin-top:20px;">✂ Book Now</a>
+            <a href="#" onclick="showSection('booking');return false;" class="btn btn-amber btn-full" style="margin-top:20px;"><i data-lucide="scissors" aria-hidden="true"></i> Book Now</a>
           </div>
           <div class="vj-card">
             <div class="card-title" data-i18n="home.stylists">Stylist Availability</div>
@@ -201,7 +201,7 @@
           <p style="color:var(--cream-muted);margin-bottom:24px;" data-i18n="feedback.subtitle">Your feedback helps us serve you better.</p>
 
           <div id="feedback-success" style="display:none;text-align:center;padding:32px;">
-            <div style="font-size:3rem;margin-bottom:12px;">🙏</div>
+            <div style="font-size:3rem;margin-bottom:12px;"><i data-lucide="heart" aria-hidden="true"></i></div>
             <h3 style="color:var(--success);" data-i18n="feedback.thankyou">Thank You!</h3>
             <p style="color:var(--cream-muted);margin-top:8px;" data-i18n="feedback.submitted">Your feedback has been submitted.</p>
           </div>
@@ -287,21 +287,21 @@
               <img class="qr-image" id="qr-img" src="assets/uploads/qr/payment_qr.jpg"
                 onerror="this.style.display='none';document.getElementById('qr-fallback').style.display='flex';"
                 alt="Payment QR Code">
-              <div id="qr-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:3rem;background:#fff;">📱</div>
+              <div id="qr-fallback" style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:3rem;background:#fff;"><i data-lucide="smartphone" aria-hidden="true"></i></div>
             </div>
             <div style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:6px;" id="qr-name">VIJAYAN SALOON</div>
             <div style="color:var(--cream-muted);font-size:0.85rem;margin-bottom:16px;" data-i18n="payment.scan">Scan & Pay via Google Pay / PhonePe / BHIM UPI</div>
 
             <div class="upi-box" onclick="copyUPI()" title="Click to copy">
-              <span style="font-size:1.2rem;">📋</span>
+              <span style="font-size:1.2rem;"><i data-lucide="clipboard-list" aria-hidden="true"></i></span>
               <span id="upi-id-text">6374402014@okbizaxis</span>
             </div>
             <div style="color:var(--cream-muted);font-size:0.78rem;margin-top:8px;" data-i18n="payment.copy">Click to copy UPI ID</div>
 
             <div class="payment-apps">
-              <div class="pay-app-badge">🟢 Google Pay</div>
-              <div class="pay-app-badge">🟣 PhonePe</div>
-              <div class="pay-app-badge">🔵 Paytm</div>
+              <div class="pay-app-badge"><i data-lucide="circle" aria-hidden="true"></i> Google Pay</div>
+              <div class="pay-app-badge"><i data-lucide="circle" aria-hidden="true"></i> PhonePe</div>
+              <div class="pay-app-badge"><i data-lucide="circle" aria-hidden="true"></i> Paytm</div>
               <div class="pay-app-badge">🇮🇳 BHIM UPI</div>
             </div>
           </div>
@@ -316,6 +316,7 @@
 <script src="assets/js/api.js"></script>
 <script src="assets/js/site-preferences.js"></script>
 <script src="assets/js/i18n.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
 <script src="assets/js/utils.js"></script>
 <script>
   const lang = SitePreferences.getLanguage();
@@ -351,7 +352,7 @@
 
   function renderClientServices(services) {
     const el = document.getElementById('client-services-list');
-    const cats = { HAIR:'💇 Hair', BEARD:'🧔 Beard & Shave', SKIN:'💆 Skin' };
+    const cats = { HAIR:'<i data-lucide="scissors" aria-hidden="true"></i> Hair', BEARD:'<i data-lucide="user-round" aria-hidden="true"></i> Beard & Shave', SKIN:'<i data-lucide="sparkles" aria-hidden="true"></i> Skin' };
     const grouped = {};
     services.forEach(s => { if (!grouped[s.category]) grouped[s.category]=[]; grouped[s.category].push(s); });
     el.innerHTML = Object.entries(grouped).map(([cat,list]) => `
@@ -540,10 +541,10 @@
     const text  = document.getElementById('status-text-big');
     if (status.isOpen) {
       badge.className = 'badge badge-open'; badge.textContent = '● Open';
-      icon.textContent = '🟢'; text.textContent = 'Shop is Open';
+      icon.innerHTML = '<i data-lucide="circle" aria-hidden="true"></i>'; renderLucideIcons(); text.textContent = 'Shop is Open';
     } else {
       badge.className = 'badge badge-closed'; badge.textContent = '● Closed';
-      icon.textContent = '🔴'; text.textContent = 'Currently Closed';
+      icon.innerHTML = '<i data-lucide="circle" aria-hidden="true"></i>'; renderLucideIcons(); text.textContent = 'Currently Closed';
     }
   }
 
@@ -601,12 +602,13 @@
   });
 
   function showToast(msg, type = 'info', title = '') {
-    const icons = { success:'✓', error:'✕', info:'◆', warning:'⚠' };
+    const icons = { success:'check', error:'x', info:'info', warning:'triangle-alert' };
     const container = document.getElementById('toast-container');
     const t = document.createElement('div');
     t.className = 'toast toast-' + type;
-    t.innerHTML = `<span class="toast-icon">${icons[type]||'◆'}</span><div class="toast-body"><div class="toast-title">${title||msg}</div>${title?`<div class="toast-msg">${msg}</div>`:''}</div><button class="toast-close" onclick="this.closest('.toast').remove()">✕</button>`;
+    t.innerHTML = `<i class="toast-icon" data-lucide="${icons[type] || 'info'}" aria-hidden="true"></i><div class="toast-body"><div class="toast-title">${title || msg}</div>${title ? `<div class="toast-msg">${msg}</div>` : ''}</div><button class="toast-close" onclick="this.closest('.toast').remove()"><i data-lucide="x" aria-hidden="true"></i></button>`;
     container.appendChild(t);
+    renderLucideIcons();
     setTimeout(() => { t.style.animation='toastOut 0.3s ease forwards'; setTimeout(()=>t.remove(),300); }, 4000);
   }
 </script>
