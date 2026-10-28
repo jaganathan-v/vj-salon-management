@@ -613,7 +613,10 @@ public class Controllers {
                 settings.setSiteLanguage(req.language());
             }
             settingsRepo.save(settings);
-            return ResponseEntity.ok(Map.of("theme", settings.getSiteTheme(), "language", settings.getSiteLanguage()));
+            return ResponseEntity.ok(Map.of(
+                "theme", settings.getSiteTheme() == null ? "dark" : settings.getSiteTheme(),
+                "language", settings.getSiteLanguage() == null ? "en" : settings.getSiteLanguage()
+            ));
         }
     }
 }

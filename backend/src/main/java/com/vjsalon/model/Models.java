@@ -516,6 +516,7 @@ public class Models {
         private String titleHi;
         @Column(columnDefinition = "TEXT")
         private String description;
+        @Column(name = "\"year\"")
         private Integer year;
         @Column(length = 20)
         private String icon;

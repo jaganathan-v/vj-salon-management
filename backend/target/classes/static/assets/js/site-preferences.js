@@ -22,15 +22,14 @@ const SitePreferences = {
 };
 
 SitePreferences.ready = (async () => {
-  const previousTheme = localStorage.getItem('vj_site_theme') || 'dark';
-  const previousLanguage = localStorage.getItem('vj_site_language') || 'en';
-  const prefs = await API.getSitePreferences();
-  if (!prefs || !['dark', 'light', 'sepia'].includes(prefs.theme) || !['en', 'ta', 'hi'].includes(prefs.language)) return;
-  localStorage.setItem('vj_site_theme', prefs.theme);
-  localStorage.setItem('vj_site_language', prefs.language);
-  if ((!sessionStorage.getItem('vj_theme') && previousTheme !== prefs.theme)
-      || (!sessionStorage.getItem('vj_lang') && previousLanguage !== prefs.language)) {
-    location.reload();
+  try {
+    const prefs = await API.getSitePreferences();
+    if (prefs && ['dark', 'light', 'sepia'].includes(prefs.theme) && ['en', 'ta', 'hi'].includes(prefs.language)) {
+      localStorage.setItem('vj_site_theme', prefs.theme);
+      localStorage.setItem('vj_site_language', prefs.language);
+    }
+  } catch (e) {
+    console.warn('[SitePreferences] Falling back to local preferences:', e.message);
   }
   document.documentElement.setAttribute('data-theme', SitePreferences.getTheme());
 })();

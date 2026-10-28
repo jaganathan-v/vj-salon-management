@@ -1,0 +1,5 @@
+- Prerequisites: Java 17+ (JDK 17 or higher)
+- Start Command: run-dev.cmd (or .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev")
+- Local URL: http://localhost:8080/
+- Default Login: Admin Code: admin (or VJADMIN), Password: admin123 (or vj@admin2024)
+- How to Stop: Press Ctrl+C in the terminal window to terminate the process

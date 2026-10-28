@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+<div id="test"><i data-lucide="scissors"></i></div>
+<script>
+let count = 0;
+function renderLucideIcons() {
+  count++;
+  if (count > 20) {
+    console.error('INFINITE LOOP DETECTED in renderLucideIcons! count=' + count);
+    return;
+  }
+  console.log('renderLucideIcons called #' + count);
+  if (window.lucide) window.lucide.createIcons();
+}
+
+new MutationObserver(records => {
+  console.log('MutationObserver triggered! records:', records.length);
+  if (records.some(record => [...record.addedNodes].some(node => node.nodeType === 1 && (node.matches?.('[data-lucide]') || node.querySelector?.('[data-lucide]'))))) {
+    console.log('Condition matched! Calling renderLucideIcons()');
+    renderLucideIcons();
+  }
+}).observe(document.body, { childList: true, subtree: true });
+
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('Initial renderLucideIcons');
+  renderLucideIcons();
+});
+</script>
+</body>
+</html>
