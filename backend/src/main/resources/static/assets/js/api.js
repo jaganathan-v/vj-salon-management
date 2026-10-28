@@ -9,9 +9,11 @@ function normalizeShopStatus(status) {
 
 // Generic fetch wrapper
 async function _call(endpoint, options = {}) {
-  const { requireSuccess = false, ...requestOptions } = options;
+  const { requireSuccess = false, timeout = 5000, ...requestOptions } = options;
   let responseStatus = null;
   let responseBody = '';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
   try {
     const token = sessionStorage.getItem('vj_token');
     const headers = {
@@ -19,7 +21,8 @@ async function _call(endpoint, options = {}) {
       ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
       ...(options.headers || {})
     };
-    const res = await fetch(API_BASE + endpoint, { ...requestOptions, headers });
+    const res = await fetch(API_BASE + endpoint, { ...requestOptions, headers, signal: controller.signal });
+    clearTimeout(timeoutId);
     responseStatus = res.status;
     if (!res.ok) {
       responseBody = await res.text();
@@ -29,6 +32,7 @@ async function _call(endpoint, options = {}) {
     responseBody = text;
     return text ? JSON.parse(text) : {};
   } catch (e) {
+    clearTimeout(timeoutId);
     const method = (requestOptions.method || 'GET').toUpperCase();
     const isLoginRequest = endpoint === '/auth/stylist' || endpoint === '/auth/admin';
     const isWrite = method !== 'GET' && !isLoginRequest;
@@ -52,18 +56,23 @@ async function _call(endpoint, options = {}) {
 async function _upload(endpoint, formData, method = 'POST') {
   let responseStatus = null;
   let responseBody = '';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   try {
     const token = sessionStorage.getItem('vj_token');
     const res = await fetch(API_BASE + endpoint, {
       method,
       headers: token ? { 'Authorization': 'Bearer ' + token } : {},
-      body: formData
+      body: formData,
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
     responseStatus = res.status;
     responseBody = await res.text();
     if (!res.ok) throw new Error('HTTP ' + res.status);
     return responseBody ? JSON.parse(responseBody) : {};
   } catch (e) {
+    clearTimeout(timeoutId);
     console.error('[API upload failed]', { method, url: API_BASE + endpoint, status: responseStatus, responseBody, error: e });
     console.warn('Upload failed for', endpoint, '—', e.message);
     if (typeof showToast === 'function') showToast(`Upload failed. ${e.message || 'Please try again.'}`, 'error', 'Unable to save');
